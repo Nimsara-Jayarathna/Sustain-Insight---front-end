@@ -33,7 +33,13 @@ cd Sustain-Insight---front-end
 ```bash
 npm install
 ```
-### 3. Start the development server
+### 3. Install Tailwind (already configured)
+```bash
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+```
+
+### 4. Start the development server
 ```bash
 npm run dev
 ```
