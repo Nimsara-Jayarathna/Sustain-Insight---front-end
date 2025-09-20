@@ -1,4 +1,4 @@
-import React from 'react';
+//import React from 'react';
 
 // Placeholder data for news articles
 const articles = [
