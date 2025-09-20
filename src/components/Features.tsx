@@ -1,4 +1,4 @@
-//import React from 'react';
+import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRobot, faTags, faBookmark } from '@fortawesome/free-solid-svg-icons';
 
