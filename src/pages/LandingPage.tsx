@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 const backendURL = import.meta.env.VITE_BACKEND_URL;
 
@@ -10,40 +10,22 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const [authOpen, setAuthOpen] = useState(false);
   const [view, setView] = useState<"login" | "signup">("login");
+  const [articles, setArticles] = useState<any[]>([]);
 
-  // Demo preview articles — swap with live data later
-  const previewArticles = useMemo(
-    () => [
-      {
-        id: 1,
-        title: "AI Policy Shifts in 2025",
-        summary: "Governments revise AI guidelines impacting climate tech.",
-        image:
-          "https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?q=80&w=1280&auto=format&fit=crop",
-        publishedAt: "3h ago",
-        sourceBadges: ["Reuters", "BBC"],
-      },
-      {
-        id: 2,
-        title: "Renewables Surge Globally",
-        summary: "Wind and solar cross new records across multiple regions.",
-        image:
-          "https://images.unsplash.com/photo-1505480449763-3eea8c243259?q=80&w=1280&auto=format&fit=crop",
-        publishedAt: "1d ago",
-        sourceBadges: ["CNN", "The Guardian"],
-      },
-      {
-        id: 3,
-        title: "Carbon Markets See Uptick",
-        summary: "Trading volume rises as policies tighten.",
-        image:
-          "https://images.unsplash.com/photo-1527903789995-dc8ad2ad6de0?q=80&w=1280&auto=format&fit=crop",
-        publishedAt: "2d ago",
-        sourceBadges: ["AP", "Bloomberg"],
-      },
-    ],
-    []
-  );
+  // ✅ Fetch latest 3 articles from Spring Boot backend
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const res = await fetch(`${backendURL}/api/public/articles/latest?limit=3`);
+        if (!res.ok) throw new Error("Failed to fetch articles");
+        const data = await res.json();
+        setArticles(data);
+      } catch (err) {
+        console.error("Error fetching articles:", err);
+      }
+    };
+    fetchArticles();
+  }, []);
 
   // --- Login handler ---
   const onSubmitLogin = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -180,25 +162,48 @@ export default function LandingPage() {
       </section>
 
       {/* Latest News Preview */}
-      <section id="latest" className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
-        <h2 className="mb-6 text-xl font-semibold tracking-tight sm:text-2xl">Latest in Climate News</h2>
+       <section id="latest" className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
+        <h2 className="mb-6 text-xl font-semibold tracking-tight sm:text-2xl">
+          Latest in Climate News
+        </h2>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {previewArticles.map((a) => (
-            <article key={a.id} className="group overflow-hidden rounded-2xl border bg-white shadow-sm ring-1 ring-gray-200 transition hover:shadow-md">
+          {articles.map((a) => (
+            <article
+              key={a.id}
+              className="group overflow-hidden rounded-2xl border bg-white shadow-sm ring-1 ring-gray-200 transition hover:shadow-md"
+            >
               <div className="relative aspect-[16/9] w-full overflow-hidden bg-gray-100">
-                <img src={a.image} alt={a.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" loading="lazy" />
+                <img
+                  src={a.imageUrl}
+                  alt={a.title}
+                  className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                  loading="lazy"
+                />
               </div>
               <div className="p-4">
                 <div className="mb-2 flex flex-wrap gap-2">
-                  {a.sourceBadges.map((s) => (
-                    <span key={s} className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700">{s}</span>
+                  {a.sources?.map((s: any, idx: number) => (
+                    <span
+                      key={`${a.id}-${s.id ?? idx}`}
+                      className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700"
+                    >
+                      {s.name}
+                    </span>
                   ))}
                 </div>
-                <h3 className="line-clamp-2 text-base font-semibold leading-snug">{a.title}</h3>
-                <p className="mt-1 line-clamp-2 text-sm text-gray-600">{a.summary}</p>
+                <h3 className="line-clamp-2 text-base font-semibold leading-snug">
+                  {a.title}
+                </h3>
+                <p className="mt-1 line-clamp-2 text-sm text-gray-600">
+                  {a.summary}
+                </p>
                 <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
-                  <span>{a.publishedAt}</span>
-                  <button className="rounded-lg px-2 py-1 font-medium text-emerald-700 hover:bg-emerald-50">Save</button>
+                  <span>
+                    {new Date(a.publishedAt).toLocaleDateString()}
+                  </span>
+                  <button className="rounded-lg px-2 py-1 font-medium text-emerald-700 hover:bg-emerald-50">
+                    Save
+                  </button>
                 </div>
               </div>
             </article>
