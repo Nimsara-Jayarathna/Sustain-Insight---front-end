@@ -1,11 +1,32 @@
-import React from 'react';
-import { articles } from '../../placeholder-data';
-import ArticleGrid from './ArticleGrid';
+import React, { useEffect, useState } from 'react';
+import ArticleGrid from '../common/ArticleGrid';
+
+
+const backendURL = import.meta.env.VITE_BACKEND_URL;
 
 const AllNewsView = () => {
-  // In a real app, state would be used to manage filter values
+  const [articles, setArticles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const res = await fetch(`${backendURL}/api/public/articles/all`);
+        if (!res.ok) throw new Error("Failed to fetch articles");
+        const data = await res.json();
+        setArticles(data);
+      } catch (err) {
+        console.error("Error fetching all articles:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchArticles();
+  }, []);
+
   return (
     <section>
+      {/* Filters */}
       <div className="bg-white p-4 rounded-lg shadow-sm mb-6 flex flex-col md:flex-row items-center gap-4">
         <input 
           type="search" 
@@ -26,8 +47,13 @@ const AllNewsView = () => {
           <button className="text-sm text-gray-600 hover:text-black">Clear</button>
         </div>
       </div>
-      <ArticleGrid articles={articles} />
-      {/* Pagination would go here in a real app */}
+
+      {/* Content */}
+      {loading ? (
+        <p className="text-center text-gray-600">Loading articles...</p>
+      ) : (
+        <ArticleGrid articles={articles} />
+      )}
     </section>
   );
 };
