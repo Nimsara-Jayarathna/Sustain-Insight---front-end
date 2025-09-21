@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-const backendURL = import.meta.env.VITE_BACKEND_URL;
+import ArticleGrid from "../components/common/ArticleGrid"; // ✅ shared component
 
-// Tailwind notes:
-// - Ensure Tailwind is configured in your project.
-// - This component is mobile-first and responsive.
+const backendURL = import.meta.env.VITE_BACKEND_URL;
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -12,11 +10,12 @@ export default function LandingPage() {
   const [view, setView] = useState<"login" | "signup">("login");
   const [articles, setArticles] = useState<any[]>([]);
 
-  // ✅ Fetch latest 3 articles from Spring Boot backend
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const res = await fetch(`${backendURL}/api/public/articles/latest?limit=3`);
+        const res = await fetch(
+          `${backendURL}/api/public/articles/latest?limit=3`
+        );
         if (!res.ok) throw new Error("Failed to fetch articles");
         const data = await res.json();
         setArticles(data);
@@ -162,53 +161,14 @@ export default function LandingPage() {
       </section>
 
       {/* Latest News Preview */}
-       <section id="latest" className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
+       <section
+        id="latest"
+        className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8"
+      >
         <h2 className="mb-6 text-xl font-semibold tracking-tight sm:text-2xl">
           Latest in Climate News
         </h2>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {articles.map((a) => (
-            <article
-              key={a.id}
-              className="group overflow-hidden rounded-2xl border bg-white shadow-sm ring-1 ring-gray-200 transition hover:shadow-md"
-            >
-              <div className="relative aspect-[16/9] w-full overflow-hidden bg-gray-100">
-                <img
-                  src={a.imageUrl}
-                  alt={a.title}
-                  className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
-                  loading="lazy"
-                />
-              </div>
-              <div className="p-4">
-                <div className="mb-2 flex flex-wrap gap-2">
-                  {a.sources?.map((s: any, idx: number) => (
-                    <span
-                      key={`${a.id}-${s.id ?? idx}`}
-                      className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700"
-                    >
-                      {s.name}
-                    </span>
-                  ))}
-                </div>
-                <h3 className="line-clamp-2 text-base font-semibold leading-snug">
-                  {a.title}
-                </h3>
-                <p className="mt-1 line-clamp-2 text-sm text-gray-600">
-                  {a.summary}
-                </p>
-                <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
-                  <span>
-                    {new Date(a.publishedAt).toLocaleDateString()}
-                  </span>
-                  <button className="rounded-lg px-2 py-1 font-medium text-emerald-700 hover:bg-emerald-50">
-                    Save
-                  </button>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
+        <ArticleGrid articles={articles} /> {/* ✅ Reuse */}
       </section>
 
       {/* Footer */}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { articles } from '../../placeholder-data';
-import ArticleGrid from './ArticleGrid';
+import ArticleGrid from '../common/ArticleGrid';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 
