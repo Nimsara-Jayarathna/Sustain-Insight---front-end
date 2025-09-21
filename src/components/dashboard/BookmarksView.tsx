@@ -1,4 +1,4 @@
-import React from 'react';
+//import React from 'react';
 import ArticleGrid from '../common/ArticleGrid';
 
 const BookmarksView = () => {

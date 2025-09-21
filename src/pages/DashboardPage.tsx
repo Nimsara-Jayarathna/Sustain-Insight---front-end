@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import DashboardHeader from "../components/dashboard/DashboardHeader";
 import ForYouView from "../components/dashboard/ForYouView";
 import AllNewsView from "../components/dashboard/AllNewsView";
@@ -34,7 +34,7 @@ export default function DashboardPage() {
         <main>{renderActiveView()}</main>
       </div>
       <ProfileModal
-        isOpen={isProfileModalOpen}
+        open={isProfileModalOpen}
         onClose={() => setProfileModalOpen(false)}
       />
     </div>
