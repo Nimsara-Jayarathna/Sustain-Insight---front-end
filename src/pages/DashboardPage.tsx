@@ -6,14 +6,20 @@ import BookmarksView from "../components/dashboard/BookmarksView";
 import ProfileModal from "../components/dashboard/ProfileModal";
 import DashboardNav from "../components/dashboard/DashboardNav";
 import { useDashboardView } from "../hooks/useDashboardView";
-import { useAuthContext } from "../context/AuthContext";  // ✅ use global auth
+import { useAuthContext } from "../context/AuthContext";  // ✅ global auth
 import { useNavigate } from "react-router-dom";
+import { apiFetch } from "../utils/api";
 
 export default function DashboardPage() {
   const { activeView, setActiveView } = useDashboardView();
   const [isProfileModalOpen, setProfileModalOpen] = useState(false);
-  const { user, isAuthenticated } = useAuthContext();   // ✅ shared auth state
+  const { user, isAuthenticated } = useAuthContext(); // ✅ shared auth state
   const navigate = useNavigate();
+
+  // Local state for public preferences
+  const [categories, setCategories] = useState<any[]>([]);
+  const [sources, setSources] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // 🚨 Warn if not authenticated
   useEffect(() => {
@@ -23,6 +29,25 @@ export default function DashboardPage() {
       //navigate("/"); // keep commented during dev
     }
   }, [isAuthenticated, navigate]);
+
+  // 🔹 Fetch public categories & sources
+  useEffect(() => {
+    async function fetchPreferences() {
+      try {
+        const [cats, srcs] = await Promise.all([
+          apiFetch("/api/public/categories"),
+          apiFetch("/api/public/sources"),
+        ]);
+        setCategories(cats);
+        setSources(srcs);
+      } catch (err) {
+        console.error("DEBUG → Failed to fetch preferences:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPreferences();
+  }, []);
 
   const renderActiveView = () => {
     switch (activeView) {
@@ -45,11 +70,14 @@ export default function DashboardPage() {
       <div className="container mx-auto px-4 py-4">
         <DashboardNav activeView={activeView} onChange={setActiveView} />
         <main>{renderActiveView()}</main>
+
       </div>
+
       <ProfileModal
-        isOpen={isProfileModalOpen}
+        open={isProfileModalOpen}
         onClose={() => setProfileModalOpen(false)}
       />
+
     </div>
   );
 }
