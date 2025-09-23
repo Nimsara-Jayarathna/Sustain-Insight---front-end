@@ -3,16 +3,18 @@ const backendURL = import.meta.env.VITE_BACKEND_URL;
 export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
   const token = localStorage.getItem("token");
 
+  // build headers
   const headers: HeadersInit = {
     "Content-Type": "application/json",
     ...(options.headers || {}),
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 
-  console.debug("DEBUG → apiFetch sending request:", {
-    url: `${backendURL}${endpoint}`,
-    headers,
-  });
+  // attach token if not auth endpoint
+  if (token && !endpoint.startsWith("/api/auth")) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  console.debug("DEBUG → Fetching:", `${backendURL}${endpoint}`, { headers });
 
   const res = await fetch(`${backendURL}${endpoint}`, {
     ...options,
@@ -21,8 +23,8 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
 
   if (!res.ok) {
     const text = await res.text();
-    console.error(`DEBUG → API error ${res.status}: ${text}`);
     throw new Error(`API error ${res.status}: ${text}`);
   }
+
   return res.json();
 };
