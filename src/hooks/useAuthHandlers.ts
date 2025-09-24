@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../utils/api";
-import { useAuth } from "../hooks/useAuth";
+import { useAuthContext } from "../context/AuthContext";
 
 export function useAuthHandlers() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login } = useAuthContext();
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
