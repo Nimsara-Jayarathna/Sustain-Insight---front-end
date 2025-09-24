@@ -64,7 +64,7 @@ export default function DashboardPage() {
   return (
     <div className="bg-gray-100 min-h-screen font-sans">
       <DashboardHeader
-        userName={user?.name || "User"}
+        userName={user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : "User"}
         onProfileClick={() => setProfileModalOpen(true)}
       />
       <div className="container mx-auto px-4 py-4">

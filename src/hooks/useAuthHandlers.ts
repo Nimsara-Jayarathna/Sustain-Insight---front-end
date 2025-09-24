@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../utils/api";
+import { useAuth } from "../hooks/useAuth";
 
 export function useAuthHandlers() {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -11,12 +13,17 @@ export function useAuthHandlers() {
     const password = form["login-password"].value;
 
     try {
-      const data = await apiFetch("/api/auth/login", {
+      const loginData = await apiFetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-      localStorage.setItem("token", data.token);
+
+      const userData = await apiFetch("/api/account/me", {
+        headers: { Authorization: `Bearer ${loginData.token}` },
+      });
+
+      login(loginData.token, userData);
       alert("Login successful!");
       navigate("/dashboard");
     } catch {
@@ -41,7 +48,10 @@ export function useAuthHandlers() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      localStorage.setItem("token", data.token);
+      login(data.token, {
+        firstName: body.firstName,
+        lastName: body.lastName,
+      });
       alert("Signup successful!");
       navigate("/dashboard");
     } catch {
