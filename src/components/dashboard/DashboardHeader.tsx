@@ -31,7 +31,7 @@ export default function DashboardHeader({ onProfileClick }: Props) {
   const fullName =
     user?.firstName && user?.lastName
       ? `${user.firstName} ${user.lastName}`
-      : user?.name || "User";
+      : "User";
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-white/80 backdrop-blur">
