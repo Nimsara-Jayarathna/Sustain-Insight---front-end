@@ -1,61 +1,100 @@
-import React, { useEffect, useState } from 'react';
-import ArticleGrid from '../common/ArticleGrid';
+import React, { useEffect, useState } from "react";
+import ArticleGrid from "../common/ArticleGrid";
+import SearchBar from "../common/SearchBar";
+import FilterModal from "../common/FilterModal";
+import ActiveFilters from "../common/ActiveFilters";
+import { apiFetch } from "../../utils/api";
 
-
-const backendURL = import.meta.env.VITE_BACKEND_URL;
-
-const AllNewsView = () => {
+export default function AllNewsView() {
   const [articles, setArticles] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [filters, setFilters] = useState<any>({});
+  const [filterModalOpen, setFilterModalOpen] = useState(false);
 
+  // 🔹 Fetch articles when filters change
   useEffect(() => {
-    const fetchArticles = async () => {
+    async function fetchArticles() {
       try {
-        const res = await fetch(`${backendURL}/api/public/articles/all`);
-        if (!res.ok) throw new Error("Failed to fetch articles");
-        const data = await res.json();
+        setLoading(true);
+
+        const params = new URLSearchParams();
+        if (filters.keyword) params.append("search", filters.keyword);
+        if (filters.categoryIds?.length)
+          params.append("category", filters.categoryIds.join(","));
+        if (filters.sourceIds?.length)
+          params.append("source", filters.sourceIds.join(","));   26         
+        if (filters.date) params.append("date", filters.date); // <-- FIX: Changed from 'from' and 'to' to 'date'
+
+
+        // ✅ only relative path — apiFetch will add backendURL
+        const url = `/api/public/articles/all?${params.toString()}`;
+        const data = await apiFetch(url);
         setArticles(data);
       } catch (err) {
-        console.error("Error fetching all articles:", err);
+        console.error("Error fetching articles:", err);
       } finally {
         setLoading(false);
       }
-    };
+    }
+
     fetchArticles();
-  }, []);
+  }, [filters]);
 
   return (
     <section>
-      {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow-sm mb-6 flex flex-col md:flex-row items-center gap-4">
-        <input 
-          type="search" 
-          placeholder="Search all articles..."
-          className="w-full md:w-1/3 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
-        <div className="w-full md:w-2/3 flex items-center gap-4">
-          <select className="flex-grow border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
-            <option value="">All Categories</option>
-            <option value="Energy">Energy</option>
-            <option value="Policy">Policy</option>
-            <option value="Tech">Tech</option>
-          </select>
-          <input 
-            type="date" 
-            className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
-          <button className="text-sm text-gray-600 hover:text-black">Clear</button>
-        </div>
+      {/* 🔍 Search + Filters button */}
+      <div className="flex items-center justify-between mb-4">
+        <SearchBar onSearch={(kw) => setFilters({ ...filters, keyword: kw })} />
+        <button
+          onClick={() => setFilterModalOpen(true)}
+          className="ml-4 px-4 py-2 rounded-md bg-gray-100 hover:bg-gray-200"
+        >
+          Filters
+        </button>
       </div>
 
-      {/* Content */}
+      {/* 🎯 Active filters as chips */}
+      <ActiveFilters
+        filters={filters}
+        onRemove={(key) => {
+          const updated = { ...filters };
+          if (key === "date") {
+            delete updated.from;
+            delete updated.to;
+          } else {
+            delete updated[key];
+          }
+          setFilters(updated);
+        }}
+      />
+
+      <ActiveFilters
+        filters={filters}
+        onRemove={(key) => {
+          const updated = { ...filters };
+          if (key === "date") {
+            delete updated.date; // <-- FIX: Changed from 'from' and 'to' to 'date'
+          } else {
+            delete updated[key];
+          }
+          setFilters(updated);
+        }}
+      />
+
+      {/* 📄 Articles */}
       {loading ? (
         <p className="text-center text-gray-600">Loading articles...</p>
       ) : (
         <ArticleGrid articles={articles} />
       )}
+
+      {/* 📌 Filter modal */}
+      <FilterModal
+        open={filterModalOpen}
+        onClose={() => setFilterModalOpen(false)}
+        onApply={(f) => setFilters({ ...filters, ...f })}
+        onClear={() => setFilters({})}
+      />
     </section>
   );
-};
-
-export default AllNewsView;
+}
