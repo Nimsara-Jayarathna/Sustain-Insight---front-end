@@ -3,6 +3,11 @@
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" },
-    {"jsx": "react-jsx"}
+    {"compilerOptions": {
+      "jsx": "react-jsx",
+      "moduleResolution": "bundler",
+      "lib": ["ES2022", "DOM"]
+      }
+    }
   ]
 }
