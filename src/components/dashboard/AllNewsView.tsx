@@ -22,9 +22,8 @@ export default function AllNewsView() {
         if (filters.categoryIds?.length)
           params.append("category", filters.categoryIds.join(","));
         if (filters.sourceIds?.length)
-          params.append("source", filters.sourceIds.join(","));   26         
-        if (filters.date) params.append("date", filters.date); // <-- FIX: Changed from 'from' and 'to' to 'date'
-
+          params.append("source", filters.sourceIds.join(","));
+        if (filters.date) params.append("date", filters.date); // ✅ single date filter
 
         // ✅ only relative path — apiFetch will add backendURL
         const url = `/api/public/articles/all?${params.toString()}`;
@@ -59,21 +58,7 @@ export default function AllNewsView() {
         onRemove={(key) => {
           const updated = { ...filters };
           if (key === "date") {
-            delete updated.from;
-            delete updated.to;
-          } else {
-            delete updated[key];
-          }
-          setFilters(updated);
-        }}
-      />
-
-      <ActiveFilters
-        filters={filters}
-        onRemove={(key) => {
-          const updated = { ...filters };
-          if (key === "date") {
-            delete updated.date; // <-- FIX: Changed from 'from' and 'to' to 'date'
+            delete updated.date; // ✅ corrected
           } else {
             delete updated[key];
           }

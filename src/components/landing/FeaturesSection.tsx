@@ -1,4 +1,4 @@
-import React from "react";
+//import React from "react";
 import FeatureCard from "../common/FeatureCard";
 
 export default function FeaturesSection() {

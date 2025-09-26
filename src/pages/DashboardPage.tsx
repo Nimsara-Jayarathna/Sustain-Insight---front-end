@@ -70,14 +70,12 @@ export default function DashboardPage() {
       <div className="container mx-auto px-4 py-4">
         <DashboardNav activeView={activeView} onChange={setActiveView} />
         <main>{renderActiveView()}</main>
-
       </div>
 
       <ProfileModal
         open={isProfileModalOpen}
         onClose={() => setProfileModalOpen(false)}
       />
-
     </div>
   );
 }
