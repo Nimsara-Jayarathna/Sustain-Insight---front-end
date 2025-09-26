@@ -4,7 +4,7 @@ import LandingPage from "./pages/LandingPage";
 import DashboardPage from "./pages/DashboardPage";
 import { useAuthContext } from "./context/AuthContext";
 
-function PrivateRoute({ children }: { children: JSX.Element }) {
+function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthContext();
 
   const DEV_MODE = true; // 🔹 set to false when you want strict auth
