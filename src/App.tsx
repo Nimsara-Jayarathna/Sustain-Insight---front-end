@@ -1,4 +1,3 @@
-import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -10,7 +9,6 @@ function PrivateRoute({ children }: { children: JSX.Element }) {
   const DEV_MODE = true; // 🔹 set to false when you want strict auth
 
   if (DEV_MODE) {
-    // During dev, always allow access
     return children;
   }
 

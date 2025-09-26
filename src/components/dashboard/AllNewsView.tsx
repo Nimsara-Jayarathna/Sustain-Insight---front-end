@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ArticleGrid from "../common/ArticleGrid";
 import SearchBar from "../common/SearchBar";
 import FilterModal from "../common/FilterModal";

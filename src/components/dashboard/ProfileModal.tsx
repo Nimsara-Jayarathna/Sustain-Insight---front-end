@@ -8,7 +8,7 @@ type Props = {
 
 export default function ProfileModal({ open, onClose }: Props) {
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
+  const [setUser] = useState<any>(null);
   const [categories, setCategories] = useState<any[]>([]);
   const [sources, setSources] = useState<any[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
