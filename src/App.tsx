@@ -13,14 +13,14 @@ function PrivateRoute({ children }: { children: JSX.Element }) {
   }
 
   if (!isAuthenticated) {
-    console.warn("⚠️ DEBUG → Tried to access private route without auth");
+    console.warn("⚠️ Tried to access private route without auth");
     return <Navigate to="/" replace />;
   }
 
   return children;
 }
 
-function App() {
+export default function App() {
   return (
     <Router>
       <Routes>
@@ -37,5 +37,3 @@ function App() {
     </Router>
   );
 }
-
-export default App;

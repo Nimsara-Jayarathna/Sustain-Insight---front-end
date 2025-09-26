@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardHeader from "../components/dashboard/DashboardHeader";
 import ForYouView from "../components/dashboard/ForYouView";
 import AllNewsView from "../components/dashboard/AllNewsView";
@@ -7,29 +8,27 @@ import ProfileModal from "../components/dashboard/ProfileModal";
 import DashboardNav from "../components/dashboard/DashboardNav";
 import { useDashboardView } from "../hooks/useDashboardView";
 import { useAuthContext } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../utils/api";
 
 export default function DashboardPage() {
   const { activeView, setActiveView } = useDashboardView();
   const [isProfileModalOpen, setProfileModalOpen] = useState(false);
-  const { user, isAuthenticated } = useAuthContext();
+  const {isAuthenticated } = useAuthContext();
   const navigate = useNavigate();
 
-  // Optional: public preferences (for future use)
-  const [categories, setCategories] = useState<any[]>([]);
-  const [sources, setSources] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Public preferences (kept for future use, prefixed with _ to avoid TS unused warning)
+  const [_categories, _setCategories] = useState<any[]>([]);
+  const [_sources, _setSources] = useState<any[]>([]);
+  const [_loading, _setLoading] = useState(true);
 
-  // Redirect if not authenticated (development-friendly)
+  // Enforce authentication
   useEffect(() => {
     if (!isAuthenticated) {
-      console.warn("⚠️ DEBUG → User is not authenticated but accessed /dashboard");
-      // navigate("/"); // Uncomment in production
+      navigate("/"); // redirect unauthenticated users to home
     }
   }, [isAuthenticated, navigate]);
 
-  // Fetch public categories & sources (optional)
+  // Fetch public categories & sources for future use
   useEffect(() => {
     async function fetchPreferences() {
       try {
@@ -37,12 +36,12 @@ export default function DashboardPage() {
           apiFetch("/api/public/categories"),
           apiFetch("/api/public/sources"),
         ]);
-        setCategories(cats);
-        setSources(srcs);
+        _setCategories(cats);
+        _setSources(srcs);
       } catch (err) {
         console.error("DEBUG → Failed to fetch preferences:", err);
       } finally {
-        setLoading(false);
+        _setLoading(false);
       }
     }
     fetchPreferences();
@@ -62,9 +61,7 @@ export default function DashboardPage() {
 
   return (
     <div className="bg-gray-100 min-h-screen font-sans">
-      <DashboardHeader
-        onProfileClick={() => setProfileModalOpen(true)}
-      />
+      <DashboardHeader onProfileClick={() => setProfileModalOpen(true)} />
       <div className="container mx-auto px-4 py-4">
         <DashboardNav activeView={activeView} onChange={setActiveView} />
         <main>{renderActiveView()}</main>
