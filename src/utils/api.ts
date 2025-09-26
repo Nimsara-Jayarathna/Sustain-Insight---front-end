@@ -4,9 +4,9 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
   const token = localStorage.getItem("token");
 
   // build headers
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    ...(options.headers || {}),
+    ...(options.headers as Record<string, string> || {}),
   };
 
   // attach token if not auth endpoint
