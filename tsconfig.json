@@ -1,13 +1,12 @@
 {
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM"]
+  },
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" },
-    {"compilerOptions": {
-      "jsx": "react-jsx",
-      "moduleResolution": "bundler",
-      "lib": ["ES2022", "DOM"]
-      }
-    }
+    { "path": "./tsconfig.node.json" }
   ]
 }
