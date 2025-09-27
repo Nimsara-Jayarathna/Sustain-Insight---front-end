@@ -1,68 +1,101 @@
 # 📰 Sustain Insight – Frontend
 
-This is the **frontend web application** for the News Aggregator assignment project.  
+This is the **frontend web application** for the News Aggregator project.
 It is built with **React + TypeScript** using **Vite** for fast builds and **Tailwind CSS** for styling.
 
 ---
 
 ## ✨ Features
-- Modern, responsive UI for browsing news articles
-- Pages for All News, Saved Articles, and Preferences
-- Login page (UI ready; API integration planned)
-- Reusable components (ArticleCard, FilterBar, Navbar)
-- Integrated with REST API from the backend
+
+* Modern, responsive UI for browsing news articles
+* Pages for All News, Saved Articles, and Preferences
+* Login & Signup integrated with backend authentication (JWT)
+* Reusable components (ArticleCard, FilterBar, Navbar, Modals)
+* Fully connected to REST API from the backend
 
 ---
 
 ## 🛠 Tech Stack
-- React + TypeScript (Vite)
-- Tailwind CSS
+
+* React + TypeScript (Vite)
+* Tailwind CSS
+* Axios (API requests)
+
+---
+
+## ⚙️ Environment Setup
+
+Run the following command depending on your platform, replacing placeholders (`<VALUE>`) with your actual API endpoint and keys:
+
+### macOS / Linux (bash/zsh)
+
+```bash
+export VITE_API_BASE_URL=<your-backend-url>
+```
+
+### Windows (PowerShell)
+
+```powershell
+setx VITE_API_BASE_URL "<your-backend-url>"
+```
 
 ---
 
 ## 🚀 Getting Started
 
 ### 1. Clone the repo
+
 ```bash
 git clone https://github.com/Nimsara-Jayarathna/Sustain-Insight---front-end.git
-```
-```bash
 cd Sustain-Insight---front-end
 ```
+
 ### 2. Install dependencies
+
 ```bash
 npm install
 ```
+
 ### 3. Start the development server
+
 ```bash
 npm run dev
 ```
 
-This will start the frontend on http://localhost:5173
+This will start the frontend on [http://localhost:5173](http://localhost:5173)
 
-## 🌐 API Configuration
-The frontend expects a backend running at http://localhost:8080 by default.
-You can override this by setting the environment variable in a .env file:
-```bash
-VITE_API_BASE_URL=http://localhost:8080
-```
+---
 
 ## 👥 Collaboration Workflow
 
-- **Work on feature branches:**  
-  Each team member should create their own branch for a feature or fix.  
-  Example branch names:
-  - `feat/feed-page`
-  - `feat/login-page`
-  - `feat/saved-page`
-  - `fix/navbar-bug`
+* **Feature branches:**
+  Use dedicated branches like:
 
-- **Open Pull Requests (PRs) to `main`:**  
-  - Once your work is ready, push your branch and open a PR.  
-  - Request at least one review from a teammate.  
-  - Merge only after approval and (if set up) passing CI checks.
+  * `feature/feed-page`
+  * `feature/login-page`
+  * `feature/saved-page`
+  * `fix/navbar-bug`
 
-- **`main` is protected:**  
-  - Direct pushes to `main` are disabled.  
-  - All changes must go through the PR + review process.  
-  - Keeps `main` always in a working state for demos.
+* **Development branch (`dev`):**
+
+  * All features are merged into `dev` first.
+  * Requires review and passing checks.
+
+* **Main branch (`main`):**
+
+  * Production-ready branch, directly used for deployment (Vercel).
+  * PRs from `dev` are squashed and merged into `main`.
+
+* **Branch protections:**
+
+  * PRs required for merges.
+  * No direct commits or force pushes to `main` or `dev`.
+  * Status checks and reviews required.
+
+---
+
+## 🔒 Security Notes
+
+* `.env` is ignored in Git — never commit secrets.
+* Only `.env.example` is tracked to show required variables.
+* API base URL and other environment-specific configs must be provided locally or in deployment settings.
