@@ -1,4 +1,9 @@
 {
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM"]
+  },
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },

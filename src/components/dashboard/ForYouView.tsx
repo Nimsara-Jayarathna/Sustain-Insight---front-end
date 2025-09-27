@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import ArticleGrid from '../common/ArticleGrid';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
-import { apiFetch } from '../../utils/api'; // Assuming apiFetch is in utils/api
+import { useEffect, useState } from "react";
+import ArticleGrid from "../common/ArticleGrid";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
+import { apiFetch } from "../../utils/api"; // ✅ apiFetch utility
 
 const ForYouView = () => {
   const [recentArticles, setRecentArticles] = useState<any[]>([]);
@@ -14,19 +14,19 @@ const ForYouView = () => {
       try {
         setLoading(true);
         setError(null);
-        // This endpoint requires authentication
-        const data = await apiFetch('/api/articles/feed');
+        // 🔒 This endpoint requires authentication
+        const data = await apiFetch("/api/articles/feed");
         setRecentArticles(data);
       } catch (err) {
-        console.error('DEBUG → Failed to fetch For You articles:', err);
-        setError('Failed to load personalized articles. Please try again later.');
+        console.error("DEBUG → Failed to fetch For You articles:", err);
+        setError("Failed to load personalized articles. Please try again later.");
       } finally {
         setLoading(false);
       }
     }
 
     fetchForYouArticles();
-  }, []); // Empty dependency array means this effect runs once on mount
+  }, []); // ✅ runs once on mount
 
   return (
     <section>

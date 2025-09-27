@@ -1,28 +1,27 @@
-import React from "react";
+//import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import DashboardPage from "./pages/DashboardPage";
 import { useAuthContext } from "./context/AuthContext";
 
-function PrivateRoute({ children }: { children: JSX.Element }) {
+function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthContext();
 
   const DEV_MODE = true; // 🔹 set to false when you want strict auth
 
   if (DEV_MODE) {
-    // During dev, always allow access
     return children;
   }
 
   if (!isAuthenticated) {
-    console.warn("⚠️ DEBUG → Tried to access private route without auth");
+    console.warn("⚠️ Tried to access private route without auth");
     return <Navigate to="/" replace />;
   }
 
   return children;
 }
 
-function App() {
+export default function App() {
   return (
     <Router>
       <Routes>
@@ -39,5 +38,3 @@ function App() {
     </Router>
   );
 }
-
-export default App;
