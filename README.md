@@ -19,7 +19,7 @@ It is built with **React + TypeScript** using **Vite** for fast builds and **Tai
 
 * React + TypeScript (Vite)
 * Tailwind CSS
-* Axios (API requests)
+* REST API using Axios.
 
 ---
 
@@ -30,13 +30,13 @@ Run the following command depending on your platform, replacing placeholders (`<
 ### macOS / Linux (bash/zsh)
 
 ```bash
-export VITE_API_BASE_URL=<your-backend-url>
+export VITE_BACKEND_URL=<your-backend-url>
 ```
 
 ### Windows (PowerShell)
 
 ```powershell
-setx VITE_API_BASE_URL "<your-backend-url>"
+setx VITE_BACKEND_URL "<your-backend-url>"
 ```
 
 ---
