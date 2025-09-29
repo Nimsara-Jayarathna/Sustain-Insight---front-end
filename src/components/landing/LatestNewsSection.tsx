@@ -7,7 +7,7 @@ export default function LatestNewsSection({ articles }: { articles: any[] }) {
       <h2 className="mb-6 text-xl font-semibold tracking-tight sm:text-2xl">
         Latest in Climate News
       </h2>
-      <ArticleGrid articles={articles} />
+      <ArticleGrid articles={articles} mode="carousel" speed={100} />
     </section>
   );
 }

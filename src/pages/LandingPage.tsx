@@ -9,7 +9,7 @@ import { useArticles } from "../hooks/useArticles";
 import { useAuthHandlers } from "../hooks/useAuthHandlers";
 
 export default function LandingPage() {
-  const { articles } = useArticles(3);
+  const { articles } = useArticles(5);
   const { handleLogin, handleSignup } = useAuthHandlers();
   const [authOpen, setAuthOpen] = useState(false);
   const [view, setView] = useState<"login" | "signup">("login");
