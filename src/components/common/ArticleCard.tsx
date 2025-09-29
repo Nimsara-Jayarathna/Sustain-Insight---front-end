@@ -49,24 +49,30 @@ type ArticleCardProps = {
     categories?: string[];
   };
   variant?: "landing" | "dashboard";
+  disablePopup?: boolean;
   showBookmark?: boolean;
 };
 
 const ArticleCard: React.FC<ArticleCardProps> = ({
   article,
   variant = "dashboard",
+  disablePopup = false,
   showBookmark = true,
 }) => {
   const [saved, setSaved] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
-  const toggleSave = () => setSaved(!saved);
+  const toggleSave = () => setSaved((prev) => !prev);
 
   return (
     <>
       <article
-        onClick={() => setIsModalOpen(true)}
-        className="group flex h-full cursor-pointer flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1"
+        onClick={() => {
+          if (!disablePopup) setOpen(true);
+        }}
+        className={`group flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 ${
+          disablePopup ? "cursor-default" : "cursor-pointer"
+        }`}
       >
         {/* Image */}
         <div className="relative aspect-[16/9] w-full overflow-hidden">
@@ -86,16 +92,19 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
 
         {/* Content */}
         <div className="flex flex-1 flex-col p-5">
+          {/* Source */}
           {article.sources && article.sources.length > 0 && (
-            <p className="mb-3 rounded-md bg-emerald-600 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-white">
+            <p className="mb-3 rounded-md bg-emerald-600 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-white w-fit">
               From {article.sources[0]}
             </p>
           )}
 
+          {/* Title */}
           <h3 className="text-lg font-bold leading-tight text-gray-800 transition-colors duration-300 group-hover:text-emerald-700 line-clamp-2">
             {article.title}
           </h3>
 
+          {/* Summary */}
           {article.summary && (
             <p
               className={`mt-2 text-sm text-gray-600 ${
@@ -106,8 +115,24 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
             </p>
           )}
 
+          {/* ✅ Categories */}
+          {article.categories && article.categories.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {article.categories.map((c, idx) => (
+                <span
+                  key={`${article.id}-cat-${idx}`}
+                  className="inline-block rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800"
+                >
+                  {c}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Spacer */}
           <div className="flex-grow" />
 
+          {/* Footer */}
           <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
             <span>
               {article.publishedAt
@@ -122,29 +147,30 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
             {showBookmark && (
               <button
                 onClick={(e) => {
-                  e.stopPropagation(); // prevent modal open
+                  e.stopPropagation();
                   toggleSave();
                 }}
-                className={`flex items-center gap-2 rounded-full px-4 py-2 font-semibold transition-colors duration-300 ${
+                className={`flex items-center gap-1 rounded-full px-3 py-1 font-semibold text-xs transition-colors ${
                   saved
                     ? "bg-emerald-600 text-white hover:bg-emerald-700"
                     : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
                 }`}
               >
                 <BookmarkIcon size={14} className={saved ? "fill-current" : ""} />
-                <span>{saved ? "Saved" : "Save"}</span>
+                {saved ? "Saved" : "Save"}
               </button>
             )}
           </div>
         </div>
       </article>
 
-      {isModalOpen && (
+      {/* Modal */}
+      {open && (
         <ArticleModal
           article={article}
           saved={saved}
           onToggleSave={toggleSave}
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => setOpen(false)}
           showBookmark={showBookmark}
         />
       )}

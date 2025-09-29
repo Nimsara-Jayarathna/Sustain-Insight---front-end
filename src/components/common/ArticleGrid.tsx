@@ -6,6 +6,7 @@ type ArticleGridProps = {
   variant?: "landing" | "dashboard";
   mode?: "grid" | "carousel";
   speed?: number;
+  disablePopup?: boolean;
   showBookmark?: boolean;
 };
 
@@ -14,6 +15,7 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
   variant = "dashboard",
   mode = "grid",
   speed = 50,
+  disablePopup = false,
   showBookmark = true,
 }) => {
   if (!articles || articles.length === 0) {
@@ -37,6 +39,7 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
               <ArticleCard
                 article={article}
                 variant={variant}
+                disablePopup={disablePopup}
                 showBookmark={showBookmark}
               />
             </div>
@@ -53,6 +56,7 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
           key={article.id}
           article={article}
           variant={variant}
+          disablePopup={disablePopup}
           showBookmark={showBookmark}
         />
       ))}

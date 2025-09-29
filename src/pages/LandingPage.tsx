@@ -9,7 +9,7 @@ import { useArticles } from "../hooks/useArticles";
 import { useAuthHandlers } from "../hooks/useAuthHandlers";
 
 export default function LandingPage() {
-  const { articles } = useArticles(5);
+  const { articles } = useArticles();
   const { handleLogin, handleSignup } = useAuthHandlers();
   const [authOpen, setAuthOpen] = useState(false);
   const [view, setView] = useState<"login" | "signup">("login");
@@ -33,7 +33,7 @@ export default function LandingPage() {
         }}
       />
       <FeaturesSection />
-      <LatestNewsSection articles={articles} />
+      <LatestNewsSection articles={articles} disablePopup={true} showBookmark={false} />
       <Footer />
       <AuthModal
         open={authOpen}

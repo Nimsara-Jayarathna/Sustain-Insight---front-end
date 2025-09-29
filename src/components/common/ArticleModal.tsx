@@ -31,7 +31,7 @@ type ArticleModalProps = {
   saved: boolean;
   onToggleSave: () => void;
   onClose: () => void;
-  showBookmark?: boolean; // ✅ Added here
+  showBookmark?: boolean;
 };
 
 const ArticleModal: React.FC<ArticleModalProps> = ({
@@ -39,114 +39,101 @@ const ArticleModal: React.FC<ArticleModalProps> = ({
   saved,
   onToggleSave,
   onClose,
-  showBookmark = true, // ✅ default true
+  showBookmark = true,
 }) => {
-  // Escape key closes modal
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
+    const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
+    document.addEventListener("keydown", handleEsc);
+    return () => document.removeEventListener("keydown", handleEsc);
   }, [onClose]);
-
-  // Click outside closes modal
-  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) onClose();
-  };
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-      onClick={handleBackdropClick}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      onClick={onClose}
     >
-      <div className="relative w-full max-w-3xl rounded-2xl bg-white shadow-xl overflow-hidden">
-        {/* Close button */}
+      <div
+        className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white rounded-xl shadow-lg p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close */}
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 text-gray-500 hover:text-gray-700 text-xl"
+          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
         >
           ✕
         </button>
 
         {/* Image */}
-        {article.imageUrl ? (
+        {article.imageUrl && (
           <img
             src={article.imageUrl}
             alt={article.title}
-            className="h-64 w-full object-cover"
+            className="mb-4 w-full rounded-lg object-cover"
           />
-        ) : (
-          <div className="flex h-64 w-full items-center justify-center bg-gradient-to-br from-emerald-50 to-emerald-200">
-            <span className="text-emerald-600">No Image</span>
+        )}
+
+        {/* Title */}
+        <h2 className="text-2xl font-bold text-gray-900">{article.title}</h2>
+
+        {/* Meta */}
+        <div className="mt-2 text-sm text-gray-500 flex gap-4">
+          {article.sources && article.sources.length > 0 && (
+            <span>From {article.sources[0]}</span>
+          )}
+          <span>
+            {article.publishedAt
+              ? new Intl.DateTimeFormat("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                }).format(new Date(article.publishedAt))
+              : "Unknown date"}
+          </span>
+        </div>
+
+        {/* Summary + Content */}
+        {article.summary && (
+          <p className="mt-4 text-gray-700">{article.summary}</p>
+        )}
+        {article.content && (
+          <p className="mt-2 text-gray-600 whitespace-pre-line">
+            {article.content}
+          </p>
+        )}
+
+        {/* Categories */}
+        {article.categories && article.categories.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {article.categories.map((c, idx) => (
+              <span
+                key={`${article.id}-cat-${idx}`}
+                className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800"
+              >
+                {c}
+              </span>
+            ))}
           </div>
         )}
 
-        {/* Content */}
-        <div className="p-6">
-          {/* Source */}
-          {article.sources && article.sources.length > 0 && (
-            <p className="mb-3 inline-block rounded-md bg-emerald-600 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white">
-              From {article.sources[0]}
-            </p>
-          )}
-
-          {/* Title */}
-          <h2 className="mb-3 text-2xl font-bold text-gray-900">
-            {article.title}
-          </h2>
-
-          {/* Summary */}
-          {article.summary && (
-            <p className="mb-4 text-gray-700">{article.summary}</p>
-          )}
-
-          {/* Content */}
-          {article.content && (
-            <p className="mb-4 text-gray-600">{article.content}</p>
-          )}
-
-          {/* Categories */}
-          {article.categories && article.categories.length > 0 && (
-            <div className="mb-4 flex flex-wrap gap-2">
-              {article.categories.map((c: string, idx: number) => (
-                <span
-                  key={`${article.id}-cat-${idx}`}
-                  className="inline-block rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800"
-                >
-                  {c}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Footer */}
-          <div className="mt-6 flex items-center justify-between text-xs text-gray-500">
-            <span>
-              {article.publishedAt
-                ? new Intl.DateTimeFormat("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  }).format(new Date(article.publishedAt))
-                : "Unknown date"}
-            </span>
-
-            {showBookmark && (
-              <button
-                onClick={onToggleSave}
-                className={`flex items-center gap-2 rounded-full px-4 py-2 font-semibold transition-colors duration-300 ${
-                  saved
-                    ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                    : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                }`}
-              >
-                <BookmarkIcon size={14} className={saved ? "fill-current" : ""} />
-                <span>{saved ? "Saved" : "Save"}</span>
-              </button>
-            )}
+        {/* Bookmark Button */}
+        {showBookmark && (
+          <div className="mt-6">
+            <button
+              onClick={onToggleSave}
+              className={`flex items-center gap-2 rounded-full px-4 py-2 font-semibold transition-colors ${
+                saved
+                  ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                  : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+              }`}
+            >
+              <BookmarkIcon size={16} className={saved ? "fill-current" : ""} />
+              <span>{saved ? "Saved" : "Save"}</span>
+            </button>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
