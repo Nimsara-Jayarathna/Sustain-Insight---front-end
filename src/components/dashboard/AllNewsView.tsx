@@ -70,7 +70,8 @@ export default function AllNewsView() {
       {loading ? (
         <p className="text-center text-gray-600">Loading articles...</p>
       ) : (
-        <ArticleGrid articles={articles} disablePopup={false} showBookmark={true} />
+       
+      <ArticleGrid articles={articles} variant="dashboard" />
       )}
 
       {/* 📌 Filter modal */}
