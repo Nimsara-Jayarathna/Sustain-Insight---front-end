@@ -50,19 +50,21 @@ type ArticleCardProps = {
   };
   variant?: "landing" | "dashboard";
   disablePopup?: boolean;
-  showBookmark?: boolean;
 };
 
 const ArticleCard: React.FC<ArticleCardProps> = ({
   article,
   variant = "dashboard",
   disablePopup = false,
-  showBookmark = true,
 }) => {
-  const [saved, setSaved] = useState(false);
+  const [bookmark, setBookmark] = useState(false);
+  const [insight, setInsight] = useState(false);
   const [open, setOpen] = useState(false);
 
-  const toggleSave = () => setSaved((prev) => !prev);
+  const toggleBookmark = () => setBookmark((prev) => !prev);
+  const toggleInsight = () => setInsight((prev) => !prev);
+
+  const allowActions = variant === "dashboard";
 
   return (
     <>
@@ -115,7 +117,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
             </p>
           )}
 
-          {/* ✅ Categories */}
+          {/* Categories */}
           {article.categories && article.categories.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
               {article.categories.map((c, idx) => (
@@ -144,21 +146,54 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
                 : "Unknown date"}
             </span>
 
-            {showBookmark && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleSave();
-                }}
-                className={`flex items-center gap-1 rounded-full px-3 py-1 font-semibold text-xs transition-colors ${
-                  saved
-                    ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                    : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                }`}
-              >
-                <BookmarkIcon size={14} className={saved ? "fill-current" : ""} />
-                {saved ? "Saved" : "Save"}
-              </button>
+            {allowActions && (
+              <div className="flex gap-2">
+                {/* Bookmark Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleBookmark();
+                  }}
+                  className={`flex items-center gap-1 rounded-full px-3 py-1 font-semibold text-xs transition-colors ${
+                    bookmark
+                      ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                      : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                  }`}
+                >
+                  <BookmarkIcon size={14} className={bookmark ? "fill-current" : ""} />
+                  {bookmark ? "Bookmarked" : "Bookmark"}
+                </button>
+
+                {/* Insight Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleInsight();
+                  }}
+                  className={`flex items-center gap-1 rounded-full px-3 py-1 font-semibold text-xs transition-colors ${
+                    insight
+                      ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                      : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
+                  }`}
+                >
+                  {/* Lightbulb Icon */}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className={insight ? "fill-current" : ""}
+                  >
+                    <path d="M9 18h6m-3-14a7 7 0 0 1 7 7c0 3-2 5-4 6v2H9v-2c-2-1-4-3-4-6a7 7 0 0 1 7-7z"/>
+                  </svg>
+                  {insight ? "Insight On" : "Insight"}
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -168,10 +203,12 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
       {open && (
         <ArticleModal
           article={article}
-          saved={saved}
-          onToggleSave={toggleSave}
+          bookmark={bookmark}
+          insight={insight}
+          onToggleBookmark={toggleBookmark}
+          onToggleInsight={toggleInsight}
           onClose={() => setOpen(false)}
-          showBookmark={showBookmark}
+          allowActions={allowActions}
         />
       )}
     </>
