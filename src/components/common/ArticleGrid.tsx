@@ -7,7 +7,6 @@ type ArticleGridProps = {
   mode?: "grid" | "carousel";
   speed?: number;
   disablePopup?: boolean;
-  showBookmark?: boolean;
 };
 
 const ArticleGrid: React.FC<ArticleGridProps> = ({
@@ -16,7 +15,6 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
   mode = "grid",
   speed = 50,
   disablePopup = false,
-  showBookmark = true,
 }) => {
   if (!articles || articles.length === 0) {
     return <p className="text-center text-gray-500 mt-8">No articles found.</p>;
@@ -40,7 +38,6 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
                 article={article}
                 variant={variant}
                 disablePopup={disablePopup}
-                showBookmark={showBookmark}
               />
             </div>
           ))}
@@ -57,7 +54,6 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
           article={article}
           variant={variant}
           disablePopup={disablePopup}
-          showBookmark={showBookmark}
         />
       ))}
     </div>
