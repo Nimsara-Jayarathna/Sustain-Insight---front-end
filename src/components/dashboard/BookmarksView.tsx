@@ -17,6 +17,7 @@ const BookmarksView = () => {
 
       {bookmarkedArticles.length > 0 ? (
         <ArticleGrid articles={bookmarkedArticles} />
+      //<ArticleGrid articles={articles} variant="dashboard" />
       ) : (
         <p className="text-center text-gray-500 mt-8">
           You don’t have any saved bookmarks yet.
