@@ -3,7 +3,7 @@ import ArticleGrid from "../common/ArticleGrid";
 import SearchBar from "../common/SearchBar";
 import FilterModal from "../common/FilterModal";
 import ActiveFilters from "../common/ActiveFilters";
-import Pagination from "./Pagination";  // ✅ import pagination
+import Pagination from "./Pagination";
 import { apiFetch } from "../../utils/api";
 
 export default function AllNewsView() {
@@ -12,11 +12,9 @@ export default function AllNewsView() {
   const [filters, setFilters] = useState<any>({});
   const [filterModalOpen, setFilterModalOpen] = useState(false);
 
-  // 🔹 Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  // 🔹 Fetch articles when filters or page changes
   useEffect(() => {
     async function fetchArticles() {
       try {
@@ -30,13 +28,11 @@ export default function AllNewsView() {
           params.append("source", filters.sourceIds.join(","));
         if (filters.date) params.append("date", filters.date);
 
-        params.append("page", currentPage.toString()); // ✅ pagination
-        params.append("size", "10"); // ✅ backend page size
+        params.append("page", currentPage.toString()); // ✅ only page, no size
 
         const url = `/api/public/articles/all?${params.toString()}`;
         const data = await apiFetch(url);
 
-        // ⚠️ Expecting { content, totalPages }
         setArticles(data.content || []);
         setTotalPages(data.totalPages || 1);
       } catch (err) {
@@ -51,11 +47,10 @@ export default function AllNewsView() {
 
   return (
     <section>
-      {/* 🔍 Search + Filters button */}
       <div className="flex items-center justify-between mb-4">
         <SearchBar onSearch={(kw) => {
           setFilters({ ...filters, keyword: kw });
-          setCurrentPage(1); // reset to first page when searching
+          setCurrentPage(1);
         }} />
         <button
           onClick={() => setFilterModalOpen(true)}
@@ -65,24 +60,21 @@ export default function AllNewsView() {
         </button>
       </div>
 
-      {/* 🎯 Active filters as chips */}
       <ActiveFilters
         filters={filters}
         onRemove={(key) => {
           const updated = { ...filters };
           delete updated[key];
           setFilters(updated);
-          setCurrentPage(1); // reset page when filters change
+          setCurrentPage(1);
         }}
       />
 
-      {/* 📄 Articles */}
       {loading ? (
         <p className="text-center text-gray-600">Loading articles...</p>
       ) : articles.length > 0 ? (
         <>
           <ArticleGrid articles={articles} variant="dashboard" />
-          {/* ✅ Show pagination only when results exist */}
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -95,17 +87,16 @@ export default function AllNewsView() {
         </p>
       )}
 
-      {/* 📌 Filter modal */}
       <FilterModal
         open={filterModalOpen}
         onClose={() => setFilterModalOpen(false)}
         onApply={(f) => {
           setFilters({ ...filters, ...f });
-          setCurrentPage(1); // reset when filters applied
+          setCurrentPage(1);
         }}
         onClear={() => {
           setFilters({});
-          setCurrentPage(1); // reset when cleared
+          setCurrentPage(1);
         }}
       />
     </section>
