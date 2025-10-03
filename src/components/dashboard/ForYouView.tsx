@@ -20,8 +20,8 @@ const ForYouView = () => {
         setLoading(true);
         setError(null);
 
-        // 🔒 Authenticated feed with pagination
-        const url = `/api/articles/feed?page=${currentPage}&size=10`;
+        // ✅ Only send page, let backend decide size
+        const url = `/api/articles/feed?page=${currentPage}`;
         const data = await apiFetch(url);
 
         // ⚠️ Expect backend response format: { content, totalPages }
@@ -36,7 +36,7 @@ const ForYouView = () => {
     }
 
     fetchForYouArticles();
-  }, [currentPage]); // ✅ refetch when page changes
+  }, [currentPage]);
 
   return (
     <section>
