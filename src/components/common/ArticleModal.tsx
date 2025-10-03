@@ -28,18 +28,22 @@ type ArticleModalProps = {
     sources?: string[];
     categories?: string[];
   };
-  saved: boolean;
-  onToggleSave: () => void;
+  bookmark: boolean;
+  insight: boolean;
+  onToggleBookmark: () => void;
+  onToggleInsight: () => void;
   onClose: () => void;
-  showBookmark?: boolean;
+  allowActions?: boolean;
 };
 
 const ArticleModal: React.FC<ArticleModalProps> = ({
   article,
-  saved,
-  onToggleSave,
+  bookmark,
+  insight,
+  onToggleBookmark,
+  onToggleInsight,
   onClose,
-  showBookmark = true,
+  allowActions = true,
 }) => {
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -118,19 +122,45 @@ const ArticleModal: React.FC<ArticleModalProps> = ({
           </div>
         )}
 
-        {/* Bookmark Button */}
-        {showBookmark && (
-          <div className="mt-6">
+        {/* Footer Buttons */}
+        {allowActions && (
+          <div className="mt-6 flex gap-3">
             <button
-              onClick={onToggleSave}
+              onClick={onToggleBookmark}
               className={`flex items-center gap-2 rounded-full px-4 py-2 font-semibold transition-colors ${
-                saved
+                bookmark
                   ? "bg-emerald-600 text-white hover:bg-emerald-700"
                   : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
               }`}
             >
-              <BookmarkIcon size={16} className={saved ? "fill-current" : ""} />
-              <span>{saved ? "Saved" : "Save"}</span>
+              <BookmarkIcon size={16} className={bookmark ? "fill-current" : ""} />
+              <span>{bookmark ? "Bookmarked" : "Bookmark"}</span>
+            </button>
+
+            <button
+              onClick={onToggleInsight}
+              className={`flex items-center gap-2 rounded-full px-4 py-2 font-semibold transition-colors ${
+                insight
+                  ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                  : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
+              }`}
+            >
+              {/* Lightbulb Icon */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={insight ? "fill-current" : ""}
+              >
+                <path d="M9 18h6m-3-14a7 7 0 0 1 7 7c0 3-2 5-4 6v2H9v-2c-2-1-4-3-4-6a7 7 0 0 1 7-7z"/>
+              </svg>
+              <span>{insight ? "Insight On" : "Insight"}</span>
             </button>
           </div>
         )}
