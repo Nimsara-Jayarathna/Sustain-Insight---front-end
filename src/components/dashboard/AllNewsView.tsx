@@ -3,6 +3,7 @@ import ArticleGrid from "../common/ArticleGrid";
 import SearchBar from "../common/SearchBar";
 import FilterModal from "../common/FilterModal";
 import ActiveFilters from "../common/ActiveFilters";
+import Pagination from "./Pagination";  // ✅ import pagination
 import { apiFetch } from "../../utils/api";
 
 export default function AllNewsView() {
@@ -11,7 +12,11 @@ export default function AllNewsView() {
   const [filters, setFilters] = useState<any>({});
   const [filterModalOpen, setFilterModalOpen] = useState(false);
 
-  // 🔹 Fetch articles when filters change
+  // 🔹 Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  // 🔹 Fetch articles when filters or page changes
   useEffect(() => {
     async function fetchArticles() {
       try {
@@ -23,12 +28,17 @@ export default function AllNewsView() {
           params.append("category", filters.categoryIds.join(","));
         if (filters.sourceIds?.length)
           params.append("source", filters.sourceIds.join(","));
-        if (filters.date) params.append("date", filters.date); // ✅ single date filter
+        if (filters.date) params.append("date", filters.date);
 
-        // ✅ only relative path — apiFetch will add backendURL
+        params.append("page", currentPage.toString()); // ✅ pagination
+        params.append("size", "10"); // ✅ backend page size
+
         const url = `/api/public/articles/all?${params.toString()}`;
         const data = await apiFetch(url);
-        setArticles(data);
+
+        // ⚠️ Expecting { content, totalPages }
+        setArticles(data.content || []);
+        setTotalPages(data.totalPages || 1);
       } catch (err) {
         console.error("Error fetching articles:", err);
       } finally {
@@ -37,13 +47,16 @@ export default function AllNewsView() {
     }
 
     fetchArticles();
-  }, [filters]);
+  }, [filters, currentPage]);
 
   return (
     <section>
       {/* 🔍 Search + Filters button */}
       <div className="flex items-center justify-between mb-4">
-        <SearchBar onSearch={(kw) => setFilters({ ...filters, keyword: kw })} />
+        <SearchBar onSearch={(kw) => {
+          setFilters({ ...filters, keyword: kw });
+          setCurrentPage(1); // reset to first page when searching
+        }} />
         <button
           onClick={() => setFilterModalOpen(true)}
           className="ml-4 px-4 py-2 rounded-md bg-gray-100 hover:bg-gray-200"
@@ -57,29 +70,43 @@ export default function AllNewsView() {
         filters={filters}
         onRemove={(key) => {
           const updated = { ...filters };
-          if (key === "date") {
-            delete updated.date; // ✅ corrected
-          } else {
-            delete updated[key];
-          }
+          delete updated[key];
           setFilters(updated);
+          setCurrentPage(1); // reset page when filters change
         }}
       />
 
       {/* 📄 Articles */}
       {loading ? (
         <p className="text-center text-gray-600">Loading articles...</p>
+      ) : articles.length > 0 ? (
+        <>
+          <ArticleGrid articles={articles} variant="dashboard" />
+          {/* ✅ Show pagination only when results exist */}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </>
       ) : (
-       
-      <ArticleGrid articles={articles} variant="dashboard" />
+        <p className="text-center text-gray-500 mt-8">
+          No articles found. Try adjusting your filters.
+        </p>
       )}
 
       {/* 📌 Filter modal */}
       <FilterModal
         open={filterModalOpen}
         onClose={() => setFilterModalOpen(false)}
-        onApply={(f) => setFilters({ ...filters, ...f })}
-        onClear={() => setFilters({})}
+        onApply={(f) => {
+          setFilters({ ...filters, ...f });
+          setCurrentPage(1); // reset when filters applied
+        }}
+        onClear={() => {
+          setFilters({});
+          setCurrentPage(1); // reset when cleared
+        }}
       />
     </section>
   );
