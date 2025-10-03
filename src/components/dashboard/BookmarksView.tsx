@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import ArticleGrid from "../common/ArticleGrid";
-import Pagination from "./Pagination"; // ✅ reuse pagination
+import Pagination from "./Pagination";
 import { apiFetch } from "../../utils/api";
 
 const BookmarksView = () => {
@@ -8,7 +8,6 @@ const BookmarksView = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 🔹 Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -18,11 +17,10 @@ const BookmarksView = () => {
         setLoading(true);
         setError(null);
 
-        // ✅ Replace with real API endpoint
-        const url = `/api/bookmarks?page=${currentPage}&size=10`;
+        // ✅ only send page, backend enforces size
+        const url = `/api/bookmarks?page=${currentPage}`;
         const data = await apiFetch(url);
 
-        // ⚠️ Expecting backend pagination response
         setBookmarkedArticles(data.content || []);
         setTotalPages(data.totalPages || 1);
       } catch (err) {
@@ -38,7 +36,6 @@ const BookmarksView = () => {
 
   return (
     <section>
-      {/* 🔍 Search (frontend filter only for now) */}
       <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
         <input
           type="search"
