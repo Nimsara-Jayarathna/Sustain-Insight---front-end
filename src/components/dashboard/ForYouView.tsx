@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import ArticleGrid from "../common/ArticleGrid";
+import Pagination from "./Pagination"; // ✅ reuse pagination
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 import { apiFetch } from "../../utils/api"; // ✅ apiFetch utility
@@ -9,14 +10,23 @@ const ForYouView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // 🔹 Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   useEffect(() => {
     async function fetchForYouArticles() {
       try {
         setLoading(true);
         setError(null);
-        // 🔒 This endpoint requires authentication
-        const data = await apiFetch("/api/articles/feed");
-        setRecentArticles(data);
+
+        // 🔒 Authenticated feed with pagination
+        const url = `/api/articles/feed?page=${currentPage}&size=10`;
+        const data = await apiFetch(url);
+
+        // ⚠️ Expect backend response format: { content, totalPages }
+        setRecentArticles(data.content || []);
+        setTotalPages(data.totalPages || 1);
       } catch (err) {
         console.error("DEBUG → Failed to fetch For You articles:", err);
         setError("Failed to load personalized articles. Please try again later.");
@@ -26,7 +36,7 @@ const ForYouView = () => {
     }
 
     fetchForYouArticles();
-  }, []); // ✅ runs once on mount
+  }, [currentPage]); // ✅ refetch when page changes
 
   return (
     <section>
@@ -44,8 +54,14 @@ const ForYouView = () => {
           <p>{error}</p>
         </div>
       ) : recentArticles.length > 0 ? (
-      <ArticleGrid articles={recentArticles} variant="dashboard" />
-        //<ArticleGrid articles={recentArticles} />
+        <>
+          <ArticleGrid articles={recentArticles} variant="dashboard" />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </>
       ) : (
         <div className="text-center mt-12 p-8 bg-white rounded-lg shadow-sm">
           <FontAwesomeIcon
