@@ -44,7 +44,8 @@ const ForYouView = () => {
           <p>{error}</p>
         </div>
       ) : recentArticles.length > 0 ? (
-        <ArticleGrid articles={recentArticles} />
+      <ArticleGrid articles={recentArticles} variant="dashboard" />
+        //<ArticleGrid articles={recentArticles} />
       ) : (
         <div className="text-center mt-12 p-8 bg-white rounded-lg shadow-sm">
           <FontAwesomeIcon
