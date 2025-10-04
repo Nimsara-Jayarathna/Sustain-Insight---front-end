@@ -1,10 +1,11 @@
+// src/components/dashboard/BookmarksView.tsx
 import { useEffect, useState } from "react";
 import ArticleGrid from "../common/ArticleGrid";
 import Pagination from "./Pagination";
 import { apiFetch } from "../../utils/api";
 
-const BookmarksView = () => {
-  const [bookmarkedArticles, setBookmarkedArticles] = useState<any[]>([]);
+export default function BookmarksView() {
+  const [articles, setArticles] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,12 +18,17 @@ const BookmarksView = () => {
         setLoading(true);
         setError(null);
 
-        // ✅ only send page, backend enforces size
+        // ✅ Only send current page (1-based), backend handles size/default
         const url = `/api/bookmarks?page=${currentPage}`;
         const data = await apiFetch(url);
 
-        setBookmarkedArticles(data.content || []);
+        setArticles(data.content || []);
         setTotalPages(data.totalPages || 1);
+
+        // ✅ ensure FE currentPage matches BE's response
+        if (data.currentPage) {
+          setCurrentPage(data.currentPage);
+        }
       } catch (err) {
         console.error("Error fetching bookmarks:", err);
         setError("Failed to load bookmarks.");
@@ -48,9 +54,9 @@ const BookmarksView = () => {
         <p className="text-center text-gray-600">Loading bookmarks...</p>
       ) : error ? (
         <p className="text-center text-red-500 mt-8">{error}</p>
-      ) : bookmarkedArticles.length > 0 ? (
+      ) : articles.length > 0 ? (
         <>
-          <ArticleGrid articles={bookmarkedArticles} variant="dashboard" />
+          <ArticleGrid articles={articles} variant="dashboard" />
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -64,6 +70,4 @@ const BookmarksView = () => {
       )}
     </section>
   );
-};
-
-export default BookmarksView;
+}

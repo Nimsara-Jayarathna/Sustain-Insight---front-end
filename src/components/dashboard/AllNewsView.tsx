@@ -1,3 +1,4 @@
+// src/components/dashboard/AllNewsView.tsx
 import { useEffect, useState } from "react";
 import ArticleGrid from "../common/ArticleGrid";
 import SearchBar from "../common/SearchBar";
@@ -5,8 +6,10 @@ import FilterModal from "../common/FilterModal";
 import ActiveFilters from "../common/ActiveFilters";
 import Pagination from "./Pagination";
 import { apiFetch } from "../../utils/api";
+import { useAuthContext } from "../../context/AuthContext";
 
 export default function AllNewsView() {
+  const { isAuthenticated } = useAuthContext(); 
   const [articles, setArticles] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState<any>({});
@@ -28,9 +31,13 @@ export default function AllNewsView() {
           params.append("source", filters.sourceIds.join(","));
         if (filters.date) params.append("date", filters.date);
 
-        params.append("page", currentPage.toString()); // ✅ only page, no size
+        params.append("page", currentPage.toString());
 
-        const url = `/api/public/articles/all?${params.toString()}`;
+        const baseUrl = isAuthenticated
+          ? "/api/articles/all"          // authenticated → includes bookmark state
+          : "/api/public/articles/all";  // public → no bookmarks
+
+        const url = `${baseUrl}?${params.toString()}`;
         const data = await apiFetch(url);
 
         setArticles(data.content || []);
@@ -43,15 +50,17 @@ export default function AllNewsView() {
     }
 
     fetchArticles();
-  }, [filters, currentPage]);
+  }, [filters, currentPage, isAuthenticated]);
 
   return (
     <section>
       <div className="flex items-center justify-between mb-4">
-        <SearchBar onSearch={(kw) => {
-          setFilters({ ...filters, keyword: kw });
-          setCurrentPage(1);
-        }} />
+        <SearchBar
+          onSearch={(kw) => {
+            setFilters({ ...filters, keyword: kw });
+            setCurrentPage(1);
+          }}
+        />
         <button
           onClick={() => setFilterModalOpen(true)}
           className="ml-4 px-4 py-2 rounded-md bg-gray-100 hover:bg-gray-200"

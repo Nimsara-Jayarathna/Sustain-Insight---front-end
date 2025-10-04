@@ -2,33 +2,33 @@ import { useState, useEffect } from "react";
 
 export function useAuth() {
   const [token, setToken] = useState<string | null>(null);
-  const [user, setUser] = useState<{ firstName: string; lastName: string } | null>(
-    null
-  );
+  const [user, setUser] = useState<{ firstName: string; lastName: string } | null>(null);
 
-  // Load token from localStorage on mount
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    const storedUser = localStorage.getItem("user");
+    try {
+      const storedToken = localStorage.getItem("token");
+      const storedUser = localStorage.getItem("user");
 
-    if (storedToken) {
-      console.debug("DEBUG → Found token:", storedToken);
-      setToken(storedToken);
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
+      if (storedToken) {
+        console.debug("DEBUG → Found token:", storedToken);
+        setToken(storedToken);
+
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
+        }
+      } else {
+        console.debug("DEBUG → No token found");
       }
-    } else {
-      console.debug("DEBUG → No token found");
+    } catch (err) {
+      console.error("Failed to parse stored user", err);
     }
   }, []);
 
-  const login = (
-    jwt: string,
-    userData?: { firstName: string; lastName: string }
-  ) => {
+  const login = (jwt: string, userData?: { firstName: string; lastName: string }) => {
     console.debug("DEBUG → Saving token:", jwt);
     localStorage.setItem("token", jwt);
     setToken(jwt);
+
     if (userData) {
       const userToStore = {
         firstName: userData.firstName,
@@ -39,13 +39,13 @@ export function useAuth() {
     }
   };
 
-const logout = () => {
-  console.debug("DEBUG → Clearing token & user");
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
-  setToken(null);
-  setUser(null);
-};
+  const logout = () => {
+    console.debug("DEBUG → Clearing token & user");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setToken(null);
+    setUser(null);
+  };
 
   return {
     token,
