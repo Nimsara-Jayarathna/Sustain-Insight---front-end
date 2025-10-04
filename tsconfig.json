@@ -1,8 +1,14 @@
 {
   "compilerOptions": {
     "jsx": "react-jsx",
-    "moduleResolution": "bundler",
-    "lib": ["ES2022", "DOM"]
+    "module": "esnext",              
+    "moduleResolution": "bundler",   
+    "target": "esnext",              
+    "lib": ["ES2022", "DOM"],
+    "baseUrl": "./src",              
+    "paths": {
+      "@/*": ["*"]
+    }
   },
   "files": [],
   "references": [
