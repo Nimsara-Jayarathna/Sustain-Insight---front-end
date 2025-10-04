@@ -1,6 +1,5 @@
 import { useState } from "react";
-import Header from "../components/layout/Header";
-import Footer from "../components/layout/Footer";
+import LayoutWrapper from "../components/layout/LayoutWrapper";
 import HeroSection from "../components/landing/HeroSection";
 import FeaturesSection from "../components/landing/FeaturesSection";
 import LatestNewsSection from "../components/landing/LatestNewsSection";
@@ -15,17 +14,17 @@ export default function LandingPage() {
   const [view, setView] = useState<"login" | "signup">("login");
 
   return (
-    <div className="min-h-screen bg-white text-gray-900">
-      <Header
-        onLogin={() => {
-          setView("login");
-          setAuthOpen(true);
-        }}
-        onSignup={() => {
-          setView("signup");
-          setAuthOpen(true);
-        }}
-      />
+    <LayoutWrapper
+      variant="landing"
+      onLogin={() => {
+        setView("login");
+        setAuthOpen(true);
+      }}
+      onSignup={() => {
+        setView("signup");
+        setAuthOpen(true);
+      }}
+    >
       <HeroSection
         onSignup={() => {
           setView("signup");
@@ -33,8 +32,12 @@ export default function LandingPage() {
         }}
       />
       <FeaturesSection />
-      <LatestNewsSection articles={articles} disablePopup={true} showBookmark={false} />
-      <Footer />
+      <LatestNewsSection
+        articles={articles}
+        disablePopup={true}
+        showBookmark={false}
+      />
+
       <AuthModal
         open={authOpen}
         view={view}
@@ -43,6 +46,6 @@ export default function LandingPage() {
         onSubmitLogin={handleLogin}
         onSubmitSignup={handleSignup}
       />
-    </div>
+    </LayoutWrapper>
   );
 }

@@ -32,9 +32,18 @@ export default function HeroSection({
         </div>
 
         <div className="relative">
-          <div className="aspect-[4/3] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-50 to-emerald-100 shadow-sm ring-1 ring-gray-200" />
-          <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_60%_at_50%_0%,rgba(16,185,129,0.2),transparent)]" />
-        </div>
+  <div className="relative flex justify-center items-center">
+  <div className="aspect-square w-48 sm:w-56 md:w-64 rounded-full overflow-hidden shadow-[0_10px_25px_rgba(0,0,0,0.25)] ring-1 ring-gray-200 transform transition-all duration-700 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] hover:scale-105 bg-gradient-to-br from-emerald-50 to-emerald-100">
+    <img
+      src="/icon.png"
+      alt="News Icon"
+      className="h-full w-full object-contain transition-transform duration-700 hover:rotate-[3deg]"
+    />
+  </div>
+
+  {/* ambient radial light effect */}
+  <div className="pointer-events-none absolute inset-0 rounded-full bg-[radial-gradient(circle_at_50%_30%,rgba(16,185,129,0.15),transparent_70%)] blur-2xl" />
+</div></div>
       </div>
     </section>
   );

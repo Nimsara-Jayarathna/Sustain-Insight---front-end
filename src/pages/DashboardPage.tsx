@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import DashboardHeader from "../components/dashboard/DashboardHeader";
+import LayoutWrapper from "../components/layout/LayoutWrapper";
 import ForYouView from "../components/dashboard/ForYouView";
 import AllNewsView from "../components/dashboard/AllNewsView";
 import BookmarksView from "../components/dashboard/BookmarksView";
@@ -13,22 +13,22 @@ import { apiFetch } from "../utils/api";
 export default function DashboardPage() {
   const { activeView, setActiveView } = useDashboardView();
   const [isProfileModalOpen, setProfileModalOpen] = useState(false);
-  const {isAuthenticated } = useAuthContext();
+  const { isAuthenticated } = useAuthContext();
   const navigate = useNavigate();
 
-  // Public preferences (kept for future use, prefixed with _ to avoid TS unused warning)
+  // Public preferences (for future personalization)
   const [_categories, _setCategories] = useState<any[]>([]);
   const [_sources, _setSources] = useState<any[]>([]);
   const [_loading, _setLoading] = useState(true);
 
-  // Enforce authentication
+  // Redirect unauthenticated users
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate("/"); // redirect unauthenticated users to home
+      navigate("/");
     }
   }, [isAuthenticated, navigate]);
 
-  // Fetch public categories & sources for future use
+  // Fetch public categories & sources
   useEffect(() => {
     async function fetchPreferences() {
       try {
@@ -60,17 +60,19 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen font-sans">
-      <DashboardHeader onProfileClick={() => setProfileModalOpen(true)} />
+    <LayoutWrapper
+      variant="dashboard"
+      onProfileClick={() => setProfileModalOpen(true)}
+    >
       <div className="container mx-auto px-4 py-4">
         <DashboardNav activeView={activeView} onChange={setActiveView} />
-        <main>{renderActiveView()}</main>
+        <main className="mt-4">{renderActiveView()}</main>
       </div>
 
       <ProfileModal
         open={isProfileModalOpen}
         onClose={() => setProfileModalOpen(false)}
       />
-    </div>
+    </LayoutWrapper>
   );
 }

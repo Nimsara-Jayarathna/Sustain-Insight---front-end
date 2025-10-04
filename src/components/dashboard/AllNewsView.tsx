@@ -1,15 +1,16 @@
 // src/components/dashboard/AllNewsView.tsx
 import { useEffect, useState } from "react";
-import ArticleGrid from "../common/ArticleGrid";
+import ArticleGrid from "../articles/ArticleGrid";
 import SearchBar from "../common/SearchBar";
-import FilterModal from "../common/FilterModal";
-import ActiveFilters from "../common/ActiveFilters";
+import FilterModal from "../feedback/FilterModal";
+import ActiveFilters from "../feedback/ActiveFilters";
 import Pagination from "./Pagination";
+import LoadingPlaceholder from "../ui/LoadingPlaceholder";
 import { apiFetch } from "../../utils/api";
 import { useAuthContext } from "../../context/AuthContext";
 
 export default function AllNewsView() {
-  const { isAuthenticated } = useAuthContext(); 
+  const { isAuthenticated } = useAuthContext();
   const [articles, setArticles] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState<any>({});
@@ -34,8 +35,8 @@ export default function AllNewsView() {
         params.append("page", currentPage.toString());
 
         const baseUrl = isAuthenticated
-          ? "/api/articles/all"          // authenticated → includes bookmark state
-          : "/api/public/articles/all";  // public → no bookmarks
+          ? "/api/articles/all"
+          : "/api/public/articles/all";
 
         const url = `${baseUrl}?${params.toString()}`;
         const data = await apiFetch(url);
@@ -53,8 +54,9 @@ export default function AllNewsView() {
   }, [filters, currentPage, isAuthenticated]);
 
   return (
-    <section>
-      <div className="flex items-center justify-between mb-4">
+    <section className="px-2 sm:px-4 md:px-6">
+      {/* Search + Filters Row (responsive) */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <SearchBar
           onSearch={(kw) => {
             setFilters({ ...filters, keyword: kw });
@@ -63,12 +65,13 @@ export default function AllNewsView() {
         />
         <button
           onClick={() => setFilterModalOpen(true)}
-          className="ml-4 px-4 py-2 rounded-md bg-gray-100 hover:bg-gray-200"
+          className="px-4 py-2 rounded-md bg-gray-800 hover:bg-gray-700 text-white w-full sm:w-auto transition-colors"
         >
           Filters
         </button>
       </div>
 
+      {/* Active Filters */}
       <ActiveFilters
         filters={filters}
         onRemove={(key) => {
@@ -79,23 +82,28 @@ export default function AllNewsView() {
         }}
       />
 
+      {/* Articles */}
       {loading ? (
-        <p className="text-center text-gray-600">Loading articles...</p>
-      ) : articles.length > 0 ? (
-        <>
-          <ArticleGrid articles={articles} variant="dashboard" />
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
-        </>
-      ) : (
-        <p className="text-center text-gray-500 mt-8">
-          No articles found. Try adjusting your filters.
-        </p>
-      )}
+  <LoadingPlaceholder type="articles" mode="skeleton" />
+) : articles.length > 0 ? (
+  <>
+    <ArticleGrid articles={articles} variant="dashboard" />
+    <div className="mt-6">
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
+    </div>
+  </>
+) : (
+  <p className="text-center text-gray-500 mt-8">
+    No articles found. Try adjusting your filters.
+  </p>
+)}
 
+
+      {/* Filters Modal */}
       <FilterModal
         open={filterModalOpen}
         onClose={() => setFilterModalOpen(false)}
