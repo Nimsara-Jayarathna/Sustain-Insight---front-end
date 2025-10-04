@@ -26,17 +26,13 @@ const ActionModal: React.FC<ActionModalProps> = ({ action, message, type, onClos
     }
   }, [type, onClose]);
 
-  // 🎨 Explicit color classes (works with Tailwind)
-  const colorClasses =
+  // Pick Tailwind color classes inline
+  const iconColor =
+    action === "bookmark" ? "text-emerald-600" : "text-indigo-600";
+  const buttonColor =
     action === "bookmark"
-      ? {
-          bg: "bg-emerald-600/90 hover:bg-emerald-700",
-          text: "text-emerald-600",
-        }
-      : {
-          bg: "bg-indigo-600/90 hover:bg-indigo-700",
-          text: "text-indigo-600",
-        };
+      ? "bg-emerald-600/90 hover:bg-emerald-700"
+      : "bg-indigo-600/90 hover:bg-indigo-700";
 
   return (
     <div
@@ -49,7 +45,7 @@ const ActionModal: React.FC<ActionModalProps> = ({ action, message, type, onClos
         <div className="mb-4 flex justify-center">
           {type === "loading" ? (
             <svg
-              className={`animate-spin h-8 w-8 ${colorClasses.text}`}
+              className={`animate-spin h-8 w-8 ${iconColor}`}
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -71,7 +67,7 @@ const ActionModal: React.FC<ActionModalProps> = ({ action, message, type, onClos
           ) : type === "success" ? (
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className={`h-8 w-8 ${colorClasses.text}`}
+              className={`h-8 w-8 ${iconColor}`}
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -105,7 +101,7 @@ const ActionModal: React.FC<ActionModalProps> = ({ action, message, type, onClos
                 if (onClose) onClose();
               }, 300);
             }}
-            className={`mt-5 px-4 py-2 rounded-lg text-white font-semibold transition ${colorClasses.bg}`}
+            className={`mt-5 px-4 py-2 rounded-lg text-white font-semibold transition ${buttonColor}`}
           >
             Close
           </button>
