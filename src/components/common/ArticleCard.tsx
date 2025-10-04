@@ -1,17 +1,41 @@
 import React, { useState } from "react";
 import ArticleModal from "./ArticleModal";
-import BookmarkModal from "./BookmarkModal"; 
+import ActionModal from "./ActionModal"; // ✅ unified modal
+
 import { addBookmark, removeBookmark } from "../../api/bookmarks";
+import { addInsight, removeInsight } from "../../api/insights";
 
 // --- ICONS ---
 const BookmarkIcon = ({ size = 16, className = "" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
   </svg>
 );
 
 const LeafIcon = ({ className = "" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
     <path d="M11 20A7 7 0 0 1 4 13V8a2 2 0 0 1 2-2h4l2-3 2 3h4a2 2 0 0 1 2 2v5a7 7 0 0 1-7 7Z" />
     <path d="M12 18A3 3 0 0 0 9 15" />
   </svg>
@@ -28,6 +52,8 @@ type ArticleCardProps = {
     sources?: string[];
     categories?: string[];
     bookmarked?: boolean;
+    insighted?: boolean;
+    insightCount?: number;
   };
   variant?: "landing" | "dashboard";
   disablePopup?: boolean;
@@ -39,37 +65,70 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
   disablePopup = false,
 }) => {
   const [bookmark, setBookmark] = useState(article.bookmarked ?? false);
-  const [insight, setInsight] = useState(false);
+  const [insight, setInsight] = useState(article.insighted ?? false);
+  const [insightCount, setInsightCount] = useState(article.insightCount ?? 0);
   const [open, setOpen] = useState(false);
 
-  // Popup state
+  // Unified modal state
   const [modal, setModal] = useState<{
     open: boolean;
+    action: "bookmark" | "insight";
     type: "loading" | "success" | "error";
     message: string;
-  }>({ open: false, type: "loading", message: "" });
+  }>({ open: false, action: "bookmark", type: "loading", message: "" });
 
   const toggleBookmark = async () => {
     if (modal.open) return;
-    setModal({ open: true, type: "loading", message: "Updating bookmark..." });
+    setModal({ open: true, action: "bookmark", type: "loading", message: "Updating bookmark..." });
 
     try {
       if (bookmark) {
         await removeBookmark(article.id);
         setBookmark(false);
-        setModal({ open: true, type: "success", message: "Bookmark removed!" });
+        setModal({ open: true, action: "bookmark", type: "success", message: "Bookmark removed!" });
       } else {
         await addBookmark(article.id);
         setBookmark(true);
-        setModal({ open: true, type: "success", message: "Article bookmarked!" });
+        setModal({ open: true, action: "bookmark", type: "success", message: "Article bookmarked!" });
       }
     } catch (err) {
       console.error("Bookmark toggle failed", err);
-      setModal({ open: true, type: "error", message: "Failed to update bookmark" });
+      setModal({
+        open: true,
+        action: "bookmark",
+        type: "error",
+        message: "Failed to update bookmark",
+      });
     }
   };
 
-  const toggleInsight = () => setInsight((prev) => !prev);
+  const toggleInsight = async () => {
+    if (modal.open) return;
+    setModal({ open: true, action: "insight", type: "loading", message: "Updating insight..." });
+
+    try {
+      if (insight) {
+        await removeInsight(article.id);
+        setInsight(false);
+        setInsightCount((c) => Math.max(0, c - 1));
+        setModal({ open: true, action: "insight", type: "success", message: "Insight removed!" });
+      } else {
+        await addInsight(article.id);
+        setInsight(true);
+        setInsightCount((c) => c + 1);
+        setModal({ open: true, action: "insight", type: "success", message: "Insight added!" });
+      }
+    } catch (err) {
+      console.error("Insight toggle failed", err);
+      setModal({
+        open: true,
+        action: "insight",
+        type: "error",
+        message: "Failed to update insight",
+      });
+    }
+  };
+
   const allowActions = variant === "dashboard";
 
   return (
@@ -85,7 +144,12 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
         {/* IMAGE */}
         <div className="relative aspect-[16/9] w-full overflow-hidden">
           {article.imageUrl ? (
-            <img src={article.imageUrl} alt={article.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+            <img
+              src={article.imageUrl}
+              alt={article.title}
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+            />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-50 to-emerald-200">
               <LeafIcon className="h-12 w-12 text-emerald-400 opacity-70" />
@@ -106,7 +170,11 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
           </h3>
 
           {article.summary && (
-            <p className={`mt-2 text-sm text-gray-600 ${variant === "landing" ? "line-clamp-2" : "line-clamp-3"}`}>
+            <p
+              className={`mt-2 text-sm text-gray-600 ${
+                variant === "landing" ? "line-clamp-2" : "line-clamp-3"
+              }`}
+            >
               {article.summary}
             </p>
           )}
@@ -114,7 +182,10 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
           {article.categories && article.categories.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
               {article.categories.map((c, idx) => (
-                <span key={`${article.id}-cat-${idx}`} className="inline-block rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800">
+                <span
+                  key={`${article.id}-cat-${idx}`}
+                  className="inline-block rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800"
+                >
                   {c}
                 </span>
               ))}
@@ -144,24 +215,28 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
                     toggleBookmark();
                   }}
                   className={`flex items-center gap-1 rounded-full px-3 py-1 font-semibold text-xs transition-colors ${
-                    bookmark ? "bg-emerald-600 text-white hover:bg-emerald-700" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                    bookmark
+                      ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                      : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
                   }`}
                 >
                   <BookmarkIcon size={14} className={bookmark ? "fill-current" : ""} />
                   {bookmark ? "Bookmarked" : "Bookmark"}
                 </button>
 
-                {/* Insight Button */}
+                {/* Insight Button (💡 + count only) */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     toggleInsight();
                   }}
                   className={`flex items-center gap-1 rounded-full px-3 py-1 font-semibold text-xs transition-colors ${
-                    insight ? "bg-indigo-600 text-white hover:bg-indigo-700" : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
+                    insight
+                      ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                      : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
                   }`}
                 >
-                  Insight
+                  💡 {insightCount}
                 </button>
               </div>
             )}
@@ -181,9 +256,10 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
         />
       )}
 
-      {/* Modal feedback */}
+      {/* Unified feedback modal */}
       {modal.open && (
-        <BookmarkModal
+        <ActionModal
+          action={modal.action}
           type={modal.type}
           message={modal.message}
           onClose={() => setModal({ ...modal, open: false })}

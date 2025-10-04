@@ -1,26 +1,38 @@
 import React, { useEffect, useState } from "react";
 
-type BookmarkModalProps = {
+type ActionType = "bookmark" | "insight";
+type ActionStatus = "success" | "error" | "loading";
+
+type ActionModalProps = {
+  action: ActionType; // "bookmark" or "insight"
   message: string;
-  type: "success" | "error" | "loading";
+  type: ActionStatus; // success | error | loading
   onClose?: () => void;
 };
 
-const BookmarkModal: React.FC<BookmarkModalProps> = ({ message, type, onClose }) => {
+const ActionModal: React.FC<ActionModalProps> = ({ action, message, type, onClose }) => {
   const [isVisible, setIsVisible] = useState(true);
 
-  // Auto-close after 1s on success/error
+  // Auto-close after 1.5s on success/error
   useEffect(() => {
     if (type !== "loading") {
       const timer = setTimeout(() => {
-        setIsVisible(false); // fade-out
+        setIsVisible(false);
         setTimeout(() => {
           if (onClose) onClose();
-        }, 1500);
+        }, 300);
       }, 1500);
       return () => clearTimeout(timer);
     }
   }, [type, onClose]);
+
+  // Pick Tailwind color classes inline
+  const iconColor =
+    action === "bookmark" ? "text-emerald-600" : "text-indigo-600";
+  const buttonColor =
+    action === "bookmark"
+      ? "bg-emerald-600/90 hover:bg-emerald-700"
+      : "bg-indigo-600/90 hover:bg-indigo-700";
 
   return (
     <div
@@ -33,7 +45,7 @@ const BookmarkModal: React.FC<BookmarkModalProps> = ({ message, type, onClose })
         <div className="mb-4 flex justify-center">
           {type === "loading" ? (
             <svg
-              className="animate-spin h-8 w-8 text-emerald-600"
+              className={`animate-spin h-8 w-8 ${iconColor}`}
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -55,7 +67,7 @@ const BookmarkModal: React.FC<BookmarkModalProps> = ({ message, type, onClose })
           ) : type === "success" ? (
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-8 w-8 text-emerald-600"
+              className={`h-8 w-8 ${iconColor}`}
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -80,7 +92,7 @@ const BookmarkModal: React.FC<BookmarkModalProps> = ({ message, type, onClose })
         {/* Message */}
         <p className="text-gray-800 font-medium">{message}</p>
 
-        {/* Close Button (manual dismiss only for non-loading) */}
+        {/* Close Button */}
         {type !== "loading" && (
           <button
             onClick={() => {
@@ -89,7 +101,7 @@ const BookmarkModal: React.FC<BookmarkModalProps> = ({ message, type, onClose })
                 if (onClose) onClose();
               }, 300);
             }}
-            className="mt-5 px-4 py-2 rounded-lg bg-emerald-600/90 text-white font-semibold hover:bg-emerald-700 transition"
+            className={`mt-5 px-4 py-2 rounded-lg text-white font-semibold transition ${buttonColor}`}
           >
             Close
           </button>
@@ -99,4 +111,4 @@ const BookmarkModal: React.FC<BookmarkModalProps> = ({ message, type, onClose })
   );
 };
 
-export default BookmarkModal;
+export default ActionModal;
