@@ -1,7 +1,8 @@
 // src/components/dashboard/BookmarksView.tsx
 import { useEffect, useState } from "react";
-import ArticleGrid from "../common/ArticleGrid";
+import ArticleGrid from "../articles/ArticleGrid";
 import Pagination from "./Pagination";
+import LoadingPlaceholder from "../ui/LoadingPlaceholder";
 import { apiFetch } from "../../utils/api";
 
 export default function BookmarksView() {
@@ -42,16 +43,8 @@ export default function BookmarksView() {
 
   return (
     <section>
-      <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
-        <input
-          type="search"
-          placeholder="Search your bookmarks..."
-          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
-      </div>
-
       {loading ? (
-        <p className="text-center text-gray-600">Loading bookmarks...</p>
+        <LoadingPlaceholder type="bookmarks" mode="blocking" />
       ) : error ? (
         <p className="text-center text-red-500 mt-8">{error}</p>
       ) : articles.length > 0 ? (

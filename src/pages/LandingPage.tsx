@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Header from "../components/layout/Header";
+import AppHeader from "../components/layout/AppHeader";
 import Footer from "../components/layout/Footer";
 import HeroSection from "../components/landing/HeroSection";
 import FeaturesSection from "../components/landing/FeaturesSection";
@@ -16,7 +16,8 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
-      <Header
+      <AppHeader
+        variant="landing"
         onLogin={() => {
           setView("login");
           setAuthOpen(true);
@@ -33,7 +34,11 @@ export default function LandingPage() {
         }}
       />
       <FeaturesSection />
-      <LatestNewsSection articles={articles} disablePopup={true} showBookmark={false} />
+      <LatestNewsSection
+        articles={articles}
+        disablePopup={true}
+        showBookmark={false}
+      />
       <Footer />
       <AuthModal
         open={authOpen}

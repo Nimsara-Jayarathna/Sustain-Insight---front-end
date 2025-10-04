@@ -1,4 +1,4 @@
-import ArticleGrid from "../common/ArticleGrid";
+import ArticleGrid from "../articles/ArticleGrid";
 
 type LatestNewsSectionProps = {
   articles: any[];
@@ -9,16 +9,23 @@ type LatestNewsSectionProps = {
 export default function LatestNewsSection({
   articles,
   disablePopup = false,
-  //showBookmark = true,
-}: LatestNewsSectionProps) {
+}: //showBookmark = true,
+LatestNewsSectionProps) {
   return (
-    <section id="latest" className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
+    <section
+      id="latest"
+      className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8"
+    >
       <h2 className="mb-6 text-xl font-semibold tracking-tight sm:text-2xl">
         Latest in Climate News
       </h2>
-      <ArticleGrid articles={articles} variant="landing" mode="carousel" speed={40} 
-                disablePopup={disablePopup}/>
-
+      <ArticleGrid
+        articles={articles}
+        variant="landing"
+        mode="carousel"
+        speed={40}
+        disablePopup={disablePopup}
+      />
     </section>
   );
 }
