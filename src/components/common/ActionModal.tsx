@@ -4,9 +4,9 @@ type ActionType = "bookmark" | "insight";
 type ActionStatus = "success" | "error" | "loading";
 
 type ActionModalProps = {
-  action: ActionType;               // "bookmark" or "insight"
+  action: ActionType; // "bookmark" or "insight"
   message: string;
-  type: ActionStatus;               // success | error | loading
+  type: ActionStatus; // success | error | loading
   onClose?: () => void;
 };
 
@@ -26,8 +26,17 @@ const ActionModal: React.FC<ActionModalProps> = ({ action, message, type, onClos
     }
   }, [type, onClose]);
 
-  // 🎨 Choose color based on action
-  const color = action === "bookmark" ? "emerald" : "indigo";
+  // 🎨 Explicit color classes (works with Tailwind)
+  const colorClasses =
+    action === "bookmark"
+      ? {
+          bg: "bg-emerald-600/90 hover:bg-emerald-700",
+          text: "text-emerald-600",
+        }
+      : {
+          bg: "bg-indigo-600/90 hover:bg-indigo-700",
+          text: "text-indigo-600",
+        };
 
   return (
     <div
@@ -40,7 +49,7 @@ const ActionModal: React.FC<ActionModalProps> = ({ action, message, type, onClos
         <div className="mb-4 flex justify-center">
           {type === "loading" ? (
             <svg
-              className={`animate-spin h-8 w-8 text-${color}-600`}
+              className={`animate-spin h-8 w-8 ${colorClasses.text}`}
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -62,7 +71,7 @@ const ActionModal: React.FC<ActionModalProps> = ({ action, message, type, onClos
           ) : type === "success" ? (
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className={`h-8 w-8 text-${color}-600`}
+              className={`h-8 w-8 ${colorClasses.text}`}
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -96,7 +105,7 @@ const ActionModal: React.FC<ActionModalProps> = ({ action, message, type, onClos
                 if (onClose) onClose();
               }, 300);
             }}
-            className={`mt-5 px-4 py-2 rounded-lg bg-${color}-600/90 text-white font-semibold hover:bg-${color}-700 transition`}
+            className={`mt-5 px-4 py-2 rounded-lg text-white font-semibold transition ${colorClasses.bg}`}
           >
             Close
           </button>
