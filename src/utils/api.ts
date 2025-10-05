@@ -22,8 +22,17 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
   });
 
   if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`API error ${res.status}: ${text}`);
+    const errorText = await res.text();
+    let errorMessage = errorText;
+    try {
+      const errData = JSON.parse(errorText);
+      if (errData && errData.message) {
+        errorMessage = errData.message;
+      }
+    } catch (e) {
+      // Ignore parsing errors, we'll use the raw text
+    }
+    throw new Error(errorMessage);
   }
 
   return res.json();

@@ -53,7 +53,7 @@ const ForYouView = () => {
       </header>
 
       {loading ? (
-        <LoadingPlaceholder type="foryou" mode="blocking" />
+        <LoadingPlaceholder type="foryou" mode="skeleton" />
       ) : error ? (
         <div className="text-center mt-12 p-8 bg-red-100 text-red-700 rounded-lg shadow-sm">
           <p>{error}</p>

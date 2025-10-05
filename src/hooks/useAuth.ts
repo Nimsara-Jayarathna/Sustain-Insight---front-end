@@ -21,6 +21,11 @@ export function useAuth() {
       }
     } catch (err) {
       console.error("Failed to parse stored user", err);
+      // If parsing fails, clear the stored data to prevent a broken state
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setToken(null);
+      setUser(null);
     }
   }, []);
 

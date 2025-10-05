@@ -35,8 +35,8 @@ export default function ResetPasswordForm({
 
       // ✅ Success
       setSuccess(true);
+      setLoading(false); // Add this line
       setTimeout(() => {
-        setLoading(false);
         onSwitch("login");
       }, 2000);
     } catch (err: any) {

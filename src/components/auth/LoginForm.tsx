@@ -34,8 +34,6 @@ export default function LoginForm({
     } catch (err: any) {
       setError(err?.message || "Invalid email or password");
       setLoading(false);
-      // auto-hide error popup after 2s
-      setTimeout(() => setError(""), 2000);
     }
   };
 

@@ -31,10 +31,14 @@ export default function SignupForm({
     try {
       await onSubmit({ firstName, lastName, title, email, password });
       setSuccess(true);
-      //setTimeout(() => window.location.reload(), 1200);
+      setLoading(false);
+      setTimeout(() => {
+        onSwitch("login");
+      }, 1500); // wait a bit before switching
     } catch (err: any) {
       setError(err?.message || "Failed to create account. Please try again.");
       setLoading(false);
+      setSuccess(false);
     }
   };
 
@@ -156,7 +160,15 @@ export default function SignupForm({
       <AuthLoadingOverlay
         loading={loading}
         success={success}
-        message={success ? "Account created successfully!" : "Creating your account..."}
+        error={error}
+        message={
+          success
+            ? "Account created successfully!"
+            : error
+            ? error
+            : "Creating your account..."
+        }
+        onClose={() => setError("")}
       />
     </div>
   );
