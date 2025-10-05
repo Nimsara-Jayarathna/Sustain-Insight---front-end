@@ -4,11 +4,11 @@ import DashboardPage from "./pages/DashboardPage";
 import { useAuthContext } from "./context/AuthContext";
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuthContext();
+  const { isAuthenticated, loading } = useAuthContext();
 
-  const DEV_MODE = true; // 🔹 set to false when enforcing real auth
-
-  if (DEV_MODE) return children;
+  if (loading) {
+    return <div>Loading...</div>; // Or a proper spinner component
+  }
 
   if (!isAuthenticated) {
     console.warn("⚠️ Tried to access private route without auth");

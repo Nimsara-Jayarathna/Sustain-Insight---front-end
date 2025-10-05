@@ -21,12 +21,7 @@ export default function DashboardPage() {
   const [_sources, _setSources] = useState<any[]>([]);
   const [_loading, _setLoading] = useState(true);
 
-  // Redirect unauthenticated users
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate("/");
-    }
-  }, [isAuthenticated, navigate]);
+
 
   // Fetch public categories & sources
   useEffect(() => {
