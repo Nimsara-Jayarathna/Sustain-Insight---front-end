@@ -1,32 +1,21 @@
 import { useAuthContext } from "../context/AuthContext";
+import { apiFetch } from "../utils/api";
 
 export function useAuthHandlers() {
   const { login } = useAuthContext();
 
   // 🔹 LOGIN HANDLER
   const handleLogin = async (email: string, password: string): Promise<void> => {
-    const response = await fetch("/api/auth/login", {
+    // Call backend for authentication
+    const loginData = await apiFetch("/api/auth/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
 
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err?.message || "Login failed. Please try again.");
-    }
-
-    const loginData = await response.json();
-
-    const userResponse = await fetch("/api/account/me", {
+    // Then fetch the user profile
+    const userData = await apiFetch("/api/account/me", {
       headers: { Authorization: `Bearer ${loginData.token}` },
     });
-
-    if (!userResponse.ok) {
-      throw new Error("Failed to load user profile.");
-    }
-
-    const userData = await userResponse.json();
 
     // Save auth state globally
     login(loginData.token, userData);
@@ -40,19 +29,12 @@ export function useAuthHandlers() {
     email: string;
     password: string;
   }): Promise<void> => {
-    const response = await fetch("/api/auth/signup", {
+    const signupData = await apiFetch("/api/auth/signup", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
 
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err?.message || "Signup failed. Please try again.");
-    }
-
-    const signupData = await response.json();
-
+    // Save token and partial user info
     login(signupData.token, {
       firstName: data.firstName,
       lastName: data.lastName,
@@ -61,16 +43,10 @@ export function useAuthHandlers() {
 
   // 🔹 FORGOT PASSWORD HANDLER
   const handleForgotPassword = async (email: string): Promise<void> => {
-    const response = await fetch("/api/auth/forgot-password", {
+    await apiFetch("/api/auth/forgot-password", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
     });
-
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err?.message || "Failed to send reset link.");
-    }
   };
 
   return { handleLogin, handleSignup, handleForgotPassword };
