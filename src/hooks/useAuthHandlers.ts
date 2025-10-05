@@ -1,63 +1,79 @@
 import { useNavigate } from "react-router-dom";
-import { apiFetch } from "../utils/api";
 import { useAuthContext } from "../context/AuthContext";
 
 export function useAuthHandlers() {
   const navigate = useNavigate();
   const { login } = useAuthContext();
 
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.target as any;
-    const email = form["login-email"].value;
-    const password = form["login-password"].value;
+  // 🔹 LOGIN HANDLER
+  const handleLogin = async (email: string, password: string): Promise<void> => {
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
 
-    try {
-      const loginData = await apiFetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const userData = await apiFetch("/api/account/me", {
-        headers: { Authorization: `Bearer ${loginData.token}` },
-      });
-
-      login(loginData.token, userData);
-      alert("Login successful!");
-      navigate("/dashboard");
-    } catch {
-      alert("Login failed");
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err?.message || "Login failed. Please try again.");
     }
+
+    const loginData = await response.json();
+
+    const userResponse = await fetch("/api/account/me", {
+      headers: { Authorization: `Bearer ${loginData.token}` },
+    });
+
+    if (!userResponse.ok) {
+      throw new Error("Failed to load user profile.");
+    }
+
+    const userData = await userResponse.json();
+
+    // Save auth state globally
+    login(loginData.token, userData);
   };
 
-  const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.target as any;
-    const body = {
-      firstName: form["signup-first-name"].value,
-      lastName: form["signup-last-name"].value,
-      jobTitle: form["signup-title"].value,
-      email: form["signup-email"].value,
-      password: form["signup-password"].value,
-    };
+  // 🔹 SIGNUP HANDLER
+  const handleSignup = async (data: {
+    firstName: string;
+    lastName: string;
+    title: string;
+    email: string;
+    password: string;
+  }): Promise<void> => {
+    const response = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
 
-    try {
-      const data = await apiFetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      login(data.token, {
-        firstName: body.firstName,
-        lastName: body.lastName,
-      });
-      alert("Signup successful!");
-      navigate("/dashboard");
-    } catch {
-      alert("Signup failed");
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err?.message || "Signup failed. Please try again.");
     }
+
+    const signupData = await response.json();
+
+    login(signupData.token, {
+      firstName: data.firstName,
+      lastName: data.lastName,
+    });
   };
 
-  return { handleLogin, handleSignup };
+  const handleForgotPassword = async (email: string): Promise<void> => {
+  const response = await fetch("/api/auth/forgot-password", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err?.message || "Failed to send reset link.");
+  }
+};
+
+
+  return { handleLogin, handleSignup, handleForgotPassword};
 }
