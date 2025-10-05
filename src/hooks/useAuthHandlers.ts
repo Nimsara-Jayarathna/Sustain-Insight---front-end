@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../context/AuthContext";
 
 export function useAuthHandlers() {
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
   const { login } = useAuthContext();
 
   // 🔹 LOGIN HANDLER
