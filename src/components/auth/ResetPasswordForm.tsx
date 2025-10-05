@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import AuthLoadingOverlay from "../ui/AuthLoadingOverlay";
+import { apiFetch } from "../../utils/api";
 
 export default function ResetPasswordForm({
   token,
@@ -17,6 +18,7 @@ export default function ResetPasswordForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
@@ -25,19 +27,11 @@ export default function ResetPasswordForm({
     setLoading(true);
 
     try {
-      // 🔹 Simulated backend call (replace with actual API)
-      // You’ll later replace `/api/auth/reset-password`
-      // once backend endpoint is ready.
-      const response = await fetch("/api/auth/reset-password", {
+      // ✅ Use apiFetch to ensure backendURL is prefixed automatically
+      await apiFetch("/api/auth/reset-password", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, password }),
       });
-
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err?.message || "Failed to reset password.");
-      }
 
       // ✅ Success
       setSuccess(true);
@@ -114,7 +108,7 @@ export default function ResetPasswordForm({
         </p>
       </form>
 
-      {/* Overlay feedback for loading/success/error */}
+      {/* Overlay feedback */}
       {(loading || success || error) && (
         <AuthLoadingOverlay
           loading={loading}
