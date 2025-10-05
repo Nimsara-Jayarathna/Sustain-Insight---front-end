@@ -1,8 +1,6 @@
-import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../context/AuthContext";
 
 export function useAuthHandlers() {
-  //const navigate = useNavigate();
   const { login } = useAuthContext();
 
   // 🔹 LOGIN HANDLER
@@ -61,19 +59,19 @@ export function useAuthHandlers() {
     });
   };
 
+  // 🔹 FORGOT PASSWORD HANDLER
   const handleForgotPassword = async (email: string): Promise<void> => {
-  const response = await fetch("/api/auth/forgot-password", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email }),
-  });
+    const response = await fetch("/api/auth/forgot-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
 
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error(err?.message || "Failed to send reset link.");
-  }
-};
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err?.message || "Failed to send reset link.");
+    }
+  };
 
-
-  return { handleLogin, handleSignup, handleForgotPassword};
+  return { handleLogin, handleSignup, handleForgotPassword };
 }
