@@ -6,13 +6,27 @@ type Props = {
   onClose: () => void;
   onApply: (filters: {
     categoryIds: number[];
+    categoryNames: string[];
     sourceIds: number[];
+    sourceNames: string[];
     date?: string;
   }) => void;
   onClear: () => void;
+  // ✅ Add currently active filters for sync
+  activeFilters?: {
+    categoryIds?: number[];
+    sourceIds?: number[];
+    date?: string;
+  };
 };
 
-export default function FilterModal({ open, onClose, onApply, onClear }: Props) {
+export default function FilterModal({
+  open,
+  onClose,
+  onApply,
+  onClear,
+  activeFilters = {},
+}: Props) {
   const [categories, setCategories] = useState<any[]>([]);
   const [sources, setSources] = useState<any[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
@@ -20,6 +34,7 @@ export default function FilterModal({ open, onClose, onApply, onClear }: Props) 
   const [date, setDate] = useState("");
   const [searchSource, setSearchSource] = useState("");
 
+  // 🔹 Fetch categories and sources once
   useEffect(() => {
     if (!open) return;
     async function fetchData() {
@@ -37,6 +52,16 @@ export default function FilterModal({ open, onClose, onApply, onClear }: Props) 
     fetchData();
   }, [open]);
 
+  // ✅ Sync modal selections with parent filters whenever modal opens
+  useEffect(() => {
+    if (open) {
+      setSelectedCategories(activeFilters.categoryIds || []);
+      setSelectedSources(activeFilters.sourceIds || []);
+      setDate(activeFilters.date || "");
+      setSearchSource("");
+    }
+  }, [open, activeFilters]);
+
   const toggleCategory = (id: number) => {
     setSelectedCategories((prev) =>
       prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
@@ -50,32 +75,42 @@ export default function FilterModal({ open, onClose, onApply, onClear }: Props) 
   };
 
   const handleApply = () => {
-    onApply({ categoryIds: selectedCategories, sourceIds: selectedSources, date });
+    const selectedCategoryNames = categories
+      .filter((c) => selectedCategories.includes(c.id))
+      .map((c) => c.name);
+    const selectedSourceNames = sources
+      .filter((s) => selectedSources.includes(s.id))
+      .map((s) => s.name);
+
+    onApply({
+      categoryIds: selectedCategories,
+      categoryNames: selectedCategoryNames,
+      sourceIds: selectedSources,
+      sourceNames: selectedSourceNames,
+      date,
+    });
     onClose();
   };
 
   if (!open) return null;
 
-  // 🔍 Filter sources by search
   const filteredSources = sources.filter((s) =>
     s.name.toLowerCase().includes(searchSource.toLowerCase())
   );
 
-  // 🔹 Bulk actions
   const selectAllSources = () => setSelectedSources(sources.map((s) => s.id));
   const deselectAllSources = () => setSelectedSources([]);
-  const selectAllCategories = () => setSelectedCategories(categories.map((c) => c.id));
+  const selectAllCategories = () =>
+    setSelectedCategories(categories.map((c) => c.id));
   const deselectAllCategories = () => setSelectedCategories([]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col max-h-[90vh]">
-        {/* Header */}
         <div className="p-5 border-b border-gray-200/60">
           <h2 className="text-lg font-semibold text-gray-800">Filters</h2>
         </div>
 
-        {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto p-5 space-y-6">
           {/* Categories */}
           <div>
@@ -96,7 +131,7 @@ export default function FilterModal({ open, onClose, onApply, onClear }: Props) 
                 </button>
               </div>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               {categories.map((c) => (
                 <button
                   key={c.id}
@@ -134,7 +169,6 @@ export default function FilterModal({ open, onClose, onApply, onClear }: Props) 
               </div>
             </div>
 
-            {/* Search Bar */}
             <input
               type="text"
               placeholder="Search sources..."
@@ -143,7 +177,6 @@ export default function FilterModal({ open, onClose, onApply, onClear }: Props) 
               className="mb-3 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-green-500"
             />
 
-            {/* Scrollable source list */}
             <div className="max-h-48 overflow-y-auto pr-1 space-y-1">
               {filteredSources.map((s) => (
                 <button
@@ -177,7 +210,6 @@ export default function FilterModal({ open, onClose, onApply, onClear }: Props) 
           </div>
         </div>
 
-        {/* Footer */}
         <div className="flex justify-between p-5 border-t border-gray-200/60 bg-gray-50 rounded-b-2xl">
           <button
             onClick={() => {
