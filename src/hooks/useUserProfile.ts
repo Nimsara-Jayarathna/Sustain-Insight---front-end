@@ -1,37 +1,39 @@
 // src/hooks/useUserProfile.ts
 import { useState, useEffect } from "react";
-import { apiFetch } from "../utils/api"; // Make sure this path is correct
+import { apiFetch } from "../utils/api"; // Ensure this path is correct
+
+type SubmissionStatus = {
+  status: 'idle' | 'saving' | 'success' | 'error';
+  message: string;
+};
+
+const INITIAL_STATUS: SubmissionStatus = { status: 'idle', message: '' };
 
 export function useUserProfile(open: boolean) {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [staticData, setStaticData] = useState<{ categories: any[], sources: any[] }>({ categories: [], sources: [] });
   
-  // State for user-editable fields
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
   const [selectedSources, setSelectedSources] = useState<number[]>([]);
 
-  // State for submission
-  const [saving, setSaving] = useState(false);
-  const [feedbackMessage, setFeedbackMessage] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+  const [submissionStatus, setSubmissionStatus] = useState<SubmissionStatus>(INITIAL_STATUS);
 
-  // Initial data fetch
   useEffect(() => {
     if (!open) return;
 
     async function fetchData() {
       try {
         setLoading(true);
-        setFeedbackMessage(null);
+        setSubmissionStatus(INITIAL_STATUS);
         const [me, cats, srcs] = await Promise.all([
           apiFetch("/api/account/me"),
           apiFetch("/api/public/categories"),
           apiFetch("/api/public/sources"),
         ]);
         
-        // Set initial state from fetched data
         setUser(me);
         setStaticData({ categories: cats, sources: srcs });
         setFirstName(me.firstName || "");
@@ -40,7 +42,7 @@ export function useUserProfile(open: boolean) {
         setSelectedSources(me.preferredSources?.map((s: any) => s.id) || []);
       } catch (err) {
         console.error("DEBUG → Failed to fetch profile data:", err);
-        setFeedbackMessage({ type: 'error', message: 'Could not load profile data.' });
+        setSubmissionStatus({ status: 'error', message: 'Could not load profile data.' });
       } finally {
         setLoading(false);
       }
@@ -49,62 +51,40 @@ export function useUserProfile(open: boolean) {
     fetchData();
   }, [open]);
   
-  // Handlers for user interaction
-  const toggleCategory = (id: number) => {
-    setSelectedCategories((prev) =>
-      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
-    );
-  };
-
-  const toggleSource = (id: number) => {
-    setSelectedSources((prev) =>
-      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
-    );
-  };
+  const toggleCategory = (id: number) => setSelectedCategories((prev) => prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]);
+  const toggleSource = (id: number) => setSelectedSources((prev) => prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]);
 
   const saveProfile = async () => {
-    setSaving(true);
-    setFeedbackMessage(null);
+    setSubmissionStatus({ status: 'saving', message: 'Saving changes...' });
     try {
       await apiFetch("/api/account/preferences", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          firstName,
-          lastName,
-          categoryIds: selectedCategories,
-          sourceIds: selectedSources,
-        }),
+        body: JSON.stringify({ firstName, lastName, categoryIds: selectedCategories, sourceIds: selectedSources }),
       });
-      setFeedbackMessage({ type: 'success', message: 'Profile updated successfully!' });
+      setSubmissionStatus({ status: 'success', message: 'Profile updated!' });
       return true;
     } catch (err: any) {
       console.error("DEBUG → Failed to save profile:", err);
-      setFeedbackMessage({ type: 'error', message: err.message || 'Failed to update profile.' });
+      setSubmissionStatus({ status: 'error', message: err.message || 'Failed to update profile.' });
       return false;
-    } finally {
-      setSaving(false);
     }
   };
+  
+  const resetSubmissionStatus = () => setSubmissionStatus(INITIAL_STATUS);
 
   return {
-    // Data and Status
     loading,
-    saving,
+    saving: submissionStatus.status === 'saving',
     user,
     categories: staticData.categories,
     sources: staticData.sources,
-    feedbackMessage,
-
-    // Form State and Setters
+    submissionStatus,
+    resetSubmissionStatus,
     firstName, setFirstName,
     lastName, setLastName,
-    selectedCategories,
-    selectedSources,
-
-    // Actions
-    toggleCategory,
-    toggleSource,
+    selectedCategories, toggleCategory,
+    selectedSources, toggleSource,
     saveProfile,
   };
 }
