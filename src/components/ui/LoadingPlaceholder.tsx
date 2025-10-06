@@ -6,15 +6,16 @@ type Props = {
   type: "articles" | "bookmarks" | "foryou";
   mode?: "skeleton" | "blocking"; // skeleton grid OR blocking overlay
   count?: number; // for skeleton count
+  message?: string; // Custom message for blocking mode
 };
 
-const messages: Record<Props["type"], string> = {
+const defaultMessages: Record<Props["type"], string> = {
   articles: "Fetching the latest news articles...",
   bookmarks: "Loading your saved bookmarks...",
   foryou: "Personalizing your news feed...",
 };
 
-const LoadingPlaceholder: React.FC<Props> = ({ type, mode = "skeleton", count = 9 }) => {
+const LoadingPlaceholder: React.FC<Props> = ({ type, mode = "skeleton", count = 9, message }) => {
   if (mode === "skeleton") {
     return <ArticleGridSkeleton count={count} />;
   }
@@ -43,7 +44,7 @@ const LoadingPlaceholder: React.FC<Props> = ({ type, mode = "skeleton", count = 
               d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
             />
           </svg>
-          <p className="text-base font-medium text-gray-700">{messages[type]}</p>
+          <p className="text-base font-medium text-gray-700">{message || defaultMessages[type]}</p>
         </div>
       </div>
     );

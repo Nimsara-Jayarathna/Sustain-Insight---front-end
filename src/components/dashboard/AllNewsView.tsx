@@ -41,6 +41,9 @@ export default function AllNewsView() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  const [isUserAction, setIsUserAction] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState<string | undefined>(undefined);
+
   useEffect(() => {
     async function fetchArticles() {
       try {
@@ -67,6 +70,8 @@ export default function AllNewsView() {
         console.error("Error fetching articles:", err);
       } finally {
         setLoading(false);
+        setIsUserAction(false);
+        setLoadingMessage(undefined);
       }
     }
     fetchArticles();
@@ -88,6 +93,8 @@ export default function AllNewsView() {
           onSearch={(kw) => {
             setFilters({ ...filters, keyword: kw });
             setCurrentPage(1);
+            setIsUserAction(true);
+            setLoadingMessage("Searching articles...");
           }}
         />
 
@@ -113,6 +120,8 @@ export default function AllNewsView() {
                       setSort(option.value);
                       setSortOpen(false);
                       setCurrentPage(1);
+                      setIsUserAction(true);
+                      setLoadingMessage("Sorting articles...");
                     }}
                     className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
                       option.value === sort
@@ -145,11 +154,13 @@ export default function AllNewsView() {
           if (key === "sourceIds") delete updated.sourceNames;
           setFilters(updated);
           setCurrentPage(1);
+          setIsUserAction(true);
+          setLoadingMessage(key === "keyword" ? "Clearing search..." : "Removing filter...");
         }}
       />
 
       {loading ? (
-        <LoadingPlaceholder type="articles" mode="skeleton" />
+        <LoadingPlaceholder type="articles" mode={isUserAction ? "blocking" : "skeleton"} message={loadingMessage} />
       ) : articles.length > 0 ? (
         <>
           <ArticleGrid articles={articles} variant="dashboard" />
@@ -181,10 +192,14 @@ export default function AllNewsView() {
       date: f.date,
     });
     setCurrentPage(1);
+    setIsUserAction(true);
+    setLoadingMessage("Applying filters...");
   }}
   onClear={() => {
     setFilters({});
     setCurrentPage(1);
+    setIsUserAction(true);
+    setLoadingMessage("Clearing filters...");
   }}
 />
 
