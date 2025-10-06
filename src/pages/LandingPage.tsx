@@ -1,24 +1,30 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useLocation } from "react-router-dom";
 import LayoutWrapper from "../components/layout/LayoutWrapper";
 import HeroSection from "../components/landing/HeroSection";
 import FeaturesSection from "../components/landing/FeaturesSection";
 import LatestNewsSection from "../components/landing/LatestNewsSection";
 import AuthModal from "../components/auth/AuthModal";
-import { useArticles } from "../hooks/useArticles"; // This hook now provides isLoading
+import { useArticles } from "../hooks/useArticles";
 import { useAuthHandlers } from "../hooks/useAuthHandlers";
+import { useAuthContext } from "../context/AuthContext";
 
-export default function LandingPage() {
-  // --- THIS IS THE FIX (Part 1) ---
-  // Now we get both articles and the loading state from our updated hook.
+type LandingPageProps = {
+  openForgotInitially?: boolean;
+};
+
+export default function LandingPage({ openForgotInitially = false }: LandingPageProps) {
   const { articles, isLoading } = useArticles();
-  
+
   const { handleLogin, handleSignup, handleForgotPassword } = useAuthHandlers();
+  const { logout } = useAuthContext();
 
   const [authOpen, setAuthOpen] = useState(false);
   const [view, setView] = useState<"login" | "signup" | "forgot" | "reset">("login");
   const [resetToken, setResetToken] = useState<string | null>(null);
+
   const [searchParams] = useSearchParams();
+  const location = useLocation();
 
   useEffect(() => {
     const token = searchParams.get("token");
@@ -29,11 +35,19 @@ export default function LandingPage() {
     }
   }, [searchParams]);
 
+  useEffect(() => {
+    if (openForgotInitially || location.pathname === "/forgot-password") {
+      logout();
+
+      setView("forgot");
+      setAuthOpen(true);
+    }
+  }, [openForgotInitially, location, logout]);
+
   const openModal = (v: "login" | "signup" | "forgot") => {
     setView(v);
     setAuthOpen(true);
   };
-
   return (
     <LayoutWrapper
       variant="landing"
@@ -42,15 +56,9 @@ export default function LandingPage() {
     >
       <HeroSection onSignup={() => openModal("signup")} />
       <FeaturesSection />
+      <LatestNewsSection articles={articles} isLoading={isLoading} disablePopup />
 
-      {/* --- THIS IS THE FIX (Part 2) --- */}
-      {/* We pass the isLoading prop down to the section component. */}
-      <LatestNewsSection 
-        articles={articles} 
-        isLoading={isLoading} 
-        disablePopup 
-      />
-
+      {/* 🔹 Auth Modal handles login/signup/forgot/reset */}
       <AuthModal
         open={authOpen}
         view={view}
