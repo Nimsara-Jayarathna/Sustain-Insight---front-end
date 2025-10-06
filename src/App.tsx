@@ -1,77 +1,39 @@
-import { useState, useEffect } from "react";
-import { useSearchParams, useLocation } from "react-router-dom";
-import LayoutWrapper from "../components/layout/LayoutWrapper";
-import HeroSection from "../components/landing/HeroSection";
-import FeaturesSection from "../components/landing/FeaturesSection";
-import LatestNewsSection from "../components/landing/LatestNewsSection";
-import AuthModal from "../components/auth/AuthModal";
-import { useArticles } from "../hooks/useArticles";
-import { useAuthHandlers } from "../hooks/useAuthHandlers";
-import { useAuthContext } from "../context/AuthContext";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import LandingPage from "./pages/LandingPage";
+import DashboardPage from "./pages/DashboardPage";
+import { useAuthContext } from "./context/AuthContext";
 
-type LandingPageProps = {
-  openForgotInitially?: boolean;
-};
+function PrivateRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, loading } = useAuthContext();
 
-export default function LandingPage({ openForgotInitially = false }: LandingPageProps) {
-  const { articles, isLoading } = useArticles();
+  if (loading) return <div>Loading...</div>;
 
-  const { handleLogin, handleSignup, handleForgotPassword } = useAuthHandlers();
-  const { logout } = useAuthContext();
+  if (!isAuthenticated) {
+    console.warn("⚠️ Tried to access private route without auth");
+    return <Navigate to="/" replace />;
+  }
 
-  const [authOpen, setAuthOpen] = useState(false);
-  const [view, setView] = useState<"login" | "signup" | "forgot" | "reset">("login");
-  const [resetToken, setResetToken] = useState<string | null>(null);
+  return children;
+}
 
-  const [searchParams] = useSearchParams();
-  const location = useLocation();
-
-  useEffect(() => {
-    const token = searchParams.get("token");
-    if (token) {
-      setResetToken(token);
-      setView("reset");
-      setAuthOpen(true);
-    }
-  }, [searchParams]);
-
-  useEffect(() => {
-    if (openForgotInitially || location.pathname === "/forgot-password") {
-      logout();
-
-      setView("forgot");
-      setAuthOpen(true);
-    }
-  }, [openForgotInitially, location, logout]);
-
-  const openModal = (v: "login" | "signup" | "forgot") => {
-    setView(v);
-    setAuthOpen(true);
-  };
+export default function App() {
   return (
-    <LayoutWrapper
-      variant="landing"
-      onLogin={() => openModal("login")}
-      onSignup={() => openModal("signup")}
-    >
-      <HeroSection onSignup={() => openModal("signup")} />
-      <FeaturesSection />
-      <LatestNewsSection articles={articles} isLoading={isLoading} disablePopup />
+    <Router>
+      <Routes>
+        {/* Landing handles login/signup/forgot/reset inside modal */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/reset-password" element={<LandingPage />} />
+        <Route path="/forgot-password" element={<LandingPage openForgotInitially />} />
 
-      {/* 🔹 Auth Modal handles login/signup/forgot/reset */}
-      <AuthModal
-        open={authOpen}
-        view={view}
-        resetToken={resetToken}
-        onClose={() => setAuthOpen(false)}
-        onSwitch={(v) => {
-          setView(v);
-          if (!authOpen) setAuthOpen(true);
-        }}
-        onSubmitLogin={handleLogin}
-        onSubmitSignup={handleSignup}
-        onSubmitForgotPassword={handleForgotPassword}
-      />
-    </LayoutWrapper>
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <DashboardPage />
+            </PrivateRoute>
+          }
+        />
+      </Routes>
+    </Router>
   );
 }
