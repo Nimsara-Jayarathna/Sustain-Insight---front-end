@@ -19,8 +19,8 @@ type ArticleModalProps = {
   bookmark: boolean;
   insight: boolean;
   insightCount: number;
-  onToggleBookmark: () => void;
-  onToggleInsight: () => void;
+  onToggleBookmark: (e: React.MouseEvent) => void;
+  onToggleInsight: (e: React.MouseEvent) => void;
   onClose: () => void;
   allowActions?: boolean;
 };
@@ -44,53 +44,40 @@ const ArticleModal: React.FC<ArticleModalProps> = ({
   }, [onClose]);
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-white rounded-xl shadow-lg p-6"
+        className="flex flex-col w-full max-w-3xl bg-white shadow-xl rounded-2xl max-h-[90vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close */}
-        <button
-          onClick={onClose}
-          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
-        >
-          ✕
-        </button>
-
-        {/* Thumbnail */}
-        <div className="mb-4">
-          <ArticleThumbnail imageUrl={article.imageUrl} title={article.title} />
+        {/* --- Redesigned Header --- */}
+        <div className="flex items-center justify-between flex-shrink-0 p-4 sm:p-5 border-b border-gray-200">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-800 truncate pr-4">{article.title}</h2>
+          <button aria-label="Close" onClick={onClose} className="inline-flex items-center justify-center w-8 h-8 text-gray-500 rounded-full hover:bg-gray-100 flex-shrink-0">×</button>
         </div>
 
-        {/* Title */}
-        <h2 className="text-2xl font-bold text-gray-900 min-h-[56px]">
-          {article.title}
-        </h2>
+        {/* --- Scrollable Content Area --- */}
+        <div className="flex-grow p-4 sm:p-5 overflow-y-auto">
+          <div className="mb-4">
+            <ArticleThumbnail imageUrl={article.imageUrl} title={article.title} />
+          </div>
+          <div className="mb-4">
+            <ArticleSource sources={article.sources} />
+          </div>
+          <ArticleSummary summary={article.summary} variant="dashboard" />
 
-        {/* Meta */}
-        <ArticleSource sources={article.sources} />
+          {/* Full Content */}
+          <div className="mt-4 prose prose-sm sm:prose-base max-w-none text-gray-700 whitespace-pre-line">
+            {article.content || ""}
+          </div>
 
-        {/* Summary */}
-        <ArticleSummary summary={article.summary} variant="dashboard" />
-
-        {/* Content */}
-        <div className="mt-4 min-h-[120px]">
-          {article.content ? (
-            <p className="text-gray-600 whitespace-pre-line">{article.content}</p>
-          ) : (
-            <span className="opacity-0">placeholder</span>
-          )}
-        </div>
-
-        {/* Categories */}
-        <ArticleCategories articleId={article.id} categories={article.categories} />
-
-        {/* Footer (actions) */}
-        {allowActions && (
           <div className="mt-6">
+            <ArticleCategories articleId={article.id} categories={article.categories} />
+          </div>
+        </div>
+
+        {/* --- Redesigned Footer --- */}
+        {allowActions && (
+          <div className="flex-shrink-0 p-4 sm:p-5 bg-white border-t border-gray-200">
             <ArticleFooter
               publishedAt={article.publishedAt}
               allowActions={true}

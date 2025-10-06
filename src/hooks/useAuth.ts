@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 export function useAuth() {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<{ firstName: string; lastName: string } | null>(null);
+  const [loading, setLoading] = useState(true); // Add loading state
 
   useEffect(() => {
     try {
@@ -21,7 +22,13 @@ export function useAuth() {
       }
     } catch (err) {
       console.error("Failed to parse stored user", err);
+      // If parsing fails, clear the stored data to prevent a broken state
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setToken(null);
+      setUser(null);
     }
+    setLoading(false); // Set loading to false after checking for token
   }, []);
 
   const login = (jwt: string, userData?: { firstName: string; lastName: string }) => {
@@ -42,6 +49,7 @@ export function useAuth() {
   const logout = () => {
     console.debug("DEBUG → Clearing token & user");
     localStorage.removeItem("token");
+    localStorage.removeItem("authtoken"); // remove legacy token
     localStorage.removeItem("user");
     setToken(null);
     setUser(null);
@@ -50,6 +58,7 @@ export function useAuth() {
   return {
     token,
     user,
+    loading, // Add loading to return value
     isAuthenticated: !!token,
     login,
     logout,

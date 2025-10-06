@@ -1,63 +1,53 @@
-import { useNavigate } from "react-router-dom";
-import { apiFetch } from "../utils/api";
 import { useAuthContext } from "../context/AuthContext";
+import { apiFetch } from "../utils/api";
 
 export function useAuthHandlers() {
-  const navigate = useNavigate();
   const { login } = useAuthContext();
 
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.target as any;
-    const email = form["login-email"].value;
-    const password = form["login-password"].value;
+  // 🔹 LOGIN HANDLER
+  const handleLogin = async (email: string, password: string): Promise<void> => {
+    // Call backend for authentication
+    const loginData = await apiFetch("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    });
 
-    try {
-      const loginData = await apiFetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+    // Then fetch the user profile
+    const userData = await apiFetch("/api/account/me", {
+      headers: { Authorization: `Bearer ${loginData.token}` },
+    });
 
-      const userData = await apiFetch("/api/account/me", {
-        headers: { Authorization: `Bearer ${loginData.token}` },
-      });
-
-      login(loginData.token, userData);
-      alert("Login successful!");
-      navigate("/dashboard");
-    } catch {
-      alert("Login failed");
-    }
+    // Save auth state globally
+    login(loginData.token, userData);
   };
 
-  const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.target as any;
-    const body = {
-      firstName: form["signup-first-name"].value,
-      lastName: form["signup-last-name"].value,
-      jobTitle: form["signup-title"].value,
-      email: form["signup-email"].value,
-      password: form["signup-password"].value,
-    };
+  // 🔹 SIGNUP HANDLER
+  const handleSignup = async (data: {
+    firstName: string;
+    lastName: string;
+    title: string;
+    email: string;
+    password: string;
+  }): Promise<void> => {
+    const signupData = await apiFetch("/api/auth/signup", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
 
-    try {
-      const data = await apiFetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      login(data.token, {
-        firstName: body.firstName,
-        lastName: body.lastName,
-      });
-      alert("Signup successful!");
-      navigate("/dashboard");
-    } catch {
-      alert("Signup failed");
-    }
+    // Save token and partial user info
+    login(signupData.token, {
+      firstName: data.firstName,
+      lastName: data.lastName,
+    });
   };
 
-  return { handleLogin, handleSignup };
+  // 🔹 FORGOT PASSWORD HANDLER
+  const handleForgotPassword = async (email: string): Promise<void> => {
+    await apiFetch("/api/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+  };
+
+  return { handleLogin, handleSignup, handleForgotPassword };
 }

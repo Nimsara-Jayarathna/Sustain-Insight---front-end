@@ -1,39 +1,43 @@
+// import React from "react";
 import FeatureCard from "../common/FeatureCard";
+
+// --- Helper Icons (can be moved to a shared file) ---
+const RobotIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75c0 3.22-2.69 5.82-6 5.82S5.25 9.97 5.25 6.75m12 0c0-1.56-1.29-2.82-2.88-2.82s-2.88 1.26-2.88 2.82m5.76 0v.3M11.25 3.75v.3m-5.76 2.7v.3M5.25 6.75H3m18 0h-2.25M12 18.75a6 6 0 00-6-6H3.375a18.75 18.75 0 000 12h17.25a18.75 18.75 0 000-12H18a6 6 0 00-6 6z" /></svg>;
+const FilterIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.572a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" /></svg>;
+const BookmarkIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.5 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" /></svg>;
 
 export default function FeaturesSection() {
   return (
-    <section className="relative isolate mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+    <section className="relative isolate mx-auto max-w-7xl px-4 py-24 sm:py-32 sm:px-6 lg:px-8">
       {/* Background gradient */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-br from-emerald-50 via-white to-emerald-100 opacity-80" />
+      <div className="absolute inset-0 -z-10 bg-gray-50" />
 
-      {/* Section heading */}
-      <div className="text-center mb-12">
-        <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
+      <div className="text-center mb-16">
+        <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
           Empowering Sustainable Insights
         </h2>
-        <p className="mt-3 text-gray-600 max-w-2xl mx-auto text-base sm:text-lg">
-          Discover, personalize, and stay ahead with intelligent news curation.
+        <p className="mt-4 text-lg leading-8 text-gray-600 max-w-2xl mx-auto">
+          Discover, personalize, and stay ahead with intelligent news curation designed for the modern professional.
         </p>
       </div>
 
-      {/* Feature grid */}
-      <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
         <FeatureCard
-          icon={<span className="text-4xl">🤖</span>}
+          icon={<RobotIcon />}
           title="Automated Aggregation"
-          desc="We continuously gather sustainability news from verified global sources, so you never miss an update."
+          desc="We continuously gather sustainability news from verified global sources, so you never miss a critical update."
           color="emerald"
         />
         <FeatureCard
-          icon={<span className="text-4xl">🏷️</span>}
+          icon={<FilterIcon />}
           title="Intelligent Filtering"
-          desc="Sort and refine by category, region, or source — quickly zero in on what matters most to you."
+          desc="Sort and refine by category, region, or source. Quickly zero in on the information that matters most to you."
           color="cyan"
         />
         <FeatureCard
-          icon={<span className="text-4xl">🔖</span>}
+          icon={<BookmarkIcon />}
           title="Personalized Feed"
-          desc="Save your favorite topics and build a unique news stream aligned with your interests."
+          desc="Save your favorite topics and sources to build a unique news stream perfectly aligned with your interests."
           color="indigo"
         />
       </div>

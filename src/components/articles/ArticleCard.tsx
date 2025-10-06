@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import ArticleModal from "./ArticleModal";
 import ActionModal from "../feedback/ActionModal";
 
@@ -47,108 +47,74 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
     message: string;
   }>({ open: false, action: "bookmark", type: "loading", message: "" });
 
-  const toggleBookmark = async () => {
+  const toggleBookmark = async (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (modal.open) return;
-    setModal({
-      open: true,
-      action: "bookmark",
-      type: "loading",
-      message: "Updating bookmark...",
-    });
-
+    setModal({ open: true, action: "bookmark", type: "loading", message: "Updating bookmark..." });
     try {
       if (bookmark) {
         await removeBookmark(article.id);
         setBookmark(false);
-        setModal({
-          open: true,
-          action: "bookmark",
-          type: "success",
-          message: "Bookmark removed!",
-        });
+        setModal({ open: true, action: "bookmark", type: "success", message: "Bookmark removed!" });
       } else {
         await addBookmark(article.id);
         setBookmark(true);
-        setModal({
-          open: true,
-          action: "bookmark",
-          type: "success",
-          message: "Article bookmarked!",
-        });
+        setModal({ open: true, action: "bookmark", type: "success", message: "Article bookmarked!" });
       }
     } catch {
-      setModal({
-        open: true,
-        action: "bookmark",
-        type: "error",
-        message: "Failed to update bookmark",
-      });
+      setModal({ open: true, action: "bookmark", type: "error", message: "Failed to update bookmark" });
     }
   };
 
-  const toggleInsight = async () => {
+  const toggleInsight = async (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (modal.open) return;
-    setModal({
-      open: true,
-      action: "insight",
-      type: "loading",
-      message: "Updating insight...",
-    });
-
+    setModal({ open: true, action: "insight", type: "loading", message: "Updating insight..." });
     try {
       if (insight) {
         await removeInsight(article.id);
         setInsight(false);
         setInsightCount((c) => Math.max(0, c - 1));
-        setModal({
-          open: true,
-          action: "insight",
-          type: "success",
-          message: "Insight removed!",
-        });
+        setModal({ open: true, action: "insight", type: "success", message: "Insight removed!" });
       } else {
         await addInsight(article.id);
         setInsight(true);
         setInsightCount((c) => c + 1);
-        setModal({
-          open: true,
-          action: "insight",
-          type: "success",
-          message: "Insight added!",
-        });
+        setModal({ open: true, action: "insight", type: "success", message: "Insight added!" });
       }
     } catch {
-      setModal({
-        open: true,
-        action: "insight",
-        type: "error",
-        message: "Failed to update insight",
-      });
+      setModal({ open: true, action: "insight", type: "error", message: "Failed to update insight" });
     }
   };
 
   const allowActions = variant === "dashboard";
+  const isLanding = variant === 'landing';
+
+  const baseClasses = "group flex flex-col transition-all duration-300 ease-in-out h-full";
+  const variantClasses = isLanding
+    ? "rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 bg-white"
+    : "rounded-lg border border-gray-200 bg-white shadow-sm hover:shadow-lg hover:-translate-y-1";
+  const cursorClass = disablePopup ? "cursor-default" : "cursor-pointer";
 
   return (
     <>
       <article
-        onClick={() => {
-          if (!disablePopup) setOpen(true);
-        }}
-        className={`group flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 ${
-          disablePopup ? "cursor-default" : "cursor-pointer"
-        }`}
+        onClick={() => { if (!disablePopup) setOpen(true); }}
+        className={`${baseClasses} ${variantClasses} ${cursorClass}`}
       >
-        <ArticleThumbnail imageUrl={article.imageUrl} title={article.title} />
-        <div className="flex flex-1 flex-col p-5">
+        <ArticleThumbnail 
+          imageUrl={article.imageUrl} 
+          title={article.title} 
+        />
+        <div className="flex flex-1 flex-col p-4 sm:p-5">
           <ArticleSource sources={article.sources} />
           <ArticleTitle title={article.title} />
           <ArticleSummary summary={article.summary} variant={variant} />
-          <ArticleCategories
-            articleId={article.id}
-            categories={article.categories}
-          />
-          <div className="flex-grow" />
+          
+          <div className="flex-grow" /> 
+          
+          <ArticleCategories articleId={article.id} categories={article.categories} />
+          
           <ArticleFooter
             publishedAt={article.publishedAt}
             allowActions={allowActions}
@@ -161,6 +127,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
         </div>
       </article>
 
+      {/* --- THIS IS THE CORRECTED BLOCK --- */}
       {open && (
         <ArticleModal
           article={article}

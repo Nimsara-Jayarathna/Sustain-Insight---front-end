@@ -1,17 +1,20 @@
 import { useEffect, useState } from "react";
 import ArticleGrid from "../articles/ArticleGrid";
-import Pagination from "./Pagination"; // ✅ reuse pagination
+import Pagination from "./Pagination";
 import LoadingPlaceholder from "../ui/LoadingPlaceholder";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
-import { apiFetch } from "../../utils/api"; // ✅ apiFetch utility
+import { apiFetch } from "../../utils/api";
 
-const ForYouView = () => {
+// --- New Props for Parent Communication ---
+type Props = {
+  onNavigate: (view: 'for-you' | 'all-news' | 'bookmarks') => void;
+  onManagePreferences: () => void;
+};
+
+export default function ForYouView({ onNavigate, onManagePreferences }: Props) {
+  // --- All State and Logic is Preserved ---
   const [recentArticles, setRecentArticles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // 🔹 Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -20,67 +23,88 @@ const ForYouView = () => {
       try {
         setLoading(true);
         setError(null);
-
-        // ✅ Only send page, let backend decide size
         const url = `/api/articles/feed?page=${currentPage}`;
         const data = await apiFetch(url);
-
-        // ⚠️ Expect backend response format: { content, totalPages }
         setRecentArticles(data.content || []);
         setTotalPages(data.totalPages || 1);
       } catch (err) {
         console.error("DEBUG → Failed to fetch For You articles:", err);
-        setError(
-          "Failed to load personalized articles. Please try again later."
-        );
+        setError("Failed to load your personalized articles. Please try again later.");
       } finally {
         setLoading(false);
       }
     }
-
     fetchForYouArticles();
   }, [currentPage]);
+  // --- End of Preserved Logic ---
 
-  return (
-    <section>
-      <header className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">
-          Your Daily Briefing
-        </h2>
-        <p className="text-gray-600">
-          The latest news from the last 24 hours, tailored to your preferences.
-        </p>
-      </header>
+  const renderContent = () => {
+    if (loading) {
+      return <LoadingPlaceholder type="foryou" mode="skeleton" />;
+    }
 
-      {loading ? (
-        <LoadingPlaceholder type="foryou" mode="blocking" />
-      ) : error ? (
-        <div className="text-center mt-12 p-8 bg-red-100 text-red-700 rounded-lg shadow-sm">
-          <p>{error}</p>
+    if (error) {
+      return (
+        <div className="text-center text-gray-600 mt-12 p-8 bg-red-50 rounded-lg border border-red-200">
+          <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-red-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h3 className="text-lg font-semibold text-red-800 mb-2">Something Went Wrong</h3>
+          <p className="max-w-md mx-auto text-red-700">{error}</p>
         </div>
-      ) : recentArticles.length > 0 ? (
+      );
+    }
+
+    if (recentArticles.length > 0) {
+      return (
         <>
           <ArticleGrid articles={recentArticles} variant="dashboard" />
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
+          <div className="mt-8">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
         </>
-      ) : (
-        <div className="text-center mt-12 p-8 bg-white rounded-lg shadow-sm">
-          <FontAwesomeIcon
-            icon={faCheckCircle}
-            className="text-green-500 text-4xl mb-3"
-          />
-          <h3 className="text-xl font-bold text-gray-800">
-            You're all caught up!
-          </h3>
-          <p className="text-gray-600">Check back later for new stories.</p>
+      );
+    }
+
+    // --- Redesigned "All Caught Up" Empty State ---
+    return (
+      <div className="text-center text-gray-600 mt-12 p-8 bg-gray-50 rounded-lg border border-gray-200">
+        <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-emerald-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <h3 className="text-lg font-semibold text-gray-800 mb-2">You're All Caught Up!</h3>
+        <p className="max-w-md mx-auto mb-6">
+          There are no new articles based on your preferences right now. You can manage your preferences or explore all news.
+        </p>
+        <div className="flex items-center justify-center gap-4">
+          <button
+            onClick={onManagePreferences}
+            className="px-5 py-2.5 rounded-lg bg-white border border-gray-300 text-gray-700 font-medium shadow-sm hover:bg-gray-100 transition"
+          >
+            Manage Preferences
+          </button>
+          <button
+            onClick={() => onNavigate('all-news')}
+            className="px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow-sm transition"
+          >
+            Explore All News
+          </button>
         </div>
-      )}
+      </div>
+    );
+  };
+
+  return (
+    <section className="px-2 sm:px-4 md:px-6">
+      <header className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-900">Your Daily Briefing</h2>
+        <p className="text-gray-600">News from the last 24 hours, tailored to your preferences.</p>
+      </header>
+      {renderContent()}
     </section>
   );
 };
-
-export default ForYouView;

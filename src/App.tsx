@@ -1,16 +1,13 @@
-//import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import DashboardPage from "./pages/DashboardPage";
 import { useAuthContext } from "./context/AuthContext";
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuthContext();
+  const { isAuthenticated, loading } = useAuthContext();
 
-  const DEV_MODE = true; // 🔹 set to false when you want strict auth
-
-  if (DEV_MODE) {
-    return children;
+  if (loading) {
+    return <div>Loading...</div>; // Or a proper spinner component
   }
 
   if (!isAuthenticated) {
@@ -25,7 +22,10 @@ export default function App() {
   return (
     <Router>
       <Routes>
+        {/* Landing handles login/signup/forgot/reset inside modal */}
         <Route path="/" element={<LandingPage />} />
+        <Route path="/reset-password" element={<LandingPage />} />
+
         <Route
           path="/dashboard"
           element={
