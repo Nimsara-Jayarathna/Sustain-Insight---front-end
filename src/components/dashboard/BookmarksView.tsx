@@ -57,9 +57,11 @@ export default function BookmarksView() {
           />
         </>
       ) : (
-        <p className="text-center text-gray-500 mt-8">
-          You don’t have any saved bookmarks yet.
-        </p>
+        <div className="text-center text-gray-500 mt-8 p-6 bg-white rounded-lg shadow-sm">
+          <p className="text-lg font-semibold mb-2">No bookmarks yet.</p>
+          <p className="mb-4">Start bookmarking articles you find interesting to see them here!</p>
+          <p>You can bookmark articles from the "All News" or "For You" views.</p>
+        </div>
       )}
     </section>
   );

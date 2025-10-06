@@ -42,6 +42,7 @@ export default function AllNewsView() {
   const [totalPages, setTotalPages] = useState(1);
 
   const [isUserAction, setIsUserAction] = useState(false);
+
   const [loadingMessage, setLoadingMessage] = useState<string | undefined>(undefined);
 
   useEffect(() => {
@@ -85,6 +86,12 @@ export default function AllNewsView() {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
+  const hasActiveFilters = Object.values(filters).some(
+    (value) =>
+      (Array.isArray(value) && value.length > 0) ||
+      (typeof value === "string" && value.trim() !== "")
+  );
+
   return (
     <section className="px-2 sm:px-4 md:px-6">
       {/* Header Row */}
@@ -102,13 +109,19 @@ export default function AllNewsView() {
           <div className="relative sort-dropdown">
             <button
               onClick={() => setSortOpen((prev) => !prev)}
-              className="flex items-center gap-2 border border-gray-300 bg-white px-3 py-2 rounded-md text-sm text-gray-700 hover:border-gray-400"
+              className="relative flex items-center gap-2 border border-gray-300 bg-white px-3 py-2 rounded-md text-sm text-gray-700 hover:border-gray-400"
             >
               {SORT_OPTIONS.find((opt) => opt.value === sort)?.label ??
                 "Newest First"}
               <ChevronDown
                 className={`transition-transform ${sortOpen ? "rotate-180" : ""}`}
               />
+              {sort !== "newest" && (
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                </span>
+              )}
             </button>
 
             {sortOpen && (
@@ -138,9 +151,15 @@ export default function AllNewsView() {
 
           <button
             onClick={() => setFilterModalOpen(true)}
-            className="px-4 py-2 rounded-md bg-gray-800 hover:bg-gray-700 text-white"
+            className="relative px-4 py-2 rounded-md bg-gray-800 hover:bg-gray-700 text-white"
           >
             Filters
+            {hasActiveFilters && (
+              <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+              </span>
+            )}
           </button>
         </div>
       </div>
@@ -173,9 +192,16 @@ export default function AllNewsView() {
           </div>
         </>
       ) : (
-        <p className="text-center text-gray-500 mt-8">
-          No articles found. Try adjusting your filters.
-        </p>
+        <div className="text-center text-gray-500 mt-8 p-6 bg-white rounded-lg shadow-sm">
+          <p className="text-lg font-semibold mb-2">No articles found.</p>
+          <p className="mb-4">Try broadening your search, adjusting your filters, or exploring different categories.</p>
+          <button
+            onClick={() => setFilterModalOpen(true)}
+            className="px-4 py-2 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white"
+          >
+            Adjust Filters
+          </button>
+        </div>
       )}
 
       <FilterModal
