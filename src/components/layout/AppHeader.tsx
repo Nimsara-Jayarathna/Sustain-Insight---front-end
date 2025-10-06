@@ -13,6 +13,10 @@ type Props =
       onProfileClick: () => void;
     };
 
+// --- Helper Icon Components ---
+const ProfileIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>;
+const LogoutIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>;
+
 export default function AppHeader(props: Props) {
   const { variant } = props;
   const { user, logout } = useAuthContext();
@@ -30,10 +34,7 @@ export default function AppHeader(props: Props) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const fullName =
-    user?.firstName && user?.lastName
-      ? `${user.firstName} ${user.lastName}`
-      : "User";
+  const initials = (user?.firstName?.[0] || '') + (user?.lastName?.[0] || '');
 
   const handleLogout = () => {
     logout?.();
@@ -42,38 +43,25 @@ export default function AppHeader(props: Props) {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white/80 backdrop-blur-sm shadow-sm transition-shadow">
+    <header className="sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-gray-200">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-        {/* Brand */}
-        <Link
-          to={variant === "dashboard" ? "/dashboard" : "/"}
-          className="flex items-center gap-3"
-        >
-          <div className="relative h-10 w-10 rounded-full overflow-hidden bg-gradient-to-br from-emerald-50 to-emerald-100 shadow-md hover:shadow-lg transition-transform hover:-translate-y-0.5">
-            <img
-              src="/icon.png"
-              alt="Sustain Insight"
-              className="h-full w-full object-contain"
-            />
-            <div className="pointer-events-none absolute inset-0 rounded-full bg-[radial-gradient(circle_at_50%_30%,rgba(16,185,129,0.15),transparent_70%)] blur-sm" />
+        <Link to={variant === "dashboard" ? "/dashboard" : "/"} className="flex items-center gap-2.5">
+          <div className="h-8 w-8 rounded-full overflow-hidden bg-gradient-to-br from-emerald-50 to-emerald-200">
+            <img src="/icon.png" alt="Sustain Insight" className="h-full w-full object-contain p-1" />
           </div>
-
-          <span className="font-semibold tracking-tight text-gray-900 text-lg">
-            Sustain Insight
-          </span>
+          <span className="font-semibold tracking-tight text-gray-900 text-lg">Sustain Insight</span>
         </Link>
 
-        {/* Actions */}
         {variant === "landing" ? (
-          <nav className="flex items-center gap-3">
+          <nav className="flex items-center gap-x-2">
             <button
-              className="rounded-xl border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50"
+              className="rounded-lg px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
               onClick={props.onLogin}
             >
               Login
             </button>
             <button
-              className="rounded-xl bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-black"
+              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
               onClick={props.onSignup}
             >
               Sign Up
@@ -81,30 +69,27 @@ export default function AppHeader(props: Props) {
           </nav>
         ) : (
           <div className="relative" ref={dropdownRef}>
-            <button
-              onClick={() => setDropdownOpen((p) => !p)}
-              className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium hover:bg-gray-100"
-            >
-              <span>{fullName}</span>
+            <button onClick={() => setDropdownOpen((p) => !p)} className="flex items-center gap-2 rounded-full text-sm font-medium transition hover:bg-gray-100 p-1">
+              <div className="h-8 w-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">
+                {initials || '?'}
+              </div>
             </button>
-
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 rounded-xl bg-white py-1 shadow-lg">
-                <button
-                  onClick={() => {
-                    props.onProfileClick();
-                    setDropdownOpen(false);
-                  }}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  Manage Profile
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  Logout
-                </button>
+              <div className="absolute right-0 mt-2 w-56 origin-top-right rounded-lg border border-gray-200 bg-white shadow-lg p-1">
+                <div className="px-3 py-2 border-b border-gray-100">
+                  <p className="text-sm font-semibold text-gray-800 truncate">{user?.firstName} {user?.lastName}</p>
+                  {/* <p className="text-xs text-gray-500 truncate">{user?.email}</p> */}
+                </div>
+                <div className="py-1">
+                  <button onClick={() => { props.onProfileClick(); setDropdownOpen(false); }} className="flex w-full items-center gap-2 text-left px-3 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-100">
+                    <ProfileIcon /> Manage Profile
+                  </button>
+                </div>
+                <div className="py-1 border-t border-gray-100">
+                  <button onClick={handleLogout} className="flex w-full items-center gap-2 text-left px-3 py-2 text-sm text-red-600 rounded-md hover:bg-red-50">
+                    <LogoutIcon /> Logout
+                  </button>
+                </div>
               </div>
             )}
           </div>
