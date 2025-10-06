@@ -1,16 +1,17 @@
+// import React from "react";
 import ArticleGrid from "../articles/ArticleGrid";
 
 type LatestNewsSectionProps = {
   articles: any[];
+  isLoading: boolean; // ✅ New prop
   disablePopup?: boolean;
-  showBookmark?: boolean;
 };
 
 export default function LatestNewsSection({
   articles,
+  isLoading, // Destructure the new prop
   disablePopup = false,
-}: //showBookmark = true,
-LatestNewsSectionProps) {
+}: LatestNewsSectionProps) {
   return (
     <section
       id="latest"
@@ -21,6 +22,7 @@ LatestNewsSectionProps) {
       </h2>
       <ArticleGrid
         articles={articles}
+        isLoading={isLoading} // ✅ Pass it down
         variant="landing"
         mode="carousel"
         speed={40}

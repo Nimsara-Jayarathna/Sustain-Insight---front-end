@@ -5,11 +5,14 @@ import HeroSection from "../components/landing/HeroSection";
 import FeaturesSection from "../components/landing/FeaturesSection";
 import LatestNewsSection from "../components/landing/LatestNewsSection";
 import AuthModal from "../components/auth/AuthModal";
-import { useArticles } from "../hooks/useArticles";
+import { useArticles } from "../hooks/useArticles"; // This hook now provides isLoading
 import { useAuthHandlers } from "../hooks/useAuthHandlers";
 
 export default function LandingPage() {
-  const { articles } = useArticles();
+  // --- THIS IS THE FIX (Part 1) ---
+  // Now we get both articles and the loading state from our updated hook.
+  const { articles, isLoading } = useArticles();
+  
   const { handleLogin, handleSignup, handleForgotPassword } = useAuthHandlers();
 
   const [authOpen, setAuthOpen] = useState(false);
@@ -17,7 +20,6 @@ export default function LandingPage() {
   const [resetToken, setResetToken] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
 
-  // ✅ Detect ?token=xyz for password reset links
   useEffect(() => {
     const token = searchParams.get("token");
     if (token) {
@@ -40,9 +42,15 @@ export default function LandingPage() {
     >
       <HeroSection onSignup={() => openModal("signup")} />
       <FeaturesSection />
-      <LatestNewsSection articles={articles} disablePopup showBookmark={false} />
 
-      {/* ✅ Auth modal for login/signup/forgot/reset */}
+      {/* --- THIS IS THE FIX (Part 2) --- */}
+      {/* We pass the isLoading prop down to the section component. */}
+      <LatestNewsSection 
+        articles={articles} 
+        isLoading={isLoading} 
+        disablePopup 
+      />
+
       <AuthModal
         open={authOpen}
         view={view}

@@ -3,42 +3,88 @@ import ArticleCard from "./ArticleCard";
 
 type ArticleGridProps = {
   articles: any[];
+  isLoading?: boolean; // ✅ New optional prop
   variant?: "landing" | "dashboard";
   mode?: "grid" | "carousel";
   speed?: number;
   disablePopup?: boolean;
 };
 
+// --- 1. A private, internal skeleton component. No new file needed. ---
+const InternalSkeletonCard: React.FC = () => (
+  <div className="flex flex-col rounded-lg border border-gray-200 bg-white shadow-sm animate-pulse h-full">
+    <div className="aspect-[16/9] w-full bg-gray-200 rounded-t-lg"></div>
+    <div className="flex flex-1 flex-col p-4 sm:p-5">
+      <div className="h-4 w-1/3 bg-gray-200 rounded mb-2"></div>
+      <div className="h-5 w-full bg-gray-300 rounded mb-2"></div>
+      <div className="h-5 w-3/4 bg-gray-300 rounded mb-4"></div>
+      <div className="flex-grow" />
+      <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
+        <div className="h-4 w-1/4 bg-gray-200 rounded"></div>
+        <div className="h-6 w-1/3 bg-gray-200 rounded-full"></div>
+      </div>
+    </div>
+  </div>
+);
+
+// --- 2. An empty state for when there are truly no articles ---
+const EmptyState = () => (
+  <div className="text-center text-gray-600 col-span-full mt-12 p-8 bg-gray-50 rounded-lg border border-gray-200">
+    <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3h9M7 16h6M7 8h6v4H7V8z" />
+    </svg>
+    <h3 className="text-lg font-semibold text-gray-800 mb-2">No Articles Found</h3>
+    <p className="max-w-md mx-auto">It looks like there are no articles available at the moment. Please check back later.</p>
+  </div>
+);
+
 const ArticleGrid: React.FC<ArticleGridProps> = ({
   articles,
+  isLoading = false,
   variant = "dashboard",
   mode = "grid",
   speed = 50,
   disablePopup = false,
 }) => {
-  if (!articles || articles.length === 0) {
-    return <p className="text-center text-gray-500 mt-8">No articles found.</p>;
+  // --- 3. The main component logic ---
+  
+  // If we are in a loading state, render the appropriate skeleton layout.
+  if (isLoading) {
+    if (mode === 'carousel') {
+      return (
+        <div className="relative w-full overflow-hidden" style={{ maskImage: "linear-gradient(to right, transparent, black 5%, black 95%, transparent)" }}>
+          <div className="flex gap-6 lg:gap-8">
+            {Array.from({ length: 3 }).map((_, idx) => (
+              <div key={idx} className="flex-shrink-0 w-[80vw] sm:w-1/2 lg:w-1/3">
+                <InternalSkeletonCard />
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+    const gridClasses = "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+    return (
+      <div className={`grid ${gridClasses} gap-6 lg:gap-8`}>
+        {Array.from({ length: 3 }).map((_, idx) => <InternalSkeletonCard key={idx} />)}
+      </div>
+    );
   }
 
+  // If not loading, and there are no articles, show the empty state.
+  if (!articles || articles.length === 0) {
+    return <EmptyState />;
+  }
+
+  // If not loading, and there are articles, render them.
   if (mode === "carousel") {
     const loopArticles = useMemo(() => [...articles, ...articles], [articles]);
-
     return (
-      <div className="overflow-hidden relative w-full">
-        <div
-          className="flex animate-scroll gap-6"
-          style={{ animationDuration: `${(loopArticles.length * 300) / speed}s` }}
-        >
+      <div className="relative w-full overflow-hidden" style={{ maskImage: "linear-gradient(to right, transparent, black 5%, black 95%, transparent)" }}>
+        <div className="flex animate-scroll gap-6 lg:gap-8" style={{ animationDuration: `${(loopArticles.length * 300) / speed}s` }}>
           {loopArticles.map((article, idx) => (
-            <div
-              key={`${article.id}-${idx}`}
-              className="flex-shrink-0 w-full sm:w-1/2 lg:w-1/3"
-            >
-              <ArticleCard
-                article={article}
-                variant={variant}
-                disablePopup={disablePopup}
-              />
+            <div key={`${article.id}-${idx}`} className="flex-shrink-0 w-[80vw] sm:w-1/2 lg:w-1/3">
+              <ArticleCard article={article} variant={variant} disablePopup={disablePopup} />
             </div>
           ))}
         </div>
@@ -46,15 +92,11 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
     );
   }
 
+  const gridClasses = "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
   return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div className={`grid ${gridClasses} gap-6 lg:gap-8`}>
       {articles.map((article) => (
-        <ArticleCard
-          key={article.id}
-          article={article}
-          variant={variant}
-          disablePopup={disablePopup}
-        />
+        <ArticleCard key={article.id} article={article} variant={variant} disablePopup={disablePopup} />
       ))}
     </div>
   );
