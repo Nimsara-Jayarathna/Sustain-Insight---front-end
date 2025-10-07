@@ -6,9 +6,7 @@ import { useAuthContext } from "./context/AuthContext";
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuthContext();
 
-  if (loading) {
-    return <div>Loading...</div>; // Or a proper spinner component
-  }
+  if (loading) return <div>Loading...</div>;
 
   if (!isAuthenticated) {
     console.warn("⚠️ Tried to access private route without auth");
@@ -25,6 +23,7 @@ export default function App() {
         {/* Landing handles login/signup/forgot/reset inside modal */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/reset-password" element={<LandingPage />} />
+        <Route path="/forgot-password" element={<LandingPage openForgotInitially />} />
 
         <Route
           path="/dashboard"
