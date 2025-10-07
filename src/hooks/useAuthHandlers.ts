@@ -6,19 +6,22 @@ export function useAuthHandlers() {
 
   // 🔹 LOGIN HANDLER
   const handleLogin = async (email: string, password: string): Promise<void> => {
-    // Call backend for authentication
-    const loginData = await apiFetch("/api/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const loginData = await apiFetch("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+      });
 
-    // Then fetch the user profile
-    const userData = await apiFetch("/api/account/me", {
-      headers: { Authorization: `Bearer ${loginData.token}` },
-    });
+      // fetch user profile
+      const userData = await apiFetch("/api/account/me", {
+        headers: { Authorization: `Bearer ${loginData.token}` },
+      });
 
-    // Save auth state globally
-    login(loginData.token, userData);
+      login(loginData.token, userData);
+    } catch (err: any) {
+      // Pass error up for specific handling (e.g. EMAIL_NOT_VERIFIED)
+      throw err;
+    }
   };
 
   // 🔹 SIGNUP HANDLER
@@ -29,16 +32,11 @@ export function useAuthHandlers() {
     email: string;
     password: string;
   }): Promise<void> => {
-    const signupData = await apiFetch("/api/auth/signup", {
+    await apiFetch("/api/auth/signup", {
       method: "POST",
       body: JSON.stringify(data),
     });
-
-    // Save token and partial user info
-    login(signupData.token, {
-      firstName: data.firstName,
-      lastName: data.lastName,
-    });
+    // No auto-login — wait until verification
   };
 
   // 🔹 FORGOT PASSWORD HANDLER
@@ -49,5 +47,28 @@ export function useAuthHandlers() {
     });
   };
 
-  return { handleLogin, handleSignup, handleForgotPassword };
+  // 🔹 VERIFY EMAIL HANDLER (fixed)
+const handleVerifyEmail = async (token: string): Promise<void> => {
+  // Send as query param, not body
+  await apiFetch(`/api/auth/verify-email?token=${encodeURIComponent(token)}`, {
+    method: "POST",
+  });
+};
+
+
+  // 🔹 RESEND VERIFICATION EMAIL HANDLER
+  const handleResendVerification = async (email: string): Promise<void> => {
+    await apiFetch("/api/auth/resend-verification", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+  };
+
+  return {
+    handleLogin,
+    handleSignup,
+    handleForgotPassword,
+    handleVerifyEmail,
+    handleResendVerification,
+  };
 }
