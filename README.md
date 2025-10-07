@@ -1,31 +1,73 @@
 # 📰 Sustain Insight – Frontend
 
-This is the **frontend web application** for the News Aggregator project.
-It is built with **React + TypeScript** using **Vite** for fast builds and **Tailwind CSS** for styling.
+This is the **frontend web application** for the **Sustain Insight** platform.
+It provides a modern, dynamic, and personalized interface for sustainability-focused news aggregation.
+Built with **React + TypeScript**, powered by **Vite**, and styled using **Tailwind CSS** for performance and scalability.
 
 ---
 
-## ✨ Features
+## ✨ System-Wide Features
 
-* Modern, responsive UI for browsing news articles
-* Pages for All News, Saved Articles, and Preferences
-* Login & Signup integrated with backend authentication (JWT)
-* Reusable components (ArticleCard, FilterBar, Navbar, Modals)
-* Fully connected to REST API from the backend
+### 🧠 Core Application
+
+* Aggregated sustainability and climate-related articles from global sources
+* Intuitive user interface with minimal design for high readability
+* Integrated article filters by category, source, and publish date
+* Dynamic pagination and lazy loading for performance
+
+### 🔐 Authentication & Profiles
+
+* Secure JWT-based login and signup (linked to backend auth)
+* Password reset and email verification flow with modal-based UI
+* Real-time validation for user input and API responses
+
+### 📚 Articles & Insights
+
+* Personalized **For You** feed powered by user preference data
+* **All News** view for full catalog browsing
+* **Bookmarks** section for saved articles
+* Article modal view for quick reading without page navigation
+* Clean typography and layout optimized for reading
+
+### ⚡ User Experience (UI/UX)
+
+* Unified responsive layout for mobile, tablet, and desktop
+* Reusable components: `ArticleCard`, `FilterModal`, `ProfileModal`, `DashboardNav`, etc.
+* Smooth transitions and animations powered by CSS & Framer Motion
+* Built-in dark/light theme compatibility (future-ready)
+
+### 🔗 Backend Integration
+
+* Connected to the Sustain Insight Spring Boot backend via REST API
+* Uses Axios for consistent network handling and error reporting
+* All endpoints (Auth, Articles, Bookmarks, Insights) fully wired and type-safe
+
+### 🧩 Utility & State Management
+
+* Centralized authentication context (`AuthContext`)
+* Custom hooks (`useArticles`, `useDashboardView`, `useAuthHandlers`)
+* Modular folder structure for scalability and maintainability
 
 ---
 
 ## 🛠 Tech Stack
 
-* React + TypeScript (Vite)
-* Tailwind CSS
-* REST API using Axios.
+| Layer       | Technology                            |
+| ----------- | ------------------------------------- |
+| Framework   | React 18 + TypeScript                 |
+| Bundler     | Vite                                  |
+| Styling     | Tailwind CSS + Custom Utility Classes |
+| HTTP Client | REST API with Axios                                 |
+| Routing     | React Router DOM                      |
+| Animations  | Framer Motion                         |
+| State       | React Hooks + Context API             |
+| Deployment  | Vercel                                |
 
 ---
 
 ## ⚙️ Environment Setup
 
-Run the following command depending on your platform, replacing placeholders (`<VALUE>`) with your actual API endpoint and keys:
+Run the following command depending on your platform, replacing `<VALUE>` with your backend API base URL:
 
 ### macOS / Linux (bash/zsh)
 
@@ -38,6 +80,8 @@ export VITE_BACKEND_URL=<your-backend-url>
 ```powershell
 setx VITE_BACKEND_URL "<your-backend-url>"
 ```
+
+Vite automatically injects this into your app during build and runtime.
 
 ---
 
@@ -62,40 +106,70 @@ npm install
 npm run dev
 ```
 
-This will start the frontend on [http://localhost:5173](http://localhost:5173)
+This starts the app at **[http://localhost:5173](http://localhost:5173)**.
 
 ---
 
 ## 👥 Collaboration Workflow
 
-* **Feature branches:**
-  Use dedicated branches like:
+* **Feature branches** – use meaningful names:
 
   * `feature/feed-page`
   * `feature/login-page`
-  * `feature/saved-page`
-  * `fix/navbar-bug`
+  * `feature/password-reset`
+* **Development branch (`dev`)**
 
-* **Development branch (`dev`):**
+  * All merges happen here via PRs.
+  * PRs require review and CI pass.
+* **Main branch (`main`)**
 
-  * All features are merged into `dev` first.
-  * Requires review and passing checks.
+  * Production-ready.
+  * Merges from `dev` after verification.
 
-* **Main branch (`main`):**
+**Branch Protection Rules:**
 
-  * Production-ready branch, directly used for deployment (Vercel).
-  * PRs from `dev` are squashed and merged into `main`.
+* PR required for all merges
+* No direct commits or force pushes
+* All checks must pass
 
-* **Branch protections:**
+---
 
-  * PRs required for merges.
-  * No direct commits or force pushes to `main` or `dev`.
-  * Status checks and reviews required.
+## 📂 Project Structure
+
+```
+src/
+├── assets/          # Static assets and icons
+├── components/      # Reusable UI components
+│   ├── auth/        # Auth modal & forms
+│   ├── dashboard/   # Dashboard views
+│   └── layout/      # Header, Footer, Navigation
+├── context/         # Global context (Auth, DashboardView)
+├── hooks/           # Reusable custom hooks
+├── pages/           # Main route pages (Landing, Dashboard)
+├── utils/           # Helper functions (api.ts, storage.ts)
+└── main.tsx         # App entry point
+```
 
 ---
 
 ## 🔒 Security Notes
 
-* `.env` is ignored in Git — never commit secrets.
-* Only `.env.example` is tracked to show required variables.
-* API base URL and other environment-specific configs must be provided locally or in deployment settings.
+* `.env` is ignored in Git and must not be committed.
+* Only `.env.example` is included to show required variables.
+* All requests go through HTTPS in production.
+* Backend JWT and API keys are securely handled.
+
+---
+
+## 🧭 Deployment
+
+* Deployed automatically via **Vercel** upon merging into `main`.
+* Uses environment variable `VITE_BACKEND_URL` in Vercel dashboard.
+* Integrated with backend deployments on **Railway** or **Render**.
+
+---
+
+## 🦯 License
+
+This project is maintained by the **Sustain Insight Team**.
+© 2025 Sustain Insight. All rights reserved.

@@ -1,17 +1,12 @@
-//import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import DashboardPage from "./pages/DashboardPage";
 import { useAuthContext } from "./context/AuthContext";
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuthContext();
+  const { isAuthenticated, loading } = useAuthContext();
 
-  const DEV_MODE = true; // 🔹 set to false when you want strict auth
-
-  if (DEV_MODE) {
-    return children;
-  }
+  if (loading) return <div>Loading...</div>;
 
   if (!isAuthenticated) {
     console.warn("⚠️ Tried to access private route without auth");
@@ -25,7 +20,14 @@ export default function App() {
   return (
     <Router>
       <Routes>
+        {/* Landing routes handle login/signup/forgot/reset/verify */}
         <Route path="/" element={<LandingPage />} />
+        <Route path="/reset-password" element={<LandingPage />} />
+        <Route path="/forgot-password" element={<LandingPage openForgotInitially />} />
+
+        {/* ✅ NEW: Email verification route */}
+        <Route path="/verify-email" element={<LandingPage />} />
+
         <Route
           path="/dashboard"
           element={
@@ -34,6 +36,9 @@ export default function App() {
             </PrivateRoute>
           }
         />
+
+        {/* Optional: fallback to home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

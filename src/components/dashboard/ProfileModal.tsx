@@ -1,5 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { apiFetch } from "../../utils/api";
+// src/components/dashboard/ProfileModal.tsx
+import React, { useState } from "react";
+import { useUserProfile } from "../../hooks/useUserProfile";
+import ActionStatusOverlay from "../ui/ActionStatusOverlay";
+import { ProfileTab } from "./profile/ProfileTab";
+import { PreferencesTab } from "./profile/PreferencesTab";
+import { SecurityTab } from "./profile/SecurityTab";
+import ChangeEmailForm from "../auth/ChangeEmailForm";
 
 type Props = {
   open: boolean;
@@ -7,189 +13,233 @@ type Props = {
 };
 
 export default function ProfileModal({ open, onClose }: Props) {
-  const [loading, setLoading] = useState(true);
-  const [_user, setUser] = useState<any>(null);
-  const [categories, setCategories] = useState<any[]>([]);
-  const [sources, setSources] = useState<any[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
-  const [selectedSources, setSelectedSources] = useState<number[]>([]);
-  const [firstName, setFirstName] = useState<string>("");
-  const [lastName, setLastName] = useState<string>("");
   const [isEditingName, setIsEditingName] = useState(false);
+  const [activeTab, setActiveTab] = useState<
+    "profile" | "preferences" | "security"
+  >("profile");
 
-  // 🔹 Load profile + preferences
-  useEffect(() => {
-    if (!open) return;
+  const [showChangeEmail, setShowChangeEmail] = useState(false);
 
-    async function fetchData() {
-      try {
-        setLoading(true);
-        const [me, cats, srcs] = await Promise.all([
-          apiFetch("/api/account/me"),
-          apiFetch("/api/public/categories"),
-          apiFetch("/api/public/sources"),
-        ]);
-        setUser(me);
-        setCategories(cats);
-        setSources(srcs);
+  const {
+    loading,
+    saving,
+    user,
+    setUser,
+    categories,
+    sources,
+    submissionStatus,
+    resetSubmissionStatus,
+    firstName,
+    setFirstName,
+    lastName,
+    setLastName,
+    selectedCategories,
+    toggleCategory,
+    selectedSources,
+    toggleSource,
+    saveProfile,
+  } = useUserProfile(open);
 
-        // defaults
-        setFirstName(me.firstName || "");
-        setLastName(me.lastName || "");
-        setSelectedCategories(me.preferredCategories?.map((c: any) => c.id) || []);
-        setSelectedSources(me.preferredSources?.map((s: any) => s.id) || []);
-      } catch (err) {
-        console.error("DEBUG → Failed to fetch profile data:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchData();
-  }, [open]);
-
-  // 🔹 Toggle selections
-  const toggleCategory = (id: number) => {
-    setSelectedCategories((prev) =>
-      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
-    );
-  };
-
-  const toggleSource = (id: number) => {
-    setSelectedSources((prev) =>
-      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
-    );
-  };
-
-  // 🔹 Save preferences + name
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    try {
-      const res = await apiFetch("/api/account/preferences", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          firstName,
-          lastName,
-          categoryIds: selectedCategories,
-          sourceIds: selectedSources,
-        }),
-      });
-
-      console.log("DEBUG → Profile updated:", res);
-      alert("Profile updated successfully!");
-      setIsEditingName(false);
-      onClose();
-    } catch (err) {
-      console.error("DEBUG → Failed to save profile:", err);
-      alert("Failed to update profile, check console.");
-    }
+    const success = await saveProfile();
+    if (success) setIsEditingName(false);
   };
 
-  if (!open) return null;
+  const handleOverlayClose = () => {
+    if (submissionStatus.status === "success") onClose();
+    resetSubmissionStatus();
+  };
+
+  if (!open && !showChangeEmail) return null;
+
+  const tabBaseStyle =
+    "flex-1 py-2 text-sm font-medium rounded-full transition-all duration-200";
+  const activeTabStyle = "bg-white text-emerald-600 shadow-sm";
+  const inactiveTabStyle = "text-gray-600 hover:bg-gray-200/50";
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto">
-        <button
-          aria-label="Close"
-          onClick={onClose}
-          className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100"
-        >
-          ×
-        </button>
-
-        <h2 className="text-xl font-semibold text-center mb-4">
-          Manage Profile & Preferences
-        </h2>
-
-        {loading ? (
-          <p>Loading...</p>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Full Name */}
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="block text-sm font-medium">Full Name</label>
+    <>
+      {/* --- Profile Modal --- */}
+      {open && !showChangeEmail && (
+        <div className="fixed inset-0 z-40 grid place-items-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="flex flex-col w-full h-full max-h-[680px] bg-white shadow-xl rounded-2xl sm:max-w-lg overflow-hidden">
+            {/* Header */}
+            <div className="flex-shrink-0 p-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-800">
+                  Profile & Preferences
+                </h2>
                 <button
-                  type="button"
-                  onClick={() => setIsEditingName(!isEditingName)}
-                  className="text-sm text-emerald-600 hover:underline"
+                  aria-label="Close"
+                  onClick={onClose}
+                  className="inline-flex items-center justify-center w-8 h-8 text-gray-500 rounded-full hover:bg-gray-100"
                 >
-                  {isEditingName ? "Cancel" : "Edit"}
+                  ×
                 </button>
               </div>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  disabled={!isEditingName}
-                  placeholder="First name"
-                  className="w-1/2 rounded-xl border border-gray-300 px-3 py-2 text-sm 
-                    focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-100"
-                />
-                <input
-                  type="text"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  disabled={!isEditingName}
-                  placeholder="Last name"
-                  className="w-1/2 rounded-xl border border-gray-300 px-3 py-2 text-sm 
-                    focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-100"
-                />
-              </div>
             </div>
 
-            {/* Categories */}
-            <div>
-              <label className="mb-2 block text-sm font-medium">
-                Preferred Categories
-              </label>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-3">
-                {categories.map((c) => (
-                  <label key={c.id} className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={selectedCategories.includes(c.id)}
-                      onChange={() => toggleCategory(c.id)}
-                      className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
-                    />
-                    {c.name}
-                  </label>
-                ))}
-              </div>
-            </div>
+            {/* Body */}
+            <div className="flex flex-col flex-grow min-h-0">
+              <div className="flex-grow p-6 overflow-y-auto">
+                {loading ? (
+                  <div className="text-center py-10">
+                    <svg
+                      className="w-8 h-8 mx-auto mb-3 text-emerald-600 animate-spin"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    <p className="text-sm text-gray-600">Loading...</p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {/* Tabs */}
+                    <div className="p-1 mx-auto bg-gray-100 rounded-full flex items-center w-full">
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab("profile")}
+                        className={`${tabBaseStyle} ${
+                          activeTab === "profile"
+                            ? activeTabStyle
+                            : inactiveTabStyle
+                        }`}
+                      >
+                        Profile
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab("preferences")}
+                        className={`${tabBaseStyle} ${
+                          activeTab === "preferences"
+                            ? activeTabStyle
+                            : inactiveTabStyle
+                        }`}
+                      >
+                        Preferences
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab("security")}
+                        className={`${tabBaseStyle} ${
+                          activeTab === "security"
+                            ? activeTabStyle
+                            : inactiveTabStyle
+                        }`}
+                      >
+                        Security
+                      </button>
+                    </div>
 
-            {/* Sources */}
-            <div>
-              <label className="mb-2 block text-sm font-medium">
-                Preferred Sources
-              </label>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-2">
-                {sources.map((s) => (
-                  <label key={s.id} className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={selectedSources.includes(s.id)}
-                      onChange={() => toggleSource(s.id)}
-                      className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
-                    />
-                    {s.name}
-                  </label>
-                ))}
+                    {/* Active Tab */}
+                    {activeTab === "profile" && (
+                      <ProfileTab
+                        firstName={firstName}
+                        setFirstName={setFirstName}
+                        lastName={lastName}
+                        setLastName={setLastName}
+                        isEditingName={isEditingName}
+                        setIsEditingName={setIsEditingName}
+                        user={user}
+                        saving={saving}
+                        onChangeEmailRequest={() => {
+                          setShowChangeEmail(true);
+                        }}
+                      />
+                    )}
+                    {activeTab === "preferences" && (
+                      <PreferencesTab
+                        categories={categories}
+                        selectedCategories={selectedCategories}
+                        toggleCategory={toggleCategory}
+                        sources={sources}
+                        selectedSources={selectedSources}
+                        toggleSource={toggleSource}
+                        saving={saving}
+                      />
+                    )}
+                    {activeTab === "security" && (
+                      <SecurityTab
+                        onSuccess={onClose}
+                        onCancel={() => setActiveTab("profile")}
+                      />
+                    )}
+                  </div>
+                )}
               </div>
-            </div>
 
-            <button
-              type="submit"
-              className="w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
-            >
-              Save Changes
-            </button>
-          </form>
-        )}
-      </div>
-    </div>
+              {/* Footer */}
+              {activeTab !== "security" && !loading && (
+                <form onSubmit={handleSubmit}>
+                  <div className="flex items-center justify-center flex-shrink-0 gap-3 p-4 bg-white border-t border-gray-200">
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      disabled={saving}
+                      className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 disabled:opacity-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={saving}
+                      className="flex items-center justify-center w-32 h-10 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-md hover:bg-emerald-700 disabled:opacity-50"
+                    >
+                      {saving ? "Saving..." : "Save Changes"}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- Change Email Modal --- */}
+      {showChangeEmail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <ChangeEmailForm
+            onSuccess={() => {
+              setShowChangeEmail(false);
+              setUser((prev: any) => ({
+                ...prev,
+                email: JSON.parse(localStorage.getItem("user") || "{}").email,
+              }));
+              setTimeout(onClose, 100);
+              setTimeout(() => window.dispatchEvent(new Event("reopenProfileModal")), 200);
+            }}
+            onCancel={() => {
+              setShowChangeEmail(false);
+              setTimeout(onClose, 100);
+              setTimeout(() => window.dispatchEvent(new Event("reopenProfileModal")), 200);
+            }}
+          />
+        </div>
+      )}
+
+      {/* --- Status Overlay --- */}
+      {submissionStatus.status !== "idle" && (
+        <ActionStatusOverlay
+          status={submissionStatus.status}
+          message={submissionStatus.message}
+          onClose={handleOverlayClose}
+        />
+      )}
+    </>
   );
 }

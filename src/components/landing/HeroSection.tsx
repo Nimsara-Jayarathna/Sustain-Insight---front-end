@@ -1,4 +1,4 @@
-//import React from "react";
+// import React from "react";
 
 export default function HeroSection({
   onSignup,
@@ -6,36 +6,46 @@ export default function HeroSection({
   onSignup: () => void;
 }) {
   return (
-    <section className="relative isolate overflow-hidden">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:gap-12 lg:py-24 lg:px-8">
+    <section className="relative isolate overflow-hidden bg-white">
+      <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:grid lg:grid-cols-2 lg:gap-x-12 lg:py-32 lg:px-8">
         <div className="flex flex-col justify-center">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+          <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
             Actionable Insights on Climate Change, in Real-Time.
           </h1>
-          <p className="mt-4 max-w-prose text-base text-gray-600 sm:text-lg">
-            Sustain Insight cuts through the noise, delivering a personalized news feed.
+          <p className="mt-6 text-lg leading-8 text-gray-600">
+            Sustain Insight cuts through the noise, delivering a personalized and intelligent news feed focused on the sustainability topics that matter most to you.
           </p>
-          <div className="mt-6 flex flex-wrap items-center gap-3">
+          <div className="mt-10 flex items-center gap-x-6">
             <button
-              className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700"
+              className="rounded-lg bg-emerald-600 px-6 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-emerald-700 hover:-translate-y-0.5"
               onClick={onSignup}
             >
               Get Started for Free
             </button>
             <a
               href="#latest"
-              className="rounded-xl border border-gray-300 px-5 py-3 text-sm font-medium hover:bg-gray-50"
+              className="group flex items-center gap-x-2 rounded-lg px-6 py-3 text-base font-semibold leading-6 text-gray-900 transition hover:bg-gray-50"
             >
-              See Latest News
+              See Latest News <span className="transition-transform group-hover:translate-x-1">→</span>
             </a>
           </div>
         </div>
 
-        <div className="relative">
-          <div className="aspect-[4/3] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-50 to-emerald-100 shadow-sm ring-1 ring-gray-200" />
-          <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_60%_at_50%_0%,rgba(16,185,129,0.2),transparent)]" />
+        <div className="relative mt-12 flex items-center justify-center lg:mt-0">
+          <div className="relative animate-float">
+            <div className="aspect-square w-56 sm:w-64 md:w-72 rounded-full overflow-hidden shadow-2xl ring-1 ring-gray-900/10 bg-gradient-to-br from-emerald-50 to-emerald-200">
+              <img
+                src="/icon.png"
+                alt="Sustain Insight Icon"
+                className="h-full w-full object-contain p-4"
+              />
+            </div>
+            {/* Ambient glow effect */}
+            <div className="pointer-events-none absolute inset-0 rounded-full bg-emerald-400/30 blur-3xl" />
+          </div>
         </div>
       </div>
     </section>
   );
 }
+
