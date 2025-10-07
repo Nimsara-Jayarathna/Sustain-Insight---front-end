@@ -20,10 +20,13 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        {/* Landing handles login/signup/forgot/reset inside modal */}
+        {/* Landing routes handle login/signup/forgot/reset/verify */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/reset-password" element={<LandingPage />} />
         <Route path="/forgot-password" element={<LandingPage openForgotInitially />} />
+
+        {/* ✅ NEW: Email verification route */}
+        <Route path="/verify-email" element={<LandingPage />} />
 
         <Route
           path="/dashboard"
@@ -33,6 +36,9 @@ export default function App() {
             </PrivateRoute>
           }
         />
+
+        {/* Optional: fallback to home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

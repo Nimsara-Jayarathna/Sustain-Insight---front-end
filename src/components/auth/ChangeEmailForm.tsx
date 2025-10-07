@@ -1,12 +1,46 @@
 // src/components/auth/ChangeEmailForm.tsx
 import React, { useState } from "react";
 import AuthLoadingOverlay from "../ui/AuthLoadingOverlay";
+import OtpInput from "../ui/OtpInput";
 import {
   requestEmailChangeOtp,
   verifyCurrentEmailOtp,
   sendNewEmailOtp,
   confirmEmailChange,
 } from "../../api/user";
+
+// --- HELPER COMPONENTS ---
+
+// Visual progress bar for the multi-step form
+const ProgressBar = ({ currentStep }: { currentStep: number }) => {
+  const steps = ["Verify Current", "New Email", "Verify New", "Done"];
+  const progress = Math.max(0, ((currentStep - 1) / (steps.length - 1)) * 100);
+
+  return (
+    <div className="w-full px-2 mb-6">
+      <div className="relative h-2 bg-gray-200 rounded-full">
+        <div
+          className="absolute top-0 left-0 h-2 bg-emerald-500 rounded-full transition-all duration-500 ease-out"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+      <div className="flex justify-between mt-2 text-xs text-gray-500">
+        {steps.map((step, index) => (
+          <span
+            key={index}
+            className={`transition-colors duration-300 ${
+              index + 1 <= currentStep ? "font-semibold text-emerald-600" : ""
+            }`}
+          >
+            {step}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// --- MAIN COMPONENT ---
 
 export default function ChangeEmailForm({
   onSuccess,
@@ -15,9 +49,7 @@ export default function ChangeEmailForm({
   onSuccess: () => void;
   onCancel: () => void;
 }) {
-  const [step, setStep] = useState<
-    "sendCurrentOtp" | "verifyCurrentOtp" | "enterNewEmail" | "verifyNewOtp"
-  >("sendCurrentOtp");
+  const [step, setStep] = useState(1);
   const [currentOtp, setCurrentOtp] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [newEmailOtp, setNewEmailOtp] = useState("");
@@ -30,7 +62,7 @@ export default function ChangeEmailForm({
     setError("");
     try {
       await requestEmailChangeOtp();
-      setStep("verifyCurrentOtp");
+      setStep(2);
     } catch (err: any) {
       setError(err.message || "Failed to send OTP. Please try again.");
     } finally {
@@ -40,13 +72,18 @@ export default function ChangeEmailForm({
 
   const handleVerifyCurrentOtp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (currentOtp.length < 6) {
+      setError("Please enter the complete 6-digit OTP.");
+      return;
+    }
     setLoading(true);
     setError("");
     try {
       await verifyCurrentEmailOtp({ otp: currentOtp });
-      setStep("enterNewEmail");
+      setStep(3);
     } catch (err: any) {
       setError(err.message || "Invalid OTP. Please try again.");
+      setCurrentOtp(""); // <-- FIX: Clear OTP input on error
     } finally {
       setLoading(false);
     }
@@ -55,17 +92,15 @@ export default function ChangeEmailForm({
   const handleSendNewEmailOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(newEmail)) {
       setError("Please enter a valid email address.");
       return;
     }
-
     setLoading(true);
     try {
       await sendNewEmailOtp({ newEmail });
-      setStep("verifyNewOtp");
+      setStep(4);
     } catch (err: any) {
       setError(err.message || "Failed to send OTP to new email.");
     } finally {
@@ -75,6 +110,10 @@ export default function ChangeEmailForm({
 
   const handleConfirmEmailChange = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (newEmailOtp.length < 6) {
+      setError("Please enter the complete 6-digit OTP.");
+      return;
+    }
     setLoading(true);
     setError("");
     try {
@@ -89,163 +128,97 @@ export default function ChangeEmailForm({
       setTimeout(() => onSuccess(), 1500);
     } catch (err: any) {
       setError(err.message || "Invalid OTP or expired code.");
+      setNewEmailOtp(""); // <-- FIX: Clear OTP input on error
     } finally {
       setLoading(false);
     }
   };
+  
+  const renderStepContent = () => {
+    switch (step) {
+      case 1:
+        return (
+          <div className="space-y-6 text-center">
+            <p className="text-sm text-gray-600 leading-relaxed">
+              For security, we'll send a verification code to your <b>current email address</b> to confirm your identity.
+            </p>
+            <div className="flex flex-col sm:flex-row sm:justify-end gap-3 pt-2">
+              <button onClick={onCancel} disabled={loading} className="w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors">Cancel</button>
+              <button onClick={handleRequestCurrentOtp} disabled={loading} className="w-full sm:w-auto flex items-center justify-center rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50 transition-colors">
+                {loading ? "Sending..." : "Send Code"}
+              </button>
+            </div>
+          </div>
+        );
+      case 2:
+        return (
+          <form onSubmit={handleVerifyCurrentOtp} className="space-y-6">
+            <div className="text-center">
+              <label className="block text-sm font-medium text-gray-700">Enter Verification Code</label>
+              <p className="text-xs text-gray-500 mt-1">A 6-digit code was sent to your current email.</p>
+            </div>
+            <OtpInput value={currentOtp} onChange={setCurrentOtp} disabled={loading} />
+            <div className="flex items-center justify-between gap-3 pt-2">
+              <button type="button" onClick={() => setStep(1)} className="text-sm font-medium text-gray-600 hover:text-emerald-600 transition-colors">Back</button>
+              <button type="submit" disabled={loading} className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50 transition-colors">
+                {loading ? "Verifying..." : "Verify Identity"}
+              </button>
+            </div>
+          </form>
+        );
+      case 3:
+        return (
+          <form onSubmit={handleSendNewEmailOtp} className="space-y-6">
+            <div>
+              <label htmlFor="new-email" className="block text-sm font-medium text-gray-700 mb-1">New Email Address</label>
+              <input id="new-email" type="email" required autoFocus value={newEmail} onChange={(e) => setNewEmail(e.target.value)} disabled={loading} placeholder="Enter your new email" className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 disabled:opacity-50 transition-colors"/>
+            </div>
+            <div className="flex items-center justify-between gap-3 pt-2">
+              <button type="button" onClick={() => setStep(2)} className="text-sm font-medium text-gray-600 hover:text-emerald-600 transition-colors">Back</button>
+              <button type="submit" disabled={loading} className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50 transition-colors">
+                {loading ? "Sending..." : "Send Verification Code"}
+              </button>
+            </div>
+          </form>
+        );
+      case 4:
+        return (
+          <form onSubmit={handleConfirmEmailChange} className="space-y-6">
+            <div className="text-center">
+              <label className="block text-sm font-medium text-gray-700">Verify Your New Email</label>
+              <p className="text-xs text-gray-500 mt-1">
+                Enter the code sent to <b className="text-emerald-700">{newEmail}</b>
+              </p>
+            </div>
+            <OtpInput value={newEmailOtp} onChange={setNewEmailOtp} disabled={loading} />
+            <div className="flex items-center justify-between gap-3 pt-2">
+              <button type="button" onClick={() => setStep(3)} className="text-sm font-medium text-gray-600 hover:text-emerald-600 transition-colors">Back</button>
+              <button type="submit" disabled={loading || success} className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50 transition-colors">
+                {loading ? "Confirming..." : "Confirm & Change Email"}
+              </button>
+            </div>
+          </form>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
-    <div
-      className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm sm:max-w-md 
-                 mx-auto px-5 sm:px-8 py-6 sm:py-8 transition-all duration-300 
-                 ease-in-out transform animate-fadeIn"
-    >
-      <div className="flex items-center justify-between mb-5">
+    <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm sm:max-w-md mx-auto px-5 sm:px-8 py-6 sm:py-8 transition-all duration-300 ease-in-out transform animate-fadeIn">
+      <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg sm:text-xl font-semibold text-gray-800">
-          Change Email
+          Change Your Email Address
         </h3>
-        <button
-          onClick={onCancel}
-          className="text-gray-400 hover:text-gray-600 text-xl leading-none"
-        >
+        <button onClick={onCancel} disabled={loading} className="text-gray-400 hover:text-gray-600 text-2xl leading-none transition-colors disabled:opacity-50">
           ×
         </button>
       </div>
 
-      {/* Content Steps */}
-      <div className="space-y-6">
-        {/* STEP 1 */}
-        {step === "sendCurrentOtp" && (
-          <div className="space-y-6">
-            <p className="text-sm text-gray-600 leading-relaxed">
-              We’ll send a verification code to your <b>current email</b>.
-            </p>
-            <div className="flex flex-col sm:flex-row sm:justify-end gap-3">
-              <button
-                onClick={onCancel}
-                disabled={loading}
-                className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleRequestCurrentOtp}
-                disabled={loading}
-                className="w-full sm:w-auto flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
-              >
-                {loading ? "Sending..." : "Send OTP"}
-              </button>
-            </div>
-          </div>
-        )}
+      <ProgressBar currentStep={step} />
 
-        {/* STEP 2 */}
-        {step === "verifyCurrentOtp" && (
-          <form onSubmit={handleVerifyCurrentOtp} className="space-y-6">
-            <label className="block text-sm font-medium text-gray-700">
-              Enter OTP sent to your current email
-            </label>
-            <input
-              type="text"
-              required
-              autoFocus
-              value={currentOtp}
-              onChange={(e) => setCurrentOtp(e.target.value)}
-              disabled={loading}
-              placeholder="Enter 6-digit OTP"
-              className="w-full mt-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 disabled:opacity-50"
-            />
-            <div className="flex flex-col sm:flex-row sm:justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setStep("sendCurrentOtp")}
-                className="text-sm text-gray-700 hover:text-gray-900"
-              >
-                Back
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full sm:w-auto rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
-              >
-                {loading ? "Verifying..." : "Verify"}
-              </button>
-            </div>
-          </form>
-        )}
-
-        {/* STEP 3 */}
-        {step === "enterNewEmail" && (
-          <form onSubmit={handleSendNewEmailOtp} className="space-y-6">
-            <label className="block text-sm font-medium text-gray-700">
-              New Email Address
-            </label>
-            <input
-              type="email"
-              required
-              autoFocus
-              value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
-              disabled={loading}
-              placeholder="Enter new email"
-              className="w-full mt-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 disabled:opacity-50"
-            />
-            <div className="flex flex-col sm:flex-row sm:justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setStep("verifyCurrentOtp")}
-                className="text-sm text-gray-700 hover:text-gray-900"
-              >
-                Back
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full sm:w-auto rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
-              >
-                {loading ? "Sending..." : "Send OTP"}
-              </button>
-            </div>
-          </form>
-        )}
-
-        {/* STEP 4 */}
-        {step === "verifyNewOtp" && (
-          <form onSubmit={handleConfirmEmailChange} className="space-y-6">
-            <label className="block text-sm font-medium text-gray-700">
-              Verify New Email
-            </label>
-            <p className="text-xs text-gray-500">
-              Enter the code sent to <b className="text-emerald-700">{newEmail}</b>
-            </p>
-            <input
-              type="text"
-              required
-              autoFocus
-              value={newEmailOtp}
-              onChange={(e) => setNewEmailOtp(e.target.value)}
-              disabled={loading}
-              placeholder="Enter 6-digit OTP"
-              className="w-full mt-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 disabled:opacity-50"
-            />
-            <div className="flex flex-col sm:flex-row sm:justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setStep("enterNewEmail")}
-                className="text-sm text-gray-700 hover:text-gray-900"
-              >
-                Back
-              </button>
-              <button
-                type="submit"
-                disabled={loading || success}
-                className="w-full sm:w-auto rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
-              >
-                {loading ? "Verifying..." : "Confirm Change"}
-              </button>
-            </div>
-          </form>
-        )}
+      <div className="mt-4">
+        {renderStepContent()}
       </div>
 
       {(error || loading || success) && (
