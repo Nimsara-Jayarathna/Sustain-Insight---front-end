@@ -12,9 +12,13 @@ interface ProfileTabProps {
   setLastName: (name: string) => void;
   isEditingName: boolean;
   setIsEditingName: (isEditing: boolean) => void;
+  jobTitle: string;
+  setJobTitle: (title: string) => void;
+  isEditingJobTitle: boolean;
+  setIsEditingJobTitle: (isEditing: boolean) => void;
   user: User | null;
   saving: boolean;
-  onChangeEmailRequest: () => void; // ✅ new callback
+  onChangeEmailRequest: () => void;
 }
 
 export const ProfileTab: React.FC<ProfileTabProps> = ({
@@ -24,6 +28,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   setLastName,
   isEditingName,
   setIsEditingName,
+  jobTitle,
+  setJobTitle,
+  isEditingJobTitle,
+  setIsEditingJobTitle,
   user,
   saving,
   onChangeEmailRequest,
@@ -63,6 +71,30 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             className="w-1/2 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 disabled:opacity-50"
           />
         </div>
+      </div>
+
+      {/* --- Job Title --- */}
+      <div>
+        <div className="flex items-center justify-between mb-1">
+          <label className="block text-sm font-medium text-gray-700">
+            Job Title
+          </label>
+          <button
+            type="button"
+            onClick={() => setIsEditingJobTitle(!isEditingJobTitle)}
+            className="text-sm text-emerald-600 hover:underline"
+          >
+            {isEditingJobTitle ? "Cancel" : "Edit"}
+          </button>
+        </div>
+        <input
+          type="text"
+          value={jobTitle}
+          onChange={(e) => setJobTitle(e.target.value)}
+          disabled={!isEditingJobTitle || saving}
+          placeholder="Your job title"
+          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 disabled:opacity-50"
+        />
       </div>
 
       {/* --- Email Section --- */}
