@@ -13,13 +13,15 @@ type Props = {
 };
 
 export default function ProfileModal({ open, onClose }: Props) {
+  // --- STATE MANAGEMENT ---
   const [isEditingName, setIsEditingName] = useState(false);
+  const [isEditingJobTitle, setIsEditingJobTitle] = useState(false); // ✅ State for job title editing
   const [activeTab, setActiveTab] = useState<
     "profile" | "preferences" | "security"
   >("profile");
-
   const [showChangeEmail, setShowChangeEmail] = useState(false);
 
+  // --- CUSTOM HOOK FOR USER DATA ---
   const {
     loading,
     saving,
@@ -33,6 +35,8 @@ export default function ProfileModal({ open, onClose }: Props) {
     setFirstName,
     lastName,
     setLastName,
+    jobTitle, // ✅ Get jobTitle state from hook
+    setJobTitle, // ✅ Get jobTitle setter from hook
     selectedCategories,
     toggleCategory,
     selectedSources,
@@ -40,10 +44,14 @@ export default function ProfileModal({ open, onClose }: Props) {
     saveProfile,
   } = useUserProfile(open);
 
+  // --- EVENT HANDLERS ---
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const success = await saveProfile();
-    if (success) setIsEditingName(false);
+    if (success) {
+      setIsEditingName(false);
+      setIsEditingJobTitle(false); // ✅ Reset editing state on success
+    }
   };
 
   const handleOverlayClose = () => {
@@ -51,6 +59,7 @@ export default function ProfileModal({ open, onClose }: Props) {
     resetSubmissionStatus();
   };
 
+  // --- RENDER LOGIC ---
   if (!open && !showChangeEmail) return null;
 
   const tabBaseStyle =
@@ -155,6 +164,10 @@ export default function ProfileModal({ open, onClose }: Props) {
                         setLastName={setLastName}
                         isEditingName={isEditingName}
                         setIsEditingName={setIsEditingName}
+                        jobTitle={jobTitle} // ✅ Pass jobTitle prop
+                        setJobTitle={setJobTitle} // ✅ Pass setter prop
+                        isEditingJobTitle={isEditingJobTitle} // ✅ Pass editing state prop
+                        setIsEditingJobTitle={setIsEditingJobTitle} // ✅ Pass editing setter prop
                         user={user}
                         saving={saving}
                         onChangeEmailRequest={() => {
