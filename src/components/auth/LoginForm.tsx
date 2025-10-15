@@ -34,34 +34,41 @@ export default function LoginForm({
   }, [cooldown]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (resendLoading) return; // Prevent submission while resending
+  e.preventDefault();
 
-    setError("");
-    setLoading(true);
-    setSuccess(false);
-    setShowResend(false);
+  // 🚫 Prevent multiple rapid submissions
+  if (loading || resendLoading) return;
 
-    try {
-      await onSubmit(email, password);
-      setSuccess(true);
-      // Navigate to the dashboard after a short delay to show the success message
-      setTimeout(() => {
-        setLoading(false);
-        navigate("/dashboard");
-      }, 1000);
-    } catch (err: any) {
-      const msg = err?.message || "Invalid email or password.";
-      // Check for a specific error to show the "Resend Verification" option
-      if (err.code === "EMAIL_NOT_VERIFIED" || msg.includes("not been verified")) {
-        setShowResend(true);
-        setError("Your email is not verified. Please verify to continue.");
-      } else {
-        setError(msg);
-      }
+  setError("");
+  setSuccess(false);
+  setShowResend(false);
+  setLoading(true);
+
+  try {
+    // 🔐 Attempt login
+    await onSubmit(email.trim(), password);
+
+    // ✅ Show success and navigate smoothly
+    setSuccess(true);
+    setTimeout(() => {
+      navigate("/dashboard", { replace: true });
       setLoading(false);
+    }, 800); // Slightly shorter delay for smoother UX
+  } catch (err: any) {
+    const msg = err?.message || "Invalid email or password.";
+
+    // 📩 Handle unverified email case
+    if (err.code === "EMAIL_NOT_VERIFIED" || msg.includes("not been verified")) {
+      setShowResend(true);
+      setError("Your email is not verified. Please verify to continue.");
+    } else {
+      setError(msg);
     }
-  };
+
+    setLoading(false);
+  }
+};
+
 
   const handleResend = async () => {
     if (cooldown > 0) return; // Block if still in cooldown

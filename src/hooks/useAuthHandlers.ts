@@ -1,27 +1,14 @@
+// src/hooks/useAuthHandlers.ts
 import { useAuthContext } from "../context/AuthContext";
 import { apiFetch } from "../utils/api";
+// import { login as apiLogin } from "../api/auth";
 
 export function useAuthHandlers() {
   const { login } = useAuthContext();
 
-  // 🔹 LOGIN HANDLER
+  // 🔹 LOGIN HANDLER (only call context login)
   const handleLogin = async (email: string, password: string): Promise<void> => {
-    try {
-      const loginData = await apiFetch("/api/auth/login", {
-        method: "POST",
-        body: JSON.stringify({ email, password }),
-      });
-
-      // fetch user profile
-      const userData = await apiFetch("/api/account/me", {
-        headers: { Authorization: `Bearer ${loginData.token}` },
-      });
-
-      login(loginData.token, userData);
-    } catch (err: any) {
-      // Pass error up for specific handling (e.g. EMAIL_NOT_VERIFIED)
-      throw err;
-    }
+    await login(email, password);
   };
 
   // 🔹 SIGNUP HANDLER
@@ -36,7 +23,6 @@ export function useAuthHandlers() {
       method: "POST",
       body: JSON.stringify(data),
     });
-    // No auto-login — wait until verification
   };
 
   // 🔹 FORGOT PASSWORD HANDLER
@@ -47,16 +33,14 @@ export function useAuthHandlers() {
     });
   };
 
-  // 🔹 VERIFY EMAIL HANDLER (fixed)
-const handleVerifyEmail = async (token: string): Promise<void> => {
-  // Send as query param, not body
-  await apiFetch(`/api/auth/verify-email?token=${encodeURIComponent(token)}`, {
-    method: "POST",
-  });
-};
+  // 🔹 VERIFY EMAIL HANDLER
+  const handleVerifyEmail = async (token: string): Promise<void> => {
+    await apiFetch(`/api/auth/verify-email?token=${encodeURIComponent(token)}`, {
+      method: "POST",
+    });
+  };
 
-
-  // 🔹 RESEND VERIFICATION EMAIL HANDLER
+  // 🔹 RESEND VERIFICATION HANDLER
   const handleResendVerification = async (email: string): Promise<void> => {
     await apiFetch("/api/auth/resend-verification", {
       method: "POST",
