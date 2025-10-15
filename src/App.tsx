@@ -3,6 +3,7 @@ import LandingPage from "./pages/LandingPage";
 import DashboardPage from "./pages/DashboardPage";
 import { useAuthContext } from "./context/AuthContext";
 import AuthLoadingOverlay from "./components/ui/AuthLoadingOverlay";
+import ActionStatusOverlay from "./components/ui/ActionStatusOverlay";
 
 //
 // ──────────────────────────────────────────────────────────────
@@ -15,9 +16,11 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
   // 🕒 Wait until auth state is fully resolved
   if (loading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white text-gray-500 text-sm">
-        Checking session...
-      </div>
+      <ActionStatusOverlay
+        status="saving"
+        message="Checking your session..."
+        onClose={() => {}}
+      />
     );
   }
 
