@@ -1,66 +1,7 @@
-import { useState, useEffect } from "react";
+// src/hooks/useAuth.ts
+import { useAuthContext } from "../context/AuthContext";
 
-export function useAuth() {
-  const [token, setToken] = useState<string | null>(null);
-  const [user, setUser] = useState<{ firstName: string; lastName: string } | null>(null);
-  const [loading, setLoading] = useState(true); // Add loading state
-
-  useEffect(() => {
-    try {
-      const storedToken = localStorage.getItem("token");
-      const storedUser = localStorage.getItem("user");
-
-      if (storedToken) {
-        console.debug("DEBUG → Found token:", storedToken);
-        setToken(storedToken);
-
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
-        }
-      } else {
-        console.debug("DEBUG → No token found");
-      }
-    } catch (err) {
-      console.error("Failed to parse stored user", err);
-      // If parsing fails, clear the stored data to prevent a broken state
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      setToken(null);
-      setUser(null);
-    }
-    setLoading(false); // Set loading to false after checking for token
-  }, []);
-
-  const login = (jwt: string, userData?: { firstName: string; lastName: string }) => {
-    console.debug("DEBUG → Saving token:", jwt);
-    localStorage.setItem("token", jwt);
-    setToken(jwt);
-
-    if (userData) {
-      const userToStore = {
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-      };
-      localStorage.setItem("user", JSON.stringify(userToStore));
-      setUser(userToStore);
-    }
-  };
-
-  const logout = () => {
-    console.debug("DEBUG → Clearing token & user");
-    localStorage.removeItem("token");
-    localStorage.removeItem("authtoken"); // remove legacy token
-    localStorage.removeItem("user");
-    setToken(null);
-    setUser(null);
-  };
-
-  return {
-    token,
-    user,
-    loading, // Add loading to return value
-    isAuthenticated: !!token,
-    login,
-    logout,
-  };
-}
+export const useAuth = () => {
+  const { user, token, loading, isAuthenticated, login, logout } = useAuthContext();
+  return { user, token, loading, isAuthenticated, login, logout };
+};
