@@ -1,7 +1,8 @@
-//src/api/auth.ts
-// import { apiFetch } from "../utils/api";
+// src/api/auth.ts
+import { apiFetch } from "../utils/api";
+import { extractErrorMessage } from "../utils/errorHandler";
 
-interface LoginResponse {
+export interface LoginResponse {
   accessToken: string;
   id: number;
   firstName: string;
@@ -10,43 +11,39 @@ interface LoginResponse {
   message?: string;
 }
 
-export async function login(email: string, password: string): Promise<LoginResponse> {
-  const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-    credentials: "include", // 🔐 includes refresh cookie
-  });
-
-  if (!res.ok) {
-    const errText = await res.text();
-    try {
-      const err = JSON.parse(errText);
-      throw new Error(err.message || "Login failed");
-    } catch {
-      throw new Error(errText || "Login failed");
-    }
+export async function login(
+  email: string,
+  password: string
+): Promise<LoginResponse> {
+  try {
+    const data = await apiFetch("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    });
+    return data;
+  } catch (err) {
+    throw new Error(extractErrorMessage(err));
   }
-
-  return res.json();
 }
 
 export async function refreshAccessToken(): Promise<{ accessToken: string }> {
-  const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/refresh-token`, {
-    method: "POST",
-    credentials: "include", // send refresh cookie automatically
-  });
-
-  if (!res.ok) {
-    throw new Error("Session expired or invalid refresh token");
+  try {
+    const data = await apiFetch("/api/auth/refresh-token", {
+      method: "POST",
+    });
+    return data;
+  } catch (err) {
+    throw new Error(extractErrorMessage(err));
   }
-
-  return res.json();
 }
 
 export async function logout(): Promise<void> {
-  await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/logout`, {
-    method: "POST",
-    credentials: "include",
-  });
+  try {
+    await apiFetch("/api/auth/logout", {
+      method: "POST",
+    });
+  } catch (err) {
+    // Logout errors aren’t critical — we just log them
+    console.warn("⚠️ Logout failed:", extractErrorMessage(err));
+  }
 }
