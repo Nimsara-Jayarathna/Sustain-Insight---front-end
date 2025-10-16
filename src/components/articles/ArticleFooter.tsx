@@ -52,7 +52,7 @@ const ArticleFooter: React.FC<Props> = ({
         {/* Insight Button */}
         <button
           onClick={onToggleInsight}
-          className={`flex items-center gap-1.5 font-medium transition-colors ${insight ? "text-emerald-600" : "text-gray-500 hover:text-emerald-600"}`}
+          className={`flex items-center gap-1.5 font-medium transition-colors ${insight ? "text-indigo-600" : "text-gray-500 hover:text-indigo-600"}`}
           title={insight ? "Remove Insight" : "Add Insight"}
         >
           <InsightIcon filled={insight} />
