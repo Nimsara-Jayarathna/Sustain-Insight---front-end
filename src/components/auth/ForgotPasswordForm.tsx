@@ -1,5 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AuthLoadingOverlay from "../ui/AuthLoadingOverlay";
+
+const RESEND_COOLDOWN = 120; // 2 minutes
+const COOLDOWN_KEY = "forgotPasswordCooldown";
 
 export default function ForgotPasswordForm({
   onSubmit,
@@ -12,9 +15,27 @@ export default function ForgotPasswordForm({
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [cooldown, setCooldown] = useState(0);
+
+  // Restore cooldown from localStorage when component mounts
+  useEffect(() => {
+    const saved = localStorage.getItem(COOLDOWN_KEY);
+    if (saved) {
+      const remaining = Math.floor((+saved - Date.now()) / 1000);
+      if (remaining > 0) setCooldown(remaining);
+    }
+  }, []);
+
+  // Countdown effect
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => setCooldown((prev) => prev - 1), 1000);
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (cooldown > 0) return; // prevent spamming
     setLoading(true);
     setError("");
     setSuccess(false);
@@ -23,13 +44,27 @@ export default function ForgotPasswordForm({
       await onSubmit(email);
       setSuccess(true);
       setLoading(false);
+
+      // set cooldown in localStorage
+      const nextAllowed = Date.now() + RESEND_COOLDOWN * 1000;
+      localStorage.setItem(COOLDOWN_KEY, nextAllowed.toString());
+      setCooldown(RESEND_COOLDOWN);
+
       // Let the overlay's auto-close timer handle the delay before switching.
       setTimeout(() => {
         onSwitch("login");
       }, 2000);
     } catch (err: any) {
-      setError(err.message || "Failed to send reset link. Please try again.");
+      const msg = err.message || "Failed to send reset link. Please try again.";
+      setError(msg);
       setLoading(false);
+
+      // if backend returned rate-limit, start cooldown
+      if (msg.toLowerCase().includes("wait")) {
+        const nextAllowed = Date.now() + RESEND_COOLDOWN * 1000;
+        localStorage.setItem(COOLDOWN_KEY, nextAllowed.toString());
+        setCooldown(RESEND_COOLDOWN);
+      }
     }
   };
 
@@ -61,7 +96,7 @@ export default function ForgotPasswordForm({
 
           <button
             type="submit"
-            disabled={loading || success}
+            disabled={loading || success || cooldown > 0}
             className={`w-full flex items-center justify-center h-11 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-md transition-all duration-200 ease-in-out hover:bg-emerald-700 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-emerald-700 disabled:shadow-inner disabled:translate-y-0.5`}
           >
             {loading ? (
@@ -72,6 +107,8 @@ export default function ForgotPasswordForm({
                 </svg>
                 <span>Sending...</span>
               </>
+            ) : cooldown > 0 ? (
+              `Resend in ${cooldown}s`
             ) : (
               "Send Reset Link"
             )}
