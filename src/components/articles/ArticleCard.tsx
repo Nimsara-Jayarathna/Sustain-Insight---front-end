@@ -112,12 +112,13 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
 
 
   const allowActions = variant === "dashboard";
-  const isLanding = variant === 'landing';
+  const isLanding = variant === "landing";
 
-  const baseClasses = "group flex flex-col transition-all duration-300 ease-in-out h-full";
+  const baseClasses =
+    "group flex h-full flex-col overflow-hidden rounded-2xl transition-all duration-500 ease-out hover:-translate-y-1";
   const variantClasses = isLanding
-    ? "rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-1 bg-white"
-    : "rounded-lg border border-gray-200 bg-white shadow-sm hover:shadow-lg hover:-translate-y-1";
+    ? "border border-white/40 bg-white/90 shadow-[0_35px_60px_-30px_rgba(16,185,129,0.35)] backdrop-blur hover:border-emerald-200 hover:shadow-[0_45px_75px_-35px_rgba(16,185,129,0.45)]"
+    : "border border-gray-200 bg-white shadow-sm hover:shadow-xl";
   const cursorClass = disablePopup ? "cursor-default" : "cursor-pointer";
 
   return (
@@ -131,7 +132,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
           imageUrl={articleData.imageUrl} 
           title={articleData.title} 
         />
-        <div className="flex flex-1 flex-col p-4 sm:p-5">
+        <div className="flex flex-1 flex-col gap-3 px-4 pb-5 pt-4 sm:px-5 sm:pt-5">
           <ArticleSource sources={articleData.sources} />
           <ArticleTitle title={articleData.title} />
           <ArticleSummary summary={articleData.summary} variant={variant} />

@@ -46,7 +46,7 @@ export default function BookmarksView({ onNavigate }: Props) {
 
     if (error) {
       return (
-        <div className="text-center text-gray-600 mt-12 p-8 bg-red-50 rounded-lg border border-red-200">
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-7 text-center text-gray-600">
            <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-red-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
            </svg>
@@ -72,7 +72,7 @@ export default function BookmarksView({ onNavigate }: Props) {
     }
 
     return (
-      <div className="text-center text-gray-600 mt-12 p-8 bg-gray-50 rounded-lg border border-gray-200">
+      <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center text-gray-600">
         <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
         </svg>
@@ -91,5 +91,5 @@ export default function BookmarksView({ onNavigate }: Props) {
     );
   };
 
-  return <section className="px-2 sm:px-4 md:px-6">{renderContent()}</section>;
+  return <section className="space-y-6">{renderContent()}</section>;
 }

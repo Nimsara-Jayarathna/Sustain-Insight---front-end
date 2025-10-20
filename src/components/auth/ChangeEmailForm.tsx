@@ -256,39 +256,66 @@ export default function ChangeEmailForm({
   };
   
   return (
-    <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm mx-auto px-6 py-8 flex flex-col transition-all duration-300 ease-in-out transform animate-fadeIn">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xl font-semibold text-gray-800">Change Email Address</h3>
-        <button onClick={onCancel} disabled={loading} className="text-gray-400 hover:text-gray-600 text-2xl leading-none transition-colors disabled:opacity-50">×</button>
-      </div>
-
-      <ProgressBar currentStep={step} />
-
-      {/* Content Area */}
-      <form onSubmit={handlePrimaryAction} className="flex-grow flex flex-col">
-        <div className="flex-grow min-h-[120px] flex items-center justify-center">
-            {renderStepContent()}
-        </div>
-        
-        {/* Unified Action Footer */}
-        <div className="flex items-center justify-between gap-4 pt-6 mt-6 border-t border-gray-200">
-          {step === 1 ? (
-            <button type="button" onClick={onCancel} disabled={loading} className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors">
-              Cancel
-            </button>
-          ) : (
-             <button type="button" onClick={handleBack} disabled={loading} className="px-5 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 disabled:opacity-50 transition-colors">
-              Back
-            </button>
-          )}
-
-          <button type="submit" disabled={loading || success} className="flex-grow sm:flex-grow-0 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50 transition-colors shadow-sm hover:shadow-md">
-            {loading ? primaryButtonLoadingText : primaryButtonText}
+    <div className="mx-auto flex w-full max-w-lg animate-fadeIn flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
+      <header className="bg-gradient-to-r from-emerald-600/95 to-cyan-500/95 px-6 py-5 text-white">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h3 className="text-lg font-semibold">Change Email Address</h3>
+            <p className="mt-1 text-sm text-white/80">
+              We’ll guide you through verifying your current email, adding a new one, and finishing up securely.
+            </p>
+          </div>
+          <button
+            onClick={onCancel}
+            disabled={loading}
+            className="h-9 w-9 rounded-full bg-white/15 text-white transition hover:bg-white/25 disabled:opacity-50"
+          >
+            ×
           </button>
         </div>
-      </form>
+      </header>
 
-      {/* Overlay */}
+      <div className="flex flex-col gap-6 px-6 py-6 sm:px-8">
+        <ProgressBar currentStep={step} />
+
+        {/* Content Area */}
+        <form onSubmit={handlePrimaryAction} className="flex flex-col gap-6">
+          <div className="min-h-[140px]">
+            {renderStepContent()}
+          </div>
+
+          <div className="flex flex-col items-center justify-end gap-3 border-t border-gray-200 pt-4 sm:flex-row">
+            {step === 1 ? (
+              <button
+                type="button"
+                onClick={onCancel}
+                disabled={loading}
+                className="rounded-full border border-gray-200 px-5 py-2 text-sm font-medium text-gray-700 transition hover:border-emerald-300 hover:text-emerald-700 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleBack}
+                disabled={loading}
+                className="rounded-full border border-gray-200 px-5 py-2 text-sm font-medium text-gray-700 transition hover:border-emerald-300 hover:text-emerald-700 disabled:opacity-50"
+              >
+                Back
+              </button>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading || success}
+              className="w-full rounded-full bg-gradient-to-r from-emerald-600 to-cyan-500 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:shadow-xl disabled:opacity-50 sm:w-auto"
+            >
+              {loading ? primaryButtonLoadingText : primaryButtonText}
+            </button>
+          </div>
+        </form>
+      </div>
+
       {(error || loading || success) && (
         <AuthLoadingOverlay
           loading={loading && !success}
