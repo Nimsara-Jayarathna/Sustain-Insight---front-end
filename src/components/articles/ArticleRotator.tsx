@@ -94,12 +94,12 @@ const ArticleRotator: React.FC<ArticleRotatorProps> = ({ articles, isLoading = f
         {/* Layer 2.5: Header */}
         <div className="absolute top-6 left-6 right-6 z-20 flex items-center justify-between text-xs font-semibold uppercase tracking-[0.2em] text-white/70 sm:top-8 sm:left-8 sm:right-8">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur">
-            Top Stories
+            Top Sustainability Stories
             <span className="flex h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
           </span>
           <span className="hidden items-center gap-2 sm:flex">
             <span className="h-1.5 w-1.5 rounded-full bg-white/50" />
-            Updated live
+            Refreshed continuously
           </span>
         </div>
 

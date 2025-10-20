@@ -8,11 +8,24 @@ export default function HeroSection({ onSignup }: { onSignup: () => void }) {
         <div className="flex flex-col justify-center gap-8 lg:gap-10">
           <div className="space-y-6">
             <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
-              Actionable Insights on Climate Change, in Real-Time.
+              The Sustainability Intelligence Briefing, Delivered Daily.
             </h1>
             <p className="text-lg leading-8 text-gray-600">
-              Sustain Insight cuts through the noise, delivering a personalized and intelligent news feed focused on the sustainability topics that matter most to you.
+              Sustain Insight scans global ESG, circularity, policy, and impact investing coverage—curating the sustainability headlines your teams actually need.
             </p>
+            <div className="flex flex-wrap items-center gap-2 text-sm text-emerald-700">
+              {["ESG regulation alerts", "Supply chain resilience updates", "Impact capital & innovation"].map(
+                (item) => (
+                  <span
+                    key={item}
+                    className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50/80 px-3 py-1 font-medium"
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    {item}
+                  </span>
+                ),
+              )}
+            </div>
           </div>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
             <button

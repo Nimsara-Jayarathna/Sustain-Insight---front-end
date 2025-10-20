@@ -34,7 +34,7 @@ const ArticleThumbnail: React.FC<Props> = ({ imageUrl, title }) => {
       )}
       <div className="absolute inset-x-4 bottom-4 z-20 flex translate-y-3 items-center justify-between text-xs font-medium text-white/90 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
         <span className="rounded-full bg-black/45 px-3 py-1 backdrop-blur">
-          Quick glance
+          Sustainability brief
         </span>
         <span className="flex items-center gap-1 rounded-full bg-emerald-500/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide shadow-lg">
           Read Article

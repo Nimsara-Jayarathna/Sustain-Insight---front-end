@@ -30,17 +30,17 @@ export default function LatestNewsSection({
       <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
         <div className="mx-auto mb-12 flex max-w-3xl flex-col items-center gap-4 text-center sm:mb-16">
           <span className="inline-flex items-center gap-2 rounded-full bg-emerald-100/80 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700">
-            Live Feed
+            Live Sustainability Feed
             <span className="inline-flex h-2 w-2 animate-ping rounded-full bg-emerald-500" />
           </span>
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            Latest in Climate News
+            Latest in Sustainability News
           </h2>
           <p className="text-lg leading-8 text-gray-600">
-            A real-time digest of policy shifts, market signals, and breakthrough tech shaping the sustainability landscape.
+            A real-time digest of ESG regulation, corporate responsibility commitments, and sustainable innovation shaping global business.
           </p>
           <div className="flex flex-wrap justify-center gap-2 text-sm text-emerald-700">
-            {["40+ trusted sources", "Updated every 10 minutes", "AI summaries included"].map((chip) => (
+            {["40+ sustainability outlets", "Updated every 10 minutes", "Analyst-grade AI summaries"].map((chip) => (
               <span
                 key={chip}
                 className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/70 px-3 py-1 font-medium text-emerald-700 shadow-sm"
@@ -58,7 +58,7 @@ export default function LatestNewsSection({
           </div>
           <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-emerald-100 bg-emerald-50/70 px-6 py-4 text-sm text-emerald-800 shadow-sm sm:px-8">
             <span className="font-semibold">
-              Stay ahead of emerging regulations, investments, and technology.
+              Stay ahead of material ESG issues, reputational risk, and market expectations.
             </span>
             <button
               type="button"
