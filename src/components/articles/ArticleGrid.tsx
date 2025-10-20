@@ -12,16 +12,26 @@ type ArticleGridProps = {
 
 // --- 1. A private, internal skeleton component. No new file needed. ---
 const InternalSkeletonCard: React.FC = () => (
-  <div className="flex flex-col rounded-lg border border-gray-200 bg-white shadow-sm animate-pulse h-full">
-    <div className="aspect-[16/9] w-full bg-gray-200 rounded-t-lg"></div>
-    <div className="flex flex-1 flex-col p-4 sm:p-5">
-      <div className="h-4 w-1/3 bg-gray-200 rounded mb-2"></div>
-      <div className="h-5 w-full bg-gray-300 rounded mb-2"></div>
-      <div className="h-5 w-3/4 bg-gray-300 rounded mb-4"></div>
-      <div className="flex-grow" />
-      <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
-        <div className="h-4 w-1/4 bg-gray-200 rounded"></div>
-        <div className="h-6 w-1/3 bg-gray-200 rounded-full"></div>
+  <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+    <div className="aspect-[16/9] w-full bg-gray-200" />
+    <div className="flex flex-1 flex-col gap-3 px-4 py-5 sm:px-5">
+      <div className="h-4 w-24 rounded-full bg-gray-200" />
+      <div className="space-y-2">
+        <div className="h-5 w-3/4 rounded-full bg-gray-300" />
+        <div className="h-5 w-2/3 rounded-full bg-gray-300" />
+      </div>
+      <div className="space-y-2">
+        <div className="h-3 w-full rounded-full bg-gray-200" />
+        <div className="h-3 w-5/6 rounded-full bg-gray-200" />
+        <div className="h-3 w-2/3 rounded-full bg-gray-200" />
+      </div>
+      <div className="mt-auto flex items-center justify-between">
+        <div className="h-3 w-24 rounded-full bg-gray-200" />
+        <div className="flex gap-2">
+          <div className="h-6 w-16 rounded-full bg-gray-200" />
+          <div className="h-6 w-16 rounded-full bg-gray-200" />
+        </div>
       </div>
     </div>
   </div>
@@ -65,7 +75,7 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
     }
     const gridClasses = "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
     return (
-      <div className={`grid ${gridClasses} gap-6 lg:gap-8`}>
+      <div className={`grid ${gridClasses} gap-y-8 gap-x-6 scroll-mt-24 lg:gap-y-10`}>
         {Array.from({ length: 3 }).map((_, idx) => <InternalSkeletonCard key={idx} />)}
       </div>
     );
@@ -94,7 +104,7 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
 
   const gridClasses = "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
   return (
-    <div className={`grid ${gridClasses} gap-6 lg:gap-8`}>
+    <div className={`grid ${gridClasses} gap-y-8 gap-x-6 scroll-mt-24 lg:gap-y-10`}>
       {articles.map((article) => (
         <ArticleCard key={article.id} article={article} variant={variant} disablePopup={disablePopup} />
       ))}

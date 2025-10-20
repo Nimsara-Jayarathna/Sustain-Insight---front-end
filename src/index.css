@@ -66,6 +66,15 @@ opacity: 1;
 transform: translateY(0);
 }
 }
+/* Shimmer loading effect */
+@keyframes shimmer {
+0% {
+transform: translateX(-100%);
+}
+100% {
+transform: translateX(100%);
+}
+}
 /* === Animation Helper Classes === */
 .animate-scroll {
 animation: scroll linear infinite;
