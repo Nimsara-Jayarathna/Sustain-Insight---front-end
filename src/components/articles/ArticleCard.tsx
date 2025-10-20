@@ -112,12 +112,13 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
 
 
   const allowActions = variant === "dashboard";
-  const isLanding = variant === 'landing';
+  const isLanding = variant === "landing";
 
-  const baseClasses = "group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-xl";
+  const baseClasses =
+    "group flex h-full flex-col overflow-hidden rounded-2xl transition-all duration-500 ease-out hover:-translate-y-1";
   const variantClasses = isLanding
-    ? "hover:shadow-2xl"
-    : "";
+    ? "border border-white/40 bg-white/90 shadow-[0_35px_60px_-30px_rgba(16,185,129,0.35)] backdrop-blur hover:border-emerald-200 hover:shadow-[0_45px_75px_-35px_rgba(16,185,129,0.45)]"
+    : "border border-gray-200 bg-white shadow-sm hover:shadow-xl";
   const cursorClass = disablePopup ? "cursor-default" : "cursor-pointer";
 
   return (
