@@ -21,9 +21,9 @@ export default function LatestNewsSection({
   return (
     <section
       id="latest"
-      className="mx-auto max-w-7xl px-4 pb-24 sm:pb-32 sm:px-6 lg:px-8"
+      className="mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8"
     >
-      <div className="text-center mb-12">
+      <div className="mb-12 text-center sm:mb-16">
         <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
           Latest in Climate News
         </h2>
@@ -33,15 +33,17 @@ export default function LatestNewsSection({
       </div>
 
       {/* ✅ 2. Use the new ArticleRotator and pass it the list of articles to feature */}
-      <ArticleRotator
-        articles={featuredArticles} 
-        isLoading={isLoading} 
-      />
+      <div className="mt-10 sm:mt-12">
+        <ArticleRotator
+          articles={featuredArticles}
+          isLoading={isLoading}
+        />
+      </div>
 
       {/* Conditionally render the grid for the "other" articles */}
       {!isLoading && otherArticles && otherArticles.length > 0 && (
         <>
-          <div className="text-center mt-20 mb-12 sm:mt-24">
+          <div className="mt-16 mb-10 text-center sm:mt-20 sm:mb-12">
             <h3 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
               More Recent Developments
             </h3>
