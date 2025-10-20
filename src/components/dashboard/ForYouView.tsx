@@ -45,7 +45,7 @@ export default function ForYouView({ onNavigate, onManagePreferences }: Props) {
 
     if (error) {
       return (
-        <div className="text-center text-gray-600 mt-12 p-8 bg-red-50 rounded-lg border border-red-200">
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-7 text-center text-gray-600">
           <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-red-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
@@ -72,7 +72,7 @@ export default function ForYouView({ onNavigate, onManagePreferences }: Props) {
 
     // --- Redesigned "All Caught Up" Empty State ---
     return (
-      <div className="text-center text-gray-600 mt-12 p-8 bg-gray-50 rounded-lg border border-gray-200">
+      <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center text-gray-600">
         <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-emerald-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
@@ -98,13 +98,5 @@ export default function ForYouView({ onNavigate, onManagePreferences }: Props) {
     );
   };
 
-  return (
-    <section className="px-2 sm:px-4 md:px-6">
-      <header className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Your Daily Briefing</h2>
-        <p className="text-gray-600">News from the last 24 hours, tailored to your preferences.</p>
-      </header>
-      {renderContent()}
-    </section>
-  );
+  return <section className="space-y-6">{renderContent()}</section>;
 };

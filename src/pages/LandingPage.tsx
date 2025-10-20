@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearchParams, useLocation } from "react-router-dom";
+import { useSearchParams, useLocation, useNavigate } from "react-router-dom";
 import LayoutWrapper from "../components/layout/LayoutWrapper";
 import HeroSection from "../components/landing/HeroSection";
 import FeaturesSection from "../components/landing/FeaturesSection";
@@ -22,7 +22,8 @@ export default function LandingPage({ openForgotInitially = false }: LandingPage
     handleForgotPassword,
     handleVerifyEmail,
   } = useAuthHandlers();
-  const { logout } = useAuthContext();
+
+  const { logout, isAuthenticated } = useAuthContext();
 
   const [authOpen, setAuthOpen] = useState(false);
   const [view, setView] = useState<"login" | "signup" | "forgot" | "reset">("login");
@@ -34,95 +35,66 @@ export default function LandingPage({ openForgotInitially = false }: LandingPage
 
   const [searchParams] = useSearchParams();
   const location = useLocation();
+  const navigate = useNavigate();
 
-  // Handle verify-email?token=...
-  // ✅ Handle verify-email?token=... (one-time only)
-// useEffect(() => {
-//   const token = new URLSearchParams(window.location.search).get("token");
-//   if (window.location.pathname === "/verify-email" && token) {
-//     // prevent multiple requests for the same token
-//     if (verifying || verifySuccess || verifyError) return;
-
-//     const verifyOnce = async () => {
-//       try {
-//         setVerifying(true);
-//         await handleVerifyEmail(token);
-//         setVerifySuccess(true);
-//         setVerifyError(null);
-//         setTimeout(() => {
-//           setVerifying(false);
-//           setVerifySuccess(false);
-//           setAuthOpen(true);
-//           setView("login");
-//         }, 1800);
-//       } catch (err: any) {
-//         setVerifyError(err?.message || "Verification failed. Please try again.");
-//         setTimeout(() => {
-//           setVerifying(false);
-//           setAuthOpen(true);
-//           setView("login");
-//         }, 1800);
-//       }
-//     };
-
-//     verifyOnce();
-//   }
-//   // ✅ Empty dependency array ensures it runs once when component mounts
-//   // eslint-disable-next-line react-hooks/exhaustive-deps
-// }, []);
-
+  // 🔐 Redirect to dashboard if already logged in
   useEffect(() => {
-  const token = new URLSearchParams(window.location.search).get("token");
-  if (window.location.pathname === "/verify-email" && token) {
-    // prevent multiple requests for same token
-    if (verifying || verifySuccess || verifyError) return;
+    if (isAuthenticated) {
+      navigate("/dashboard");
+    }
+  }, [isAuthenticated, navigate]);
 
-    const verifyOnce = async () => {
-      try {
-        setVerifying(true);
-        await handleVerifyEmail(token);
-        setVerifySuccess(true);
-        setVerifyError(null);
+  // 📧 Handle verify-email?token=...
+  useEffect(() => {
+    const token = new URLSearchParams(window.location.search).get("token");
+    if (window.location.pathname === "/verify-email" && token) {
+      // prevent multiple calls
+      if (verifying || verifySuccess || verifyError) return;
 
-        setTimeout(() => {
-          // ✅ Reset all verification states at once
-          setVerifying(false);
-          setVerifySuccess(false);
+      const verifyOnce = async () => {
+        try {
+          setVerifying(true);
+          await handleVerifyEmail(token);
+          setVerifySuccess(true);
           setVerifyError(null);
-          setAuthOpen(true);
-          setView("login");
-        }, 1800);
-      } catch (err: any) {
-        setVerifyError(err?.message || "Verification failed. Please try again.");
-        setVerifySuccess(false);
-        setVerifying(false);
 
-        setTimeout(() => {
-          // ✅ Reset all verification states at once
-          setVerifying(false);
+          setTimeout(() => {
+            setVerifying(false);
+            setVerifySuccess(false);
+            setVerifyError(null);
+            setAuthOpen(true);
+            setView("login");
+          }, 1800);
+        } catch (err: any) {
+          setVerifyError(err?.message || "Verification failed. Please try again.");
           setVerifySuccess(false);
-          setVerifyError(null);
-          setAuthOpen(true);
-          setView("login");
-        }, 1800);
-      }
-    };
+          setVerifying(false);
 
-    verifyOnce();
-  }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
+          setTimeout(() => {
+            setVerifying(false);
+            setVerifySuccess(false);
+            setVerifyError(null);
+            setAuthOpen(true);
+            setView("login");
+          }, 1800);
+        }
+      };
 
-  // Forgot password direct open
+      verifyOnce();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 🔑 Forgot password direct link
   useEffect(() => {
     if (openForgotInitially || location.pathname === "/forgot-password") {
-      logout();
+      logout(); // ensure logged-out state
       setView("forgot");
       setAuthOpen(true);
     }
   }, [openForgotInitially, location, logout]);
 
-  // Reset password modal
+  // 🔄 Reset password modal
   useEffect(() => {
     const token = searchParams.get("token");
     if (location.pathname === "/reset-password" && token) {
@@ -132,6 +104,7 @@ export default function LandingPage({ openForgotInitially = false }: LandingPage
     }
   }, [searchParams, location]);
 
+  // 🔘 Open modal utility
   const openModal = (v: "login" | "signup" | "forgot") => {
     setView(v);
     setAuthOpen(true);
@@ -145,9 +118,14 @@ export default function LandingPage({ openForgotInitially = false }: LandingPage
     >
       <HeroSection onSignup={() => openModal("signup")} />
       <FeaturesSection />
-      <LatestNewsSection articles={articles} isLoading={isLoading} disablePopup />
+      <LatestNewsSection
+        articles={articles}
+        isLoading={isLoading}
+        disablePopup
+        onRequireAuth={() => openModal("signup")}
+      />
 
-      {/* Auth Modal */}
+      {/* 🔹 Auth Modal */}
       <AuthModal
         open={authOpen}
         view={view}
@@ -162,12 +140,9 @@ export default function LandingPage({ openForgotInitially = false }: LandingPage
         onSubmitForgotPassword={handleForgotPassword}
       />
 
-      {/* Verification Overlay */}
+      {/* 🔹 Verification Overlays */}
       {verifying && (
-        <AuthLoadingOverlay
-          loading
-          message="Verifying your email..."
-        />
+        <AuthLoadingOverlay loading message="Verifying your email..." />
       )}
       {verifySuccess && (
         <AuthLoadingOverlay

@@ -32,31 +32,43 @@ const ArticleFooter: React.FC<Props> = ({
   onToggleBookmark,
   onToggleInsight,
 }) => (
-  <div className="mt-4 flex items-center justify-between text-sm text-gray-500 min-h-[32px] pt-4 border-t border-gray-100">
-    <span className="text-xs">
+  <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4 text-sm text-gray-500">
+    <span className="text-xs font-medium uppercase tracking-wide text-gray-400">
       {publishedAt ? new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(publishedAt)) : "Unknown date"}
     </span>
 
     {allowActions && (
-      <div className="flex items-center gap-4">
-        {/* Bookmark Button */}
+      <div className="flex items-center gap-3">
         <button
           onClick={onToggleBookmark}
-          className={`flex items-center gap-1.5 font-medium transition-colors ${bookmark ? "text-emerald-600" : "text-gray-500 hover:text-emerald-600"}`}
+          className={`group/action relative inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+            bookmark
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+              : "border-gray-200 text-gray-500 hover:border-emerald-200 hover:text-emerald-600"
+          }`}
           title={bookmark ? "Remove Bookmark" : "Add Bookmark"}
         >
           <BookmarkIcon filled={bookmark} />
-          <span className="text-xs">{bookmark ? "Bookmarked" : "Bookmark"}</span>
+          <span>{bookmark ? "Bookmarked" : "Bookmark"}</span>
+          <span className="pointer-events-none absolute -top-9 left-1/2 hidden -translate-x-1/2 rounded-full bg-black/80 px-3 py-1 text-[10px] font-medium text-white shadow-lg transition-opacity duration-200 group-hover/action:inline-flex">
+            Toggle bookmark
+          </span>
         </button>
 
-        {/* Insight Button */}
         <button
           onClick={onToggleInsight}
-          className={`flex items-center gap-1.5 font-medium transition-colors ${insight ? "text-emerald-600" : "text-gray-500 hover:text-emerald-600"}`}
+          className={`group/action relative inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+            insight
+              ? "border-indigo-200 bg-indigo-50 text-indigo-700"
+              : "border-gray-200 text-gray-500 hover:border-indigo-200 hover:text-indigo-600"
+          }`}
           title={insight ? "Remove Insight" : "Add Insight"}
         >
           <InsightIcon filled={insight} />
-          <span className="text-xs">{insightCount}</span>
+          <span>{insightCount}</span>
+          <span className="pointer-events-none absolute -top-9 left-1/2 hidden -translate-x-1/2 rounded-full bg-black/80 px-3 py-1 text-[10px] font-medium text-white shadow-lg transition-opacity duration-200 group-hover/action:inline-flex">
+            Share insight
+          </span>
         </button>
       </div>
     )}

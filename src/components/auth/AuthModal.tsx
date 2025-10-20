@@ -29,15 +29,11 @@ export default function AuthModal({
   }) => Promise<void>;
   onSubmitForgotPassword?: (email: string) => Promise<void>;
 }) {
-  // Disable background scroll when modal is open
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
+    return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  // Close modal on Escape
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -51,26 +47,20 @@ export default function AuthModal({
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 backdrop-blur-sm p-4 animate-fadeIn">
       <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-xl transition-all duration-300 ease-in-out animate-slideUp">
-        {/* Close button */}
         <button
           aria-label="Close"
           onClick={onClose}
-          className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center
-                     rounded-full text-gray-500 hover:bg-gray-100"
+          className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100"
         >
           ×
         </button>
 
-        {/* Smooth form switching */}
         <div className="transition-all duration-300 ease-in-out">
           {view === "login" && <LoginForm onSubmit={onSubmitLogin} onSwitch={onSwitch} />}
-
           {view === "signup" && <SignupForm onSubmit={onSubmitSignup} onSwitch={onSwitch} />}
-
           {view === "forgot" && onSubmitForgotPassword && (
             <ForgotPasswordForm onSubmit={onSubmitForgotPassword} onSwitch={onSwitch} />
           )}
-
           {view === "reset" && resetToken && (
             <ResetPasswordForm token={resetToken} onSwitch={onSwitch} />
           )}

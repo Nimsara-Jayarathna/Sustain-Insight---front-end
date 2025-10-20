@@ -19,6 +19,7 @@ export function useUserProfile(open: boolean) {
 
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
+  const [jobTitle, setJobTitle] = useState<string>(""); // ✅ 1. Add state for job title
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
   const [selectedSources, setSelectedSources] = useState<number[]>([]);
 
@@ -43,6 +44,7 @@ export function useUserProfile(open: boolean) {
         setStaticData({ categories: cats, sources: srcs });
         setFirstName(me.firstName || "");
         setLastName(me.lastName || "");
+        setJobTitle(me.jobTitle || ""); // ✅ 2. Initialize job title from fetched data
         setSelectedCategories(
           me.preferredCategories?.map((c: any) => c.id) || []
         );
@@ -80,6 +82,7 @@ export function useUserProfile(open: boolean) {
         body: JSON.stringify({
           firstName,
           lastName,
+          jobTitle, // ✅ 3. Include job title in the save payload
           categoryIds: selectedCategories,
           sourceIds: selectedSources,
         }),
@@ -98,12 +101,12 @@ export function useUserProfile(open: boolean) {
 
   const resetSubmissionStatus = () => setSubmissionStatus(INITIAL_STATUS);
 
-  // ✅ Return all state and handlers, including setUser for live updates
+  // ✅ 4. Return jobTitle and its setter from the hook
   return {
     loading,
     saving: submissionStatus.status === "saving",
     user,
-    setUser, // <-- ✅ now exposed to allow direct updates (e.g. after email change)
+    setUser,
     categories: staticData.categories,
     sources: staticData.sources,
     submissionStatus,
@@ -112,6 +115,8 @@ export function useUserProfile(open: boolean) {
     setFirstName,
     lastName,
     setLastName,
+    jobTitle,
+    setJobTitle,
     selectedCategories,
     toggleCategory,
     selectedSources,

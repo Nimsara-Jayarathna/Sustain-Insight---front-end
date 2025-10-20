@@ -1,51 +1,96 @@
+// src/utils/api.ts
+import { getAuthContext } from "../context/contextBridge";
+import { extractErrorMessage } from "./errorHandler";
+
 const backendURL = import.meta.env.VITE_BACKEND_URL;
+let accessToken: string | null = null;
 
+export const setAccessToken = (token: string | null) => {
+  accessToken = token;
+};
+
+// 🔁 Refresh token logic
+const tryRefreshToken = async (): Promise<boolean> => {
+  try {
+    const res = await fetch(`${backendURL}/api/auth/refresh-token`, {
+      method: "POST",
+      credentials: "include",
+    });
+
+    if (!res.ok) throw new Error("Refresh failed");
+
+    const data = await res.json();
+    if (data?.accessToken) {
+      accessToken = data.accessToken;
+      console.info("✅ Access token refreshed");
+      return true;
+    }
+    return false;
+  } catch (err) {
+    console.warn("❌ Token refresh failed:", err);
+    accessToken = null;
+
+    const auth = getAuthContext();
+    if (auth) auth.setSessionExpired(true);
+    return false;
+  }
+};
+
+// 🌐 Main API fetch wrapper
 export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
-  const token = localStorage.getItem("token");
-
-  // Build headers
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    ...(options.headers as Record<string, string> || {}),
+    ...(options.headers as Record<string, string>) || {},
   };
 
-  // Attach token if not auth endpoint
-  if (token && !endpoint.startsWith("/api/auth")) {
-    headers["Authorization"] = `Bearer ${token}`;
+  const isAuthEndpoint = endpoint.startsWith("/api/auth");
+
+  // attach token only if not an auth endpoint
+  if (accessToken && !isAuthEndpoint) {
+    headers["Authorization"] = `Bearer ${accessToken}`;
   }
 
-  console.debug("DEBUG → Fetching:", `${backendURL}${endpoint}`, { headers });
-
-  const res = await fetch(`${backendURL}${endpoint}`, {
+  let res = await fetch(`${backendURL}${endpoint}`, {
     ...options,
     headers,
+    credentials: "include",
   });
 
-  // Handle non-2xx responses
-  if (!res.ok) {
-    const errorText = await res.text();
+  const isRefreshEndpoint = endpoint.includes("/api/auth/refresh-token");
 
-    // Separate try-block so our custom throw isn't recaptured
-    let errMessage = errorText;
+  // 🔒 Only retry refresh if:
+  // - not an auth route (e.g., login, signup, forgot-password)
+  // - not already a refresh request
+  if ((res.status === 401 || res.status === 403) && !isAuthEndpoint && !isRefreshEndpoint) {
+    console.warn("Access token expired — attempting refresh...");
 
-    try {
-      const errData = JSON.parse(errorText);
-
-      // ✅ Special detection block (returns early)
-      if (errData?.error === "EMAIL_NOT_VERIFIED") {
-        const err: any = new Error(errData.message || "Your email has not been verified.");
-        err.code = "EMAIL_NOT_VERIFIED";
-        throw err; // ⬅️ exits function entirely
-      }
-
-      errMessage = errData?.message || errorText || "Request failed.";
-    } catch {
-      // if parsing fails, just keep errorText
+    const refreshed = await tryRefreshToken();
+    if (refreshed && accessToken) {
+      headers["Authorization"] = `Bearer ${accessToken}`;
+      res = await fetch(`${backendURL}${endpoint}`, {
+        ...options,
+        headers,
+        credentials: "include",
+      });
+    } else {
+      throw new Error("Session expired. Please log in again.");
     }
-
-    // ✅ For all other cases, throw simple clean error like before
-    throw new Error(errMessage);
   }
 
-  return res.json();
+  // Parse response safely
+  let rawText = "";
+  let data: any = null;
+  try {
+    rawText = await res.text();
+    data = JSON.parse(rawText);
+  } catch {
+    data = rawText;
+  }
+
+  // Unified error handling
+  if (!res.ok) {
+    throw new Error(extractErrorMessage(data));
+  }
+
+  return typeof data === "object" ? data : {};
 };

@@ -1,5 +1,4 @@
-// src/components/auth/ChangeEmailForm.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AuthLoadingOverlay from "../ui/AuthLoadingOverlay";
 import OtpInput from "../ui/OtpInput";
 import {
@@ -9,13 +8,10 @@ import {
   confirmEmailChange,
 } from "../../api/user";
 
-// --- HELPER COMPONENTS ---
-
-// Visual progress bar for the multi-step form
+// --- HELPER COMPONENTS (Unchanged) ---
 const ProgressBar = ({ currentStep }: { currentStep: number }) => {
   const steps = ["Verify Current", "New Email", "Verify New", "Done"];
   const progress = Math.max(0, ((currentStep - 1) / (steps.length - 1)) * 100);
-
   return (
     <div className="w-full px-2 mb-6">
       <div className="relative h-2 bg-gray-200 rounded-full">
@@ -41,7 +37,6 @@ const ProgressBar = ({ currentStep }: { currentStep: number }) => {
 };
 
 // --- MAIN COMPONENT ---
-
 export default function ChangeEmailForm({
   onSuccess,
   onCancel,
@@ -56,22 +51,52 @@ export default function ChangeEmailForm({
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [cooldownCurrent, setCooldownCurrent] = useState(0);
+  const [cooldownNew, setCooldownNew] = useState(0);
 
+  // Animation state
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  // Cooldown timers (unchanged)
+  useEffect(() => {
+    const timers: ReturnType<typeof setInterval>[] = [];
+    if (cooldownCurrent > 0)
+      timers.push(setInterval(() => setCooldownCurrent((v) => v - 1), 1000));
+    if (cooldownNew > 0)
+      timers.push(setInterval(() => setCooldownNew((v) => v - 1), 1000));
+    return () => timers.forEach(clearInterval);
+  }, [cooldownCurrent, cooldownNew]);
+
+  // Handlers for API calls (logic is unchanged)
   const handleRequestCurrentOtp = async () => {
     setLoading(true);
     setError("");
     try {
       await requestEmailChangeOtp();
+      setCooldownCurrent(60);
       setStep(2);
     } catch (err: any) {
-      setError(err.message || "Failed to send OTP. Please try again.");
+      setError(err.message || "Failed to send OTP.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleVerifyCurrentOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleResendCurrentOtp = async () => {
+    if (cooldownCurrent > 0) return;
+    setLoading(true);
+    setError("");
+    try {
+      await requestEmailChangeOtp();
+      setCooldownCurrent(60);
+    } catch (err: any) {
+      setError(err.message || "Failed to resend OTP.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyCurrentOtp = async () => {
     if (currentOtp.length < 6) {
       setError("Please enter the complete 6-digit OTP.");
       return;
@@ -82,15 +107,14 @@ export default function ChangeEmailForm({
       await verifyCurrentEmailOtp({ otp: currentOtp });
       setStep(3);
     } catch (err: any) {
-      setError(err.message || "Invalid OTP. Please try again.");
-      setCurrentOtp(""); // <-- FIX: Clear OTP input on error
+      setError(err.message || "Invalid OTP.");
+      setCurrentOtp("");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSendNewEmailOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSendNewEmailOtp = async () => {
     setError("");
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(newEmail)) {
@@ -100,6 +124,7 @@ export default function ChangeEmailForm({
     setLoading(true);
     try {
       await sendNewEmailOtp({ newEmail });
+      setCooldownNew(60);
       setStep(4);
     } catch (err: any) {
       setError(err.message || "Failed to send OTP to new email.");
@@ -107,9 +132,22 @@ export default function ChangeEmailForm({
       setLoading(false);
     }
   };
+  
+  const handleResendNewEmailOtp = async () => {
+    if (cooldownNew > 0) return;
+    setLoading(true);
+    setError("");
+    try {
+      await sendNewEmailOtp({ newEmail });
+      setCooldownNew(60);
+    } catch (err: any)      {
+      setError(err.message || "Failed to resend OTP.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const handleConfirmEmailChange = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleConfirmEmailChange = async () => {
     if (newEmailOtp.length < 6) {
       setError("Please enter the complete 6-digit OTP.");
       return;
@@ -128,97 +166,154 @@ export default function ChangeEmailForm({
       setTimeout(() => onSuccess(), 1500);
     } catch (err: any) {
       setError(err.message || "Invalid OTP or expired code.");
-      setNewEmailOtp(""); // <-- FIX: Clear OTP input on error
+      setNewEmailOtp("");
     } finally {
       setLoading(false);
     }
   };
-  
-  const renderStepContent = () => {
+
+  const handlePrimaryAction = (e: React.FormEvent) => {
+    e.preventDefault();
     switch (step) {
-      case 1:
-        return (
-          <div className="space-y-6 text-center">
-            <p className="text-sm text-gray-600 leading-relaxed">
-              For security, we'll send a verification code to your <b>current email address</b> to confirm your identity.
-            </p>
-            <div className="flex flex-col sm:flex-row sm:justify-end gap-3 pt-2">
-              <button onClick={onCancel} disabled={loading} className="w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors">Cancel</button>
-              <button onClick={handleRequestCurrentOtp} disabled={loading} className="w-full sm:w-auto flex items-center justify-center rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50 transition-colors">
-                {loading ? "Sending..." : "Send Code"}
-              </button>
-            </div>
-          </div>
-        );
-      case 2:
-        return (
-          <form onSubmit={handleVerifyCurrentOtp} className="space-y-6">
-            <div className="text-center">
-              <label className="block text-sm font-medium text-gray-700">Enter Verification Code</label>
-              <p className="text-xs text-gray-500 mt-1">A 6-digit code was sent to your current email.</p>
-            </div>
-            <OtpInput value={currentOtp} onChange={setCurrentOtp} disabled={loading} />
-            <div className="flex items-center justify-between gap-3 pt-2">
-              <button type="button" onClick={() => setStep(1)} className="text-sm font-medium text-gray-600 hover:text-emerald-600 transition-colors">Back</button>
-              <button type="submit" disabled={loading} className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50 transition-colors">
-                {loading ? "Verifying..." : "Verify Identity"}
-              </button>
-            </div>
-          </form>
-        );
-      case 3:
-        return (
-          <form onSubmit={handleSendNewEmailOtp} className="space-y-6">
-            <div>
-              <label htmlFor="new-email" className="block text-sm font-medium text-gray-700 mb-1">New Email Address</label>
-              <input id="new-email" type="email" required autoFocus value={newEmail} onChange={(e) => setNewEmail(e.target.value)} disabled={loading} placeholder="Enter your new email" className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 disabled:opacity-50 transition-colors"/>
-            </div>
-            <div className="flex items-center justify-between gap-3 pt-2">
-              <button type="button" onClick={() => setStep(2)} className="text-sm font-medium text-gray-600 hover:text-emerald-600 transition-colors">Back</button>
-              <button type="submit" disabled={loading} className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50 transition-colors">
-                {loading ? "Sending..." : "Send Verification Code"}
-              </button>
-            </div>
-          </form>
-        );
-      case 4:
-        return (
-          <form onSubmit={handleConfirmEmailChange} className="space-y-6">
-            <div className="text-center">
-              <label className="block text-sm font-medium text-gray-700">Verify Your New Email</label>
-              <p className="text-xs text-gray-500 mt-1">
-                Enter the code sent to <b className="text-emerald-700">{newEmail}</b>
-              </p>
-            </div>
-            <OtpInput value={newEmailOtp} onChange={setNewEmailOtp} disabled={loading} />
-            <div className="flex items-center justify-between gap-3 pt-2">
-              <button type="button" onClick={() => setStep(3)} className="text-sm font-medium text-gray-600 hover:text-emerald-600 transition-colors">Back</button>
-              <button type="submit" disabled={loading || success} className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50 transition-colors">
-                {loading ? "Confirming..." : "Confirm & Change Email"}
-              </button>
-            </div>
-          </form>
-        );
-      default:
-        return null;
+      case 1: handleRequestCurrentOtp(); break;
+      case 2: handleVerifyCurrentOtp(); break;
+      case 3: handleSendNewEmailOtp(); break;
+      case 4: handleConfirmEmailChange(); break;
     }
   };
+  
+  const handleBack = () => {
+    setIsAnimating(true);
+    setTimeout(() => {
+        setStep(step > 1 ? step - 1 : 1);
+        setIsAnimating(false);
+    }, 150);
+  }
 
+  const primaryButtonText = {
+    1: "Send Verification Code",
+    2: "Verify & Continue",
+    3: "Send Verification Code",
+    4: "Confirm & Change Email",
+  }[step];
+  
+  const primaryButtonLoadingText = {
+    1: "Sending...",
+    2: "Verifying...",
+    3: "Sending...",
+    4: "Confirming...",
+  }[step];
+
+  const renderStepContent = () => {
+    const animationClass = isAnimating ? 'animate-fadeOut' : 'animate-fadeIn';
+
+    return (
+        <div key={step} className={`space-y-4 ${animationClass}`}>
+            {step === 1 && (
+                <div className="text-center space-y-2">
+                    <h4 className="font-semibold text-gray-800">Verify Your Identity</h4>
+                    <p className="text-sm text-gray-600">For security, we'll send a one-time code to your <b>current email address</b>.</p>
+                </div>
+            )}
+            {step === 2 && (
+                <div className="text-center space-y-4">
+                    <div>
+                        <h4 className="font-semibold text-gray-800">Enter Verification Code</h4>
+                        <p className="text-sm text-gray-500">A 6-digit code was sent to your current email.</p>
+                    </div>
+                    <OtpInput value={currentOtp} onChange={setCurrentOtp} disabled={loading} />
+                    <button type="button" onClick={handleResendCurrentOtp} disabled={loading || cooldownCurrent > 0} className="text-sm text-emerald-600 font-medium hover:underline disabled:opacity-50 disabled:cursor-not-allowed transition">
+                        {cooldownCurrent > 0 ? `Resend available in ${cooldownCurrent}s` : "Didn't get a code? Resend"}
+                    </button>
+                </div>
+            )}
+            {/* ✅ --- REVISED STEP 3 DESIGN --- */}
+            {step === 3 && (
+                <div className="text-center space-y-4 w-full">
+                    <div>
+                        <h4 className="font-semibold text-gray-800">What's Your New Email?</h4>
+                        <p className="text-sm text-gray-500">We'll send a code here to confirm it's yours.</p>
+                    </div>
+                    <input id="new-email" type="email" required autoFocus value={newEmail} onChange={(e) => setNewEmail(e.target.value)} disabled={loading} placeholder="example@company.com" className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 disabled:opacity-50 transition-colors"/>
+                </div>
+            )}
+            {step === 4 && (
+                <div className="text-center space-y-4">
+                    <div>
+                        <h4 className="font-semibold text-gray-800">Verify Your New Email</h4>
+                        <p className="text-sm text-gray-500">
+                            Enter the code we sent to <b className="text-emerald-700">{newEmail}</b>
+                        </p>
+                    </div>
+                    <OtpInput value={newEmailOtp} onChange={setNewEmailOtp} disabled={loading} />
+                    <button type="button" onClick={handleResendNewEmailOtp} disabled={loading || cooldownNew > 0} className="text-sm text-emerald-600 font-medium hover:underline disabled:opacity-50 disabled:cursor-not-allowed transition">
+                        {cooldownNew > 0 ? `Resend available in ${cooldownNew}s` : "Didn't get a code? Resend"}
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+  };
+  
   return (
-    <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm sm:max-w-md mx-auto px-5 sm:px-8 py-6 sm:py-8 transition-all duration-300 ease-in-out transform animate-fadeIn">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg sm:text-xl font-semibold text-gray-800">
-          Change Your Email Address
-        </h3>
-        <button onClick={onCancel} disabled={loading} className="text-gray-400 hover:text-gray-600 text-2xl leading-none transition-colors disabled:opacity-50">
-          ×
-        </button>
-      </div>
+    <div className="mx-auto flex w-full max-w-lg animate-fadeIn flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
+      <header className="bg-gradient-to-r from-emerald-600/95 to-cyan-500/95 px-6 py-5 text-white">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h3 className="text-lg font-semibold">Change Email Address</h3>
+            <p className="mt-1 text-sm text-white/80">
+              We’ll guide you through verifying your current email, adding a new one, and finishing up securely.
+            </p>
+          </div>
+          <button
+            onClick={onCancel}
+            disabled={loading}
+            className="h-9 w-9 rounded-full bg-white/15 text-white transition hover:bg-white/25 disabled:opacity-50"
+          >
+            ×
+          </button>
+        </div>
+      </header>
 
-      <ProgressBar currentStep={step} />
+      <div className="flex flex-col gap-6 px-6 py-6 sm:px-8">
+        <ProgressBar currentStep={step} />
 
-      <div className="mt-4">
-        {renderStepContent()}
+        {/* Content Area */}
+        <form onSubmit={handlePrimaryAction} className="flex flex-col gap-6">
+          <div className="min-h-[140px]">
+            {renderStepContent()}
+          </div>
+
+          <div className="flex flex-col items-center justify-end gap-3 border-t border-gray-200 pt-4 sm:flex-row">
+            {step === 1 ? (
+              <button
+                type="button"
+                onClick={onCancel}
+                disabled={loading}
+                className="rounded-full border border-gray-200 px-5 py-2 text-sm font-medium text-gray-700 transition hover:border-emerald-300 hover:text-emerald-700 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleBack}
+                disabled={loading}
+                className="rounded-full border border-gray-200 px-5 py-2 text-sm font-medium text-gray-700 transition hover:border-emerald-300 hover:text-emerald-700 disabled:opacity-50"
+              >
+                Back
+              </button>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading || success}
+              className="w-full rounded-full bg-gradient-to-r from-emerald-600 to-cyan-500 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:shadow-xl disabled:opacity-50 sm:w-auto"
+            >
+              {loading ? primaryButtonLoadingText : primaryButtonText}
+            </button>
+          </div>
+        </form>
       </div>
 
       {(error || loading || success) && (

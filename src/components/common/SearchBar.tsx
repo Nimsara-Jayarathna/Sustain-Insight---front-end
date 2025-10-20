@@ -13,17 +13,32 @@ export default function SearchBar({ onSearch }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 w-full md:w-1/2">
-      <input
-        type="search"
-        placeholder="Search all articles..."
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        className="flex-grow border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-      />
+    <form
+      onSubmit={handleSubmit}
+      className="flex w-full flex-wrap items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-emerald-400 sm:flex-nowrap"
+    >
+      <div className="flex min-w-0 flex-1 items-center gap-2">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-4 w-4 flex-none text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={1.5}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z" />
+        </svg>
+        <input
+          type="search"
+          placeholder="Search all articles..."
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          className="min-w-0 flex-1 border-none bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none"
+        />
+      </div>
       <button
         type="submit"
-        className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
+        className="flex-none rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
       >
         Search
       </button>

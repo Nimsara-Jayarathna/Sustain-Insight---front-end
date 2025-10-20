@@ -1,66 +1,100 @@
 @import "tailwindcss";
-
 /* === Custom Utilities === */
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;
+display: none;
 }
 .scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+-ms-overflow-style: none;
+scrollbar-width: none;
 }
-
-/* === Continuous Scroll Animation === */
+/* === Animation Keyframes Library === */
+/* For the dashboard carousel (continuous scroll) */
 @keyframes scroll {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
+0% {
+transform: translateX(0);
 }
-.animate-scroll {
-  animation: scroll linear infinite;
+100% {
+transform: translateX(-50%);
 }
-
-/* === Slide In === */
+}
+/* For the landing page text content (fades and slides up) */
 @keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+from {
+opacity: 0;
+transform: translateY(20px);
+}
+to {
+opacity: 1;
+transform: translateY(0);
+}
+}
+/* For the ArticleRotator images (subtle zoom and pan) */
+@keyframes ken-burns {
+0% {
+transform: scale(1.05) translate(1%, -1%);
+}
+100% {
+transform: scale(1) translate(0, 0);
+}
+}
+/* For the landing page progress bar */
+@keyframes progress-bar {
+from {
+width: 0%;
+}
+to {
+width: 100%;
+}
+}
+/* A decorative floating animation (optional) */
+@keyframes float {
+0%, 100% {
+transform: translateY(-4%);
+}
+50% {
+transform: translateY(4%);
+}
+}
+/* A simple fade-in effect (optional) */
+@keyframes fadeIn {
+from {
+opacity: 0;
+transform: translateY(-4px);
+}
+to {
+opacity: 1;
+transform: translateY(0);
+}
+}
+/* Shimmer loading effect */
+@keyframes shimmer {
+0% {
+transform: translateX(-100%);
+}
+100% {
+transform: translateX(100%);
+}
+}
+/* === Animation Helper Classes === */
+.animate-scroll {
+animation: scroll linear infinite;
 }
 .animate-slide-in {
-  animation: slideIn 0.3s ease-out forwards;
+animation: slideIn 0.3s ease-out forwards;
 }
-
-/* === Floating === */
-@keyframes float {
-  0%, 100% {
-    transform: translateY(-4%);
-  }
-  50% {
-    transform: translateY(4%);
-  }
+.animate-progress {
+animation-name: progress-bar;
+animation-timing-function: linear;
+animation-fill-mode: forwards;
 }
 .animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-
-/* === Fade In === */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+animation: float 6s ease-in-out infinite;
 }
 .animate-fadeIn {
-  animation: fadeIn 0.25s ease-out;
+animation: fadeIn 0.25s ease-out;
+}
+/* === Interaction Utilities === */
+/* Pauses the dashboard carousel on hover */
+.scrolling-container:hover .animate-scroll {
+animation-play-state: paused;
 }

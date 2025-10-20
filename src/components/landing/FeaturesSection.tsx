@@ -8,36 +8,36 @@ const BookmarkIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-
 
 export default function FeaturesSection() {
   return (
-    <section className="relative isolate mx-auto max-w-7xl px-4 py-24 sm:py-32 sm:px-6 lg:px-8">
+    <section id="features" className="relative isolate mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
       {/* Background gradient */}
       <div className="absolute inset-0 -z-10 bg-gray-50" />
 
-      <div className="text-center mb-16">
+      <div className="mb-12 text-center sm:mb-16">
         <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-          Empowering Sustainable Insights
+          Built for Sustainability Intelligence Teams
         </h2>
         <p className="mt-4 text-lg leading-8 text-gray-600 max-w-2xl mx-auto">
-          Discover, personalize, and stay ahead with intelligent news curation designed for the modern professional.
+          Aggregate ESG, CSR, and supply chain coverage; tune it to your mandate; and share the right narrative with stakeholders in minutes.
         </p>
       </div>
 
-      <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
         <FeatureCard
           icon={<RobotIcon />}
-          title="Automated Aggregation"
-          desc="We continuously gather sustainability news from verified global sources, so you never miss a critical update."
+          title="Sustainability Signal Engine"
+          desc="Track verified ESG, climate risk, and responsible investment sources across regions without hopping between tabs."
           color="emerald"
         />
         <FeatureCard
           icon={<FilterIcon />}
-          title="Intelligent Filtering"
-          desc="Sort and refine by category, region, or source. Quickly zero in on the information that matters most to you."
+          title="Contextual Briefings"
+          desc="Slice stories by framework, sector, or geography, then publish tailored briefings for executives, investors, or suppliers."
           color="cyan"
         />
         <FeatureCard
           icon={<BookmarkIcon />}
-          title="Personalized Feed"
-          desc="Save your favorite topics and sources to build a unique news stream perfectly aligned with your interests."
+          title="Shared Sustainability Workspace"
+          desc="Bookmark, annotate, and assign follow-ups so policy, procurement, and sustainability leads stay aligned on what matters next."
           color="indigo"
         />
       </div>

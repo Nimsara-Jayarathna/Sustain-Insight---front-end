@@ -1,5 +1,5 @@
 // src/components/dashboard/ProfileModal.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useUserProfile } from "../../hooks/useUserProfile";
 import ActionStatusOverlay from "../ui/ActionStatusOverlay";
 import { ProfileTab } from "./profile/ProfileTab";
@@ -13,13 +13,15 @@ type Props = {
 };
 
 export default function ProfileModal({ open, onClose }: Props) {
+  // --- STATE MANAGEMENT ---
   const [isEditingName, setIsEditingName] = useState(false);
+  const [isEditingJobTitle, setIsEditingJobTitle] = useState(false); // ✅ State for job title editing
   const [activeTab, setActiveTab] = useState<
     "profile" | "preferences" | "security"
   >("profile");
-
   const [showChangeEmail, setShowChangeEmail] = useState(false);
 
+  // --- CUSTOM HOOK FOR USER DATA ---
   const {
     loading,
     saving,
@@ -33,6 +35,8 @@ export default function ProfileModal({ open, onClose }: Props) {
     setFirstName,
     lastName,
     setLastName,
+    jobTitle, // ✅ Get jobTitle state from hook
+    setJobTitle, // ✅ Get jobTitle setter from hook
     selectedCategories,
     toggleCategory,
     selectedSources,
@@ -40,10 +44,14 @@ export default function ProfileModal({ open, onClose }: Props) {
     saveProfile,
   } = useUserProfile(open);
 
+  // --- EVENT HANDLERS ---
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const success = await saveProfile();
-    if (success) setIsEditingName(false);
+    if (success) {
+      setIsEditingName(false);
+      setIsEditingJobTitle(false); // ✅ Reset editing state on success
+    }
   };
 
   const handleOverlayClose = () => {
@@ -51,6 +59,16 @@ export default function ProfileModal({ open, onClose }: Props) {
     resetSubmissionStatus();
   };
 
+  useEffect(() => {
+    if (!open && !showChangeEmail) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [open, showChangeEmail]);
+
+  // --- RENDER LOGIC ---
   if (!open && !showChangeEmail) return null;
 
   const tabBaseStyle =
@@ -62,27 +80,30 @@ export default function ProfileModal({ open, onClose }: Props) {
     <>
       {/* --- Profile Modal --- */}
       {open && !showChangeEmail && (
-        <div className="fixed inset-0 z-40 grid place-items-center bg-black/50 p-4 backdrop-blur-sm">
-          <div className="flex flex-col w-full h-full max-h-[680px] bg-white shadow-xl rounded-2xl sm:max-w-lg overflow-hidden">
+        <div className="fixed inset-0 z-40 grid place-items-center bg-slate-900/60 p-4 backdrop-blur">
+          <div className="flex h-full w-full max-w-3xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl sm:h-auto sm:max-h-[90vh]">
             {/* Header */}
-            <div className="flex-shrink-0 p-4 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-800">
-                  Profile & Preferences
-                </h2>
+            <header className="bg-gradient-to-r from-emerald-600/95 to-cyan-500/95 px-6 py-5 text-white sm:px-8">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-semibold">Profile &amp; Preferences</h2>
+                  <p className="mt-1 max-w-xl text-sm text-white/80">
+                    Update your profile details, interests, and security settings. These preferences power your personalised feed.
+                  </p>
+                </div>
                 <button
                   aria-label="Close"
                   onClick={onClose}
-                  className="inline-flex items-center justify-center w-8 h-8 text-gray-500 rounded-full hover:bg-gray-100"
+                  className="h-9 w-9 rounded-full bg-white/15 text-white transition hover:bg-white/25"
                 >
                   ×
                 </button>
               </div>
-            </div>
+            </header>
 
             {/* Body */}
-            <div className="flex flex-col flex-grow min-h-0">
-              <div className="flex-grow p-6 overflow-y-auto">
+            <div className="flex min-h-0 flex-grow flex-col">
+              <div className="flex-grow overflow-y-auto px-6 py-6 sm:px-8">
                 {loading ? (
                   <div className="text-center py-10">
                     <svg
@@ -110,7 +131,7 @@ export default function ProfileModal({ open, onClose }: Props) {
                 ) : (
                   <div className="space-y-6">
                     {/* Tabs */}
-                    <div className="p-1 mx-auto bg-gray-100 rounded-full flex items-center w-full">
+                    <div className="mx-auto flex w-full items-center rounded-full bg-gray-100/80 p-1 shadow-inner">
                       <button
                         type="button"
                         onClick={() => setActiveTab("profile")}
@@ -155,6 +176,10 @@ export default function ProfileModal({ open, onClose }: Props) {
                         setLastName={setLastName}
                         isEditingName={isEditingName}
                         setIsEditingName={setIsEditingName}
+                        jobTitle={jobTitle} // ✅ Pass jobTitle prop
+                        setJobTitle={setJobTitle} // ✅ Pass setter prop
+                        isEditingJobTitle={isEditingJobTitle} // ✅ Pass editing state prop
+                        setIsEditingJobTitle={setIsEditingJobTitle} // ✅ Pass editing setter prop
                         user={user}
                         saving={saving}
                         onChangeEmailRequest={() => {
@@ -185,20 +210,20 @@ export default function ProfileModal({ open, onClose }: Props) {
 
               {/* Footer */}
               {activeTab !== "security" && !loading && (
-                <form onSubmit={handleSubmit}>
-                  <div className="flex items-center justify-center flex-shrink-0 gap-3 p-4 bg-white border-t border-gray-200">
+                <form onSubmit={handleSubmit} className="border-t border-gray-200 bg-white">
+                  <div className="flex flex-col items-center justify-end gap-3 px-6 py-4 sm:flex-row sm:px-8">
                     <button
                       type="button"
                       onClick={onClose}
                       disabled={saving}
-                      className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 disabled:opacity-50"
+                      className="rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:border-emerald-300 hover:text-emerald-700 disabled:opacity-50"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={saving}
-                      className="flex items-center justify-center w-32 h-10 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-md hover:bg-emerald-700 disabled:opacity-50"
+                      className="flex items-center justify-center rounded-full bg-gradient-to-r from-emerald-600 to-cyan-500 px-6 py-2 text-sm font-semibold text-white shadow-lg transition hover:shadow-xl disabled:opacity-50"
                     >
                       {saving ? "Saving..." : "Save Changes"}
                     </button>
