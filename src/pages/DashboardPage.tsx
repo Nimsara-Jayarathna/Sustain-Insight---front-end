@@ -34,9 +34,9 @@ export default function DashboardPage() {
       variant="dashboard"
       onProfileClick={() => setProfileModalOpen(true)}
     >
-      <div className="container mx-auto px-4 py-4">
+      <div className="container mx-auto px-4 pb-10 pt-6 sm:px-6 lg:px-8">
         <DashboardNav activeView={activeView} onChange={setActiveView} />
-        <main className="mt-4">{renderActiveView()}</main>
+        <main className="mt-6 sm:mt-8">{renderActiveView()}</main>
       </div>
 
       <ProfileModal
