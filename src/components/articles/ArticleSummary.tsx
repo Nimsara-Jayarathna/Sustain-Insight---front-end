@@ -13,7 +13,9 @@ const ArticleSummary: React.FC<Props> = ({ summary, variant }) => {
   const minHeight = maxLines === 2 ? "min-h-[42px]" : "min-h-[63px]";
 
   return (
-    <div className={`mt-2 text-sm text-gray-600 ${minHeight}`}>
+    <div
+      className={`mt-2 text-sm text-gray-600 transition-colors duration-300 group-hover:text-gray-700 ${minHeight}`}
+    >
       {summary ? (
         <p className={`line-clamp-${maxLines}`}>{summary}</p>
       ) : (

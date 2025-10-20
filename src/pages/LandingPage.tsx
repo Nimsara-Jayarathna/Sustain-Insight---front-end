@@ -118,7 +118,12 @@ export default function LandingPage({ openForgotInitially = false }: LandingPage
     >
       <HeroSection onSignup={() => openModal("signup")} />
       <FeaturesSection />
-      <LatestNewsSection articles={articles} isLoading={isLoading} disablePopup />
+      <LatestNewsSection
+        articles={articles}
+        isLoading={isLoading}
+        disablePopup
+        onRequireAuth={() => openModal("signup")}
+      />
 
       {/* 🔹 Auth Modal */}
       <AuthModal

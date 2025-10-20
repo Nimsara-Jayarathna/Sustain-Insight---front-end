@@ -9,6 +9,8 @@ type Article = {
   title: string;
   excerpt: string;
   slug: string;
+  url?: string;
+  link?: string;
 };
 
 type ArticleRotatorProps = {
@@ -51,13 +53,19 @@ const ArticleRotator: React.FC<ArticleRotatorProps> = ({ articles, isLoading = f
     return null;
   }
 
+  const currentArticle = articles[currentIndex];
+  const primaryHref =
+    currentArticle?.url ||
+    currentArticle?.link ||
+    (currentArticle?.slug ? `/articles/${currentArticle.slug}` : undefined);
+
   return (
     <div
-      className="w-full font-sans relative group"
+      className="group relative w-full font-sans"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      <div className="relative overflow-hidden rounded-xl shadow-lg aspect-[4/3] sm:aspect-[16/9] lg:aspect-[2/1]">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-[30px] bg-gray-900 shadow-[0_45px_80px_-40px_rgba(16,185,129,0.5)] sm:aspect-[16/9] lg:aspect-[2/1]">
         
         {/* Layer 1: Images with Ken Burns Effect */}
         {articles.map((article, index) => (
@@ -81,19 +89,31 @@ const ArticleRotator: React.FC<ArticleRotatorProps> = ({ articles, isLoading = f
         ))}
 
         {/* Layer 2: Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/20"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-black/85 via-black/40 to-black/20" />
+
+        {/* Layer 2.5: Header */}
+        <div className="absolute top-6 left-6 right-6 z-20 flex items-center justify-between text-xs font-semibold uppercase tracking-[0.2em] text-white/70 sm:top-8 sm:left-8 sm:right-8">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur">
+            Top Sustainability Stories
+            <span className="flex h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+          </span>
+          <span className="hidden items-center gap-2 sm:flex">
+            <span className="h-1.5 w-1.5 rounded-full bg-white/50" />
+            Refreshed continuously
+          </span>
+        </div>
 
         {/* Layer 3: Text Content */}
-        <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-8">
+        <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-8 lg:p-10">
           {articles.map((article, index) => (
             <div
               key={article.id}
-              className={`absolute bottom-6 left-6 right-6 sm:bottom-8 sm:left-8 sm:right-8 transition-opacity duration-700 ease-in-out ${
+              className={`absolute bottom-6 left-6 right-6 sm:bottom-8 sm:left-8 sm:right-8 lg:bottom-10 lg:left-10 lg:right-10 transition-opacity duration-700 ease-in-out ${
                 index === currentIndex ? 'opacity-100 animate-slide-in' : 'opacity-0 pointer-events-none'
               }`}
             >
               <p 
-                className="text-sm font-semibold text-green-400 uppercase tracking-wider" 
+                className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-200 backdrop-blur"
                 style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}
               >
                 {article.category}
@@ -115,6 +135,19 @@ const ArticleRotator: React.FC<ArticleRotatorProps> = ({ articles, isLoading = f
                   {article.excerpt}
                 </p>
               </div>
+
+              {primaryHref && (
+                <a
+                  href={primaryHref}
+                  target={primaryHref.startsWith("http") ? "_blank" : undefined}
+                  rel={primaryHref.startsWith("http") ? "noreferrer" : undefined}
+                  className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-600"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Read the story
+                  <span aria-hidden>→</span>
+                </a>
+              )}
             </div>
           ))}
         </div>
@@ -124,17 +157,17 @@ const ArticleRotator: React.FC<ArticleRotatorProps> = ({ articles, isLoading = f
           <>
             <button
               onClick={prevSlide}
-              className="absolute left-3 top-1/2 -translate-y-1/2 z-20 bg-white/60 hover:bg-white/90 backdrop-blur-sm rounded-full p-2 transition-all duration-300 opacity-0 group-hover:opacity-100 focus:opacity-100 outline-none"
+              className="absolute left-4 top-1/2 z-30 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-white/20 text-white transition hover:bg-white/40 focus:outline-none"
               aria-label="Previous article"
             >
-              <ChevronLeftIcon className="h-6 w-6 text-gray-800" />
+              <ChevronLeftIcon className="h-5 w-5" />
             </button>
             <button
               onClick={nextSlide}
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-20 bg-white/60 hover:bg-white/90 backdrop-blur-sm rounded-full p-2 transition-all duration-300 opacity-0 group-hover:opacity-100 focus:opacity-100 outline-none"
+              className="absolute right-4 top-1/2 z-30 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-white/20 text-white transition hover:bg-white/40 focus:outline-none"
               aria-label="Next article"
             >
-              <ChevronRightIcon className="h-6 w-6 text-gray-800" />
+              <ChevronRightIcon className="h-5 w-5" />
             </button>
           </>
         )}
@@ -142,24 +175,16 @@ const ArticleRotator: React.FC<ArticleRotatorProps> = ({ articles, isLoading = f
 
       {/* Layer 5: Navigation / Progress Bars */}
       {articles.length > 1 && (
-        <div className="absolute -bottom-2 w-full flex justify-center space-x-2 p-4 z-10">
-          {articles.map((_, index) => (
+        <div className="mt-4 flex items-center justify-center gap-2">
+          {articles.map((article, index) => (
             <button
-              key={index}
+              key={article.id}
               onClick={() => setCurrentIndex(index)}
-              className="w-full h-1 bg-white/30 rounded-full overflow-hidden"
+              className={`h-2 w-2 rounded-full transition ${
+                index === currentIndex ? "scale-110 bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)]" : "bg-emerald-200"
+              }`}
               aria-label={`Go to article ${index + 1}`}
             >
-              {index === currentIndex && (
-                <div
-                  className="h-full bg-green-500 rounded-full animate-progress"
-                  style={{
-                    animationDuration: `${interval}ms`,
-                    animationPlayState: isPaused ? 'paused' : 'running',
-                  }}
-                  key={`${currentIndex}-${isPaused}`}
-                ></div>
-              )}
             </button>
           ))}
         </div>

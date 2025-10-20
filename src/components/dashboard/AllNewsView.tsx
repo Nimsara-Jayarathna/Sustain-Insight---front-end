@@ -72,12 +72,14 @@ export default function AllNewsView() {
   );
   // --- End of Preserved Logic ---
 
+  const controlButtonClasses =
+    "flex w-full items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 hover:border-emerald-300 hover:text-emerald-700 sm:w-auto";
+
   // --- Start of Redesigned JSX ---
   return (
-    <section className="px-2 sm:px-4 md:px-6">
-      {/* --- Redesigned Header Row --- */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
-        <div className="flex-grow sm:max-w-xs">
+    <section className="space-y-6">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="w-full lg:max-w-lg">
           <SearchBar
             onSearch={(kw) => {
               setFilters({ ...filters, keyword: kw });
@@ -88,19 +90,20 @@ export default function AllNewsView() {
           />
         </div>
 
-        <div className="flex items-center justify-end gap-3">
-          {/* Sort Dropdown */}
-          <div className="relative sort-dropdown">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <div className="relative sort-dropdown w-full sm:w-auto">
             <button
               onClick={() => setSortOpen((prev) => !prev)}
-              className="flex items-center gap-2 border border-gray-300 bg-white px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
+              className={controlButtonClasses}
             >
               <SortIcon />
-              <span>{SORT_OPTIONS.find((opt) => opt.value === sort)?.label ?? "Sort"}</span>
-              <ChevronDown className={`transition-transform ${sortOpen ? "rotate-180" : ""}`} />
+              <span className="flex items-center gap-1">
+                {SORT_OPTIONS.find((opt) => opt.value === sort)?.label ?? "Sort"}
+                <ChevronDown className={`h-4 w-4 transition-transform ${sortOpen ? "rotate-180" : ""}`} />
+              </span>
             </button>
             {sortOpen && (
-              <div className="absolute right-0 mt-2 w-48 rounded-lg border border-gray-200 bg-white shadow-lg z-30 p-1">
+              <div className="absolute right-0 z-30 mt-2 w-52 rounded-lg border border-gray-200 bg-white p-1 shadow-lg">
                 {SORT_OPTIONS.map((option) => (
                   <button
                     key={option.value}
@@ -111,7 +114,7 @@ export default function AllNewsView() {
                       setIsUserAction(true);
                       setLoadingMessage("Sorting articles...");
                     }}
-                    className={`block w-full text-left px-3 py-2 text-sm rounded-md hover:bg-gray-100 ${
+                    className={`block w-full rounded-md px-3 py-2 text-left text-sm transition hover:bg-gray-100 ${
                       option.value === sort ? "font-semibold text-emerald-600" : "text-gray-700"
                     }`}
                   >
@@ -122,16 +125,15 @@ export default function AllNewsView() {
             )}
           </div>
 
-          {/* Filters Button */}
           <button
             onClick={() => setFilterModalOpen(true)}
-            className="relative flex items-center gap-2 border border-gray-300 bg-white px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
+            className={`${controlButtonClasses} relative`}
           >
             <FilterIcon />
             <span>Filters</span>
             {hasActiveFilters && (
               <span className="absolute -top-1.5 -right-1.5 flex h-3 w-3">
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border-2 border-white"></span>
+                <span className="relative inline-flex h-3 w-3 rounded-full border-2 border-white bg-emerald-500"></span>
               </span>
             )}
           </button>
@@ -159,7 +161,11 @@ export default function AllNewsView() {
       />
 
       {loading ? (
-        <LoadingPlaceholder type="articles" mode={isUserAction ? "blocking" : "skeleton"} message={loadingMessage} />
+        <LoadingPlaceholder
+          type="articles"
+          mode={isUserAction ? "blocking" : "skeleton"}
+          message={loadingMessage}
+        />
       ) : articles.length > 0 ? (
         <>
           <ArticleGrid articles={articles} variant="dashboard" />
@@ -172,16 +178,15 @@ export default function AllNewsView() {
           </div>
         </>
       ) : (
-        // --- Redesigned "No Articles Found" State ---
-        <div className="text-center text-gray-600 mt-12 p-8 bg-gray-50 rounded-lg border border-gray-200">
-          <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center text-gray-600">
+          <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-4 h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3h9M7 16h6M7 8h6v4H7V8z" />
           </svg>
           <h3 className="text-lg font-semibold text-gray-800 mb-2">No Articles Found</h3>
-          <p className="max-w-md mx-auto mb-5">Your current search and filter combination didn't return any results. Try a different search or adjust your filters.</p>
+          <p className="mx-auto mb-5 max-w-md">Your current search and filter combination didn't return any results. Try a different search or adjust your filters.</p>
           <button
             onClick={() => setFilterModalOpen(true)}
-            className="px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow-sm transition"
+            className="rounded-lg bg-emerald-600 px-5 py-2.5 font-medium text-white shadow-sm transition hover:bg-emerald-700"
           >
             Adjust Filters
           </button>

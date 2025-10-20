@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useMemo, useEffect} from 'react';
 
 // This custom hook calculates which page numbers to display, including ellipses.
 // It's the perfect logic for the desktop view and remains unchanged.
 const usePagination = ({ totalPages, currentPage, siblingCount = 1 }: { totalPages: number; currentPage: number; siblingCount?: number }) => {
-  const paginationRange = React.useMemo(() => {
+  const paginationRange = useMemo(() => {
     const totalPageNumbers = siblingCount + 5;
 
     if (totalPageNumbers >= totalPages) {
@@ -54,19 +54,47 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
 
   const paginationRange = usePagination({ currentPage, totalPages });
 
-  const onNext = () => onPageChange(currentPage + 1);
-  const onPrevious = () => onPageChange(currentPage - 1);
+  const jumpToTop = () => {
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const changePage = (page: number) => {
+    onPageChange(page);
+    jumpToTop();
+  };
+
+  const onNext = () => changePage(currentPage + 1);
+  const onPrevious = () => changePage(currentPage - 1);
+
+  useEffect(() => {
+    const handleKeydown = (event: KeyboardEvent) => {
+      if (event.key === "ArrowLeft" && currentPage > 1) {
+        changePage(currentPage - 1);
+      }
+      if (event.key === "ArrowRight" && currentPage < totalPages) {
+        changePage(currentPage + 1);
+      }
+    };
+    window.addEventListener("keydown", handleKeydown);
+    return () => window.removeEventListener("keydown", handleKeydown);
+  }, [currentPage, totalPages]);
 
   return (
-    <nav className="flex items-center justify-between sm:justify-center gap-2" aria-label="Pagination">
+    <nav
+      className="sticky bottom-4 z-20 mx-auto flex w-full max-w-xl items-center justify-between gap-2 rounded-2xl border border-gray-200 bg-white/95 px-3 py-2 shadow-md backdrop-blur sm:px-4"
+      aria-label="Pagination"
+      role="navigation"
+    >
       {/* Prev button */}
       <button
         disabled={currentPage === 1}
         onClick={onPrevious}
-        className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+        className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
-        <span className="hidden sm:inline">Prev</span>
+        <span className="hidden sm:inline">Previous</span>
       </button>
 
       {/* --- Responsive Content --- */}
@@ -86,10 +114,11 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
           return (
             <button
               key={page}
-              onClick={() => onPageChange(page)}
-              className={`flex items-center justify-center h-10 w-10 rounded-lg text-sm font-medium transition ${
+              onClick={() => changePage(page)}
+              aria-current={page === currentPage ? "page" : undefined}
+              className={`flex h-10 min-w-[2.5rem] items-center justify-center rounded-full text-sm font-semibold transition ${
                 page === currentPage
-                  ? "bg-emerald-600 text-white shadow-sm"
+                  ? "bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-lg"
                   : "text-gray-600 hover:bg-gray-100"
               }`}
             >
@@ -104,7 +133,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
       <button
         disabled={currentPage === totalPages}
         onClick={onNext}
-        className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+        className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
       >
         <span className="hidden sm:inline">Next</span>
         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
