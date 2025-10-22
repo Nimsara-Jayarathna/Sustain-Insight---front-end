@@ -80,7 +80,6 @@ export const getSessions = async (): Promise<RawSession[]> => {
 
     return [];
   } catch (error) {
-    console.error("❌ getSessions failed:", error);
     throw error;
   }
 };
@@ -91,7 +90,6 @@ export const logoutSession = async (sessionId: string) => {
       method: "DELETE",
     });
   } catch (error) {
-    console.error(`❌ logoutSession (${sessionId}) failed:`, error);
     throw error;
   }
 };
@@ -102,7 +100,6 @@ export const logoutAllSessions = async () => {
       method: "DELETE",
     });
   } catch (error) {
-    console.error("❌ logoutAllSessions failed:", error);
     throw error;
   }
 };

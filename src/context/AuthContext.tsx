@@ -48,7 +48,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               lastName: data.lastName,
               email: data.email,
             });
-            console.info("✅ Session restored via refresh token (with user)");
           } else {
             // ✅ Otherwise fetch user profile using apiFetch
             const profile = await apiFetch("/api/account/me");
@@ -57,13 +56,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               lastName: profile.lastName,
               email: profile.email,
             });
-            console.info("✅ Session restored via refresh token (fetched user)");
           }
         } else {
           throw new Error("No access token returned");
         }
-      } catch (err) {
-        console.warn("⚠️ Silent refresh failed:", extractErrorMessage(err));
+      } catch {
         setToken(null);
         setAccessToken(null);
         setUser(null);
@@ -89,10 +86,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         email: res.email,
       });
       setSessionExpired(false);
-      console.info("✅ Logged in successfully");
     } catch (err) {
       const message = extractErrorMessage(err);
-      console.error("❌ Login failed:", message);
       throw new Error(message);
     }
   };
@@ -103,9 +98,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = async () => {
     try {
       await apiLogout();
-      console.info("👋 Logged out");
-    } catch (err) {
-      console.warn("⚠️ Logout request failed:", extractErrorMessage(err));
+    } catch {
+      // ignore logout errors
     } finally {
       setToken(null);
       setAccessToken(null);

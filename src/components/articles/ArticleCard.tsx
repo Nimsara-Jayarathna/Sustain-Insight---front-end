@@ -61,9 +61,8 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
         const data = await apiFetch(`/api/articles/${articleData.id}/content`);
         // Update the state with the new content so the modal can use it instantly
         setArticleData(prev => ({ ...prev, content: data.content || "" }));
-      } catch (err) {
+      } catch {
         // Fail silently. The modal's own fetcher will act as a fallback.
-        console.error("Prefetch failed:", err);
       }
     }
   }, [variant, articleData.id, articleData.content]);

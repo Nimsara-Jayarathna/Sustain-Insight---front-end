@@ -91,8 +91,7 @@ const ArticleModal: React.FC<ArticleModalProps> = ({
       .then((data) => {
         setRawContent(data.content || "This article seems to be empty.");
       })
-      .catch((err) => {
-        console.error("Failed to load article content:", err);
+      .catch(() => {
         setRawContent("Unable to load content at this time. Please try again later.");
       })
       .finally(() => setLoading(false));

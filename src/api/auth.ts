@@ -43,7 +43,7 @@ export async function logout(): Promise<void> {
       method: "POST",
     });
   } catch (err) {
-    // Logout errors aren’t critical — we just log them
-    console.warn("⚠️ Logout failed:", extractErrorMessage(err));
+    // Logout errors are non-critical; swallow silently
+    void extractErrorMessage(err);
   }
 }

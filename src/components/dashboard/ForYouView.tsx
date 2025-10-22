@@ -27,8 +27,7 @@ export default function ForYouView({ onNavigate, onManagePreferences }: Props) {
         const data = await apiFetch(url);
         setRecentArticles(data.content || []);
         setTotalPages(data.totalPages || 1);
-      } catch (err) {
-        console.error("DEBUG → Failed to fetch For You articles:", err);
+      } catch {
         setError("Failed to load your personalized articles. Please try again later.");
       } finally {
         setLoading(false);

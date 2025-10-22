@@ -25,7 +25,6 @@ export const verifyPassword = async (data: { currentPassword: string }) => {
       body: JSON.stringify(data),
     });
   } catch (error: any) {
-    console.error("❌ verifyPassword failed:", error);
     throw error;
   }
 };
@@ -37,7 +36,6 @@ export const changePassword = async (data: PasswordData) => {
       body: JSON.stringify(data),
     });
   } catch (error: any) {
-    console.error("❌ changePassword failed:", error);
     throw error;
   }
 };
@@ -48,7 +46,6 @@ export const requestEmailChangeOtp = async () => {
       method: "POST",
     });
   } catch (error: any) {
-    console.error("❌ requestEmailChangeOtp failed:", error);
     throw error;
   }
 };
@@ -60,7 +57,6 @@ export const verifyCurrentEmailOtp = async (data: EmailOtpData) => {
       body: JSON.stringify(data),
     });
   } catch (error: any) {
-    console.error("❌ verifyCurrentEmailOtp failed:", error);
     throw error;
   }
 };
@@ -72,7 +68,6 @@ export const sendNewEmailOtp = async (data: NewEmailData) => {
       body: JSON.stringify(data),
     });
   } catch (error: any) {
-    console.error("❌ sendNewEmailOtp failed:", error);
     throw error;
   }
 };
@@ -84,7 +79,6 @@ export const confirmEmailChange = async (data: ConfirmEmailChangeData) => {
       body: JSON.stringify(data),
     });
   } catch (error: any) {
-    console.error("❌ confirmEmailChange failed:", error);
     throw error;
   }
 };

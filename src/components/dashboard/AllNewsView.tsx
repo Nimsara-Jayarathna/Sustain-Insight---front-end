@@ -48,8 +48,8 @@ export default function AllNewsView() {
         const data = await apiFetch(`${baseUrl}?${params.toString()}`);
         setArticles(data.content || []);
         setTotalPages(data.totalPages || 1);
-      } catch (err) {
-        console.error("Error fetching articles:", err);
+      } catch {
+        setArticles([]);
       } finally {
         setLoading(false);
         setIsUserAction(false);
