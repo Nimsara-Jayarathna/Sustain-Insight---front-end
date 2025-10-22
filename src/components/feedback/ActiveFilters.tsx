@@ -53,12 +53,12 @@ export default function ActiveFilters({ filters, onRemove, onClearAll }: Props) 
 
   // --- Start of Redesigned JSX ---
   return (
-    <div className="p-3 mb-4 bg-gray-50 rounded-lg border border-gray-200">
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-        <h3 className="text-sm font-semibold text-gray-700">Active Filters:</h3>
+    <div className="mb-4 rounded-lg border border-gray-200 bg-gray-50 p-3 transition-colors dark:border-slate-800 dark:bg-slate-900">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-slate-200">Active Filters:</h3>
         <button
           onClick={onClearAll}
-          className="text-sm font-medium text-emerald-600 hover:underline"
+          className="text-sm font-medium text-emerald-600 hover:underline dark:text-emerald-300"
           title="Clear all active filters"
         >
           Clear All
@@ -69,12 +69,12 @@ export default function ActiveFilters({ filters, onRemove, onClearAll }: Props) 
         {chips.map((chip, i) => (
           <span
             key={i}
-            className="flex items-center gap-2 bg-emerald-50 text-emerald-800 px-3 py-1.5 rounded-full text-sm border border-emerald-200"
+            className="flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm text-emerald-800 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-200"
           >
             <span className="font-medium">{chip.label}</span>
             <button
               onClick={() => onRemove(chip.key, chip.value)}
-              className="p-0.5 rounded-full text-emerald-600 hover:bg-emerald-200 transition-colors"
+              className="rounded-full p-0.5 text-emerald-600 transition-colors hover:bg-emerald-200 dark:text-emerald-300 dark:hover:bg-emerald-500/20"
               title={`Remove ${chip.key} filter`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>

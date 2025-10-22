@@ -15,7 +15,7 @@ type Props = {
 
 const ArticleThumbnail: React.FC<Props> = ({ imageUrl, title }) => {
   // The container classes are now simple, consistent, and non-conditional.
-  const containerClasses = "relative aspect-[16/9] w-full overflow-hidden bg-gray-100";
+  const containerClasses = "relative aspect-[16/9] w-full overflow-hidden bg-gray-100 dark:bg-slate-800";
 
   return (
     <div className={containerClasses}>
@@ -28,8 +28,8 @@ const ArticleThumbnail: React.FC<Props> = ({ imageUrl, title }) => {
           loading="lazy"
         />
       ) : (
-        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-100 to-cyan-100">
-          <LeafIcon className="h-12 w-12 text-emerald-400 opacity-70 transition-transform duration-700 group-hover:scale-110" />
+        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-100 to-cyan-100 dark:from-emerald-500/10 dark:to-cyan-500/10">
+          <LeafIcon className="h-12 w-12 text-emerald-400 opacity-70 transition-transform duration-700 group-hover:scale-110 dark:text-emerald-300" />
         </div>
       )}
       <div className="absolute inset-x-4 bottom-4 z-20 flex translate-y-3 items-center justify-between text-xs font-medium text-white/90 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">

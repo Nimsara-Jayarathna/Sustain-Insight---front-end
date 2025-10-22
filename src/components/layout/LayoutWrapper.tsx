@@ -18,10 +18,10 @@ type Props =
 // This component is structurally complex due to TypeScript's discriminated unions.
 // We must handle the props carefully.
 export default function LayoutWrapper(props: Props) {
-  const {children } = props;
+  const { children } = props;
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-screen flex-col bg-white text-gray-900 transition-colors dark:bg-slate-950 dark:text-slate-100">
       {/* The AppHeader now receives all props and internally selects the ones it needs. */}
       {/* This is a clean way to handle conditional props. */}
       <AppHeader {...props} />

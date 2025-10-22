@@ -6,6 +6,7 @@ import { ProfileTab } from "./profile/ProfileTab";
 import { PreferencesTab } from "./profile/PreferencesTab";
 import { SecurityTab } from "./profile/SecurityTab";
 import ChangeEmailForm from "../auth/ChangeEmailForm";
+import GradientSpinner from "../ui/GradientSpinner";
 
 type Props = {
   open: boolean;
@@ -73,15 +74,17 @@ export default function ProfileModal({ open, onClose }: Props) {
 
   const tabBaseStyle =
     "flex-1 py-2 text-sm font-medium rounded-full transition-all duration-200";
-  const activeTabStyle = "bg-white text-emerald-600 shadow-sm";
-  const inactiveTabStyle = "text-gray-600 hover:bg-gray-200/50";
+  const activeTabStyle =
+    "bg-white text-emerald-600 shadow-sm dark:bg-slate-900 dark:text-emerald-300";
+  const inactiveTabStyle =
+    "text-gray-600 hover:bg-gray-200/50 dark:text-slate-300 dark:hover:bg-slate-800/70";
 
   return (
     <>
       {/* --- Profile Modal --- */}
       {open && !showChangeEmail && (
-        <div className="fixed inset-0 z-40 grid place-items-center bg-slate-900/60 p-4 backdrop-blur">
-          <div className="flex h-full w-full max-w-3xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl sm:h-auto sm:max-h-[90vh]">
+        <div className="fixed inset-0 z-40 grid place-items-center bg-slate-950/70 p-4 backdrop-blur">
+          <div className="flex h-full w-full max-w-3xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl transition-colors dark:bg-slate-950 sm:h-auto sm:max-h-[90vh]">
             {/* Header */}
             <header className="bg-gradient-to-r from-emerald-600/95 to-cyan-500/95 px-6 py-5 text-white sm:px-8">
               <div className="flex items-start justify-between gap-4">
@@ -105,33 +108,14 @@ export default function ProfileModal({ open, onClose }: Props) {
             <div className="flex min-h-0 flex-grow flex-col">
               <div className="flex-grow overflow-y-auto px-6 py-6 sm:px-8">
                 {loading ? (
-                  <div className="text-center py-10">
-                    <svg
-                      className="w-8 h-8 mx-auto mb-3 text-emerald-600 animate-spin"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    <p className="text-sm text-gray-600">Loading...</p>
+                  <div className="py-10 text-center">
+                    <GradientSpinner className="mx-auto mb-3 h-10 w-10" />
+                    <p className="text-sm text-gray-600 dark:text-slate-300">Loading...</p>
                   </div>
                 ) : (
                   <div className="space-y-6">
                     {/* Tabs */}
-                    <div className="mx-auto flex w-full items-center rounded-full bg-gray-100/80 p-1 shadow-inner">
+                    <div className="mx-auto flex w-full items-center rounded-full bg-gray-100/80 p-1 shadow-inner dark:bg-slate-900/80 dark:shadow-inner">
                       <button
                         type="button"
                         onClick={() => setActiveTab("profile")}
@@ -210,13 +194,16 @@ export default function ProfileModal({ open, onClose }: Props) {
 
               {/* Footer */}
               {activeTab !== "security" && !loading && (
-                <form onSubmit={handleSubmit} className="border-t border-gray-200 bg-white">
+                <form
+                  onSubmit={handleSubmit}
+                  className="border-t border-gray-200 bg-white transition-colors dark:border-slate-800 dark:bg-slate-900"
+                >
                   <div className="flex flex-col items-center justify-end gap-3 px-6 py-4 sm:flex-row sm:px-8">
                     <button
                       type="button"
                       onClick={onClose}
                       disabled={saving}
-                      className="rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:border-emerald-300 hover:text-emerald-700 disabled:opacity-50"
+                      className="rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:border-emerald-300 hover:text-emerald-700 disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
                     >
                       Cancel
                     </button>
@@ -237,7 +224,7 @@ export default function ProfileModal({ open, onClose }: Props) {
 
       {/* --- Change Email Modal --- */}
       {showChangeEmail && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4">
           <ChangeEmailForm
             onSuccess={() => {
               setShowChangeEmail(false);

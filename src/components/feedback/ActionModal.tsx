@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import GradientSpinner from "../ui/GradientSpinner";
 
 type ActionType = "bookmark" | "insight";
 type ActionStatus = "success" | "error" | "loading";
@@ -29,13 +30,6 @@ const ActionModal: React.FC<ActionModalProps> = ({ action, message, type, onClos
     action === "insight" ? "text-indigo-600" :
     "text-gray-600";
 
-  const loadingSpinner = (
-    <svg className={`animate-spin h-10 w-10 ${colorClass}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-    </svg>
-  );
-
   // ✅ Success icon now color-matched to action type
   const successIcon = (
     <svg className={`h-12 w-12 ${colorClass}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -51,16 +45,16 @@ const ActionModal: React.FC<ActionModalProps> = ({ action, message, type, onClos
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity duration-300 ${
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm transition-opacity duration-300 ${
         isVisible ? "opacity-100" : "opacity-0"
       }`}
     >
-      <div className="bg-white px-6 py-8 rounded-xl shadow-lg flex flex-col items-center gap-4 w-64 text-center">
+      <div className="flex w-64 flex-col items-center gap-4 rounded-xl bg-white px-6 py-8 text-center shadow-lg transition-colors dark:bg-slate-900">
         {/* Icon */}
-        {type === "loading" ? loadingSpinner : type === "success" ? successIcon : errorIcon}
+        {type === "loading" ? <GradientSpinner /> : type === "success" ? successIcon : errorIcon}
 
         {/* Message */}
-        <p className="text-base font-medium text-gray-700">{message}</p>
+        <p className="text-base font-medium text-gray-700 dark:text-slate-200">{message}</p>
 
         {/* Close button for error */}
         {type === "error" && (
@@ -69,7 +63,7 @@ const ActionModal: React.FC<ActionModalProps> = ({ action, message, type, onClos
               setIsVisible(false);
               setTimeout(() => onClose?.(), 300);
             }}
-            className="mt-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg shadow-sm hover:bg-gray-200"
+            className="mt-2 rounded-lg border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
           >
             Close
           </button>

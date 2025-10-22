@@ -8,15 +8,18 @@ const BookmarkIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-
 
 export default function FeaturesSection() {
   return (
-    <section id="features" className="relative isolate mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
+    <section
+      id="features"
+      className="relative isolate mx-auto max-w-7xl px-4 py-20 transition-colors sm:px-6 sm:py-28 lg:px-8"
+    >
       {/* Background gradient */}
-      <div className="absolute inset-0 -z-10 bg-gray-50" />
+      <div className="absolute inset-0 -z-10 bg-gray-50 dark:bg-slate-900/80" />
 
       <div className="mb-12 text-center sm:mb-16">
-        <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+        <h2 className="text-3xl font-bold tracking-tight text-gray-900 transition-colors sm:text-4xl dark:text-slate-100">
           Built for Sustainability Intelligence Teams
         </h2>
-        <p className="mt-4 text-lg leading-8 text-gray-600 max-w-2xl mx-auto">
+        <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-gray-600 transition-colors dark:text-slate-300">
           Aggregate ESG, CSR, and supply chain coverage; tune it to your mandate; and share the right narrative with stakeholders in minutes.
         </p>
       </div>

@@ -1,4 +1,110 @@
+@config "../tailwind.config.ts";
 @import "tailwindcss";
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html,
+  body {
+    min-height: 100%;
+  }
+
+  body {
+    background-color: rgb(255 255 255);
+    color: rgb(17 24 39);
+    transition:
+      background-color 200ms ease,
+      color 200ms ease;
+  }
+
+  .dark {
+    color-scheme: dark;
+  }
+
+  .dark body {
+    background-color: rgb(2 6 23);
+    color: rgb(226 232 240);
+  }
+
+  #root {
+    min-height: 100%;
+  }
+
+  input,
+  textarea,
+  select {
+    transition:
+      background-color 200ms ease,
+      border-color 200ms ease,
+      color 200ms ease;
+  }
+
+  .dark input,
+  .dark textarea,
+  .dark select {
+    background-color: rgb(15 23 42);
+    border-color: rgb(71 85 105);
+    color: rgb(226 232 240);
+  }
+
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: rgb(148 163 184);
+  }
+
+  .dark .text-gray-900,
+  .dark .text-gray-800 {
+    color: rgb(226 232 240);
+  }
+
+  .dark .text-gray-700,
+  .dark .text-gray-600 {
+    color: rgb(203 213 225);
+  }
+
+  .dark .text-gray-500,
+  .dark .text-gray-400 {
+    color: rgb(148 163 184);
+  }
+
+  .dark .border-gray-100,
+  .dark .border-gray-200 {
+    border-color: rgb(51 65 85);
+  }
+
+  .dark .border-gray-300 {
+    border-color: rgb(71 85 105);
+  }
+
+  .dark .bg-white {
+    background-color: rgb(2 6 23);
+  }
+
+  .dark .bg-white\/90 {
+    background-color: rgb(2 6 23 / 0.9);
+  }
+
+  .dark .bg-white\/80 {
+    background-color: rgb(2 6 23 / 0.8);
+  }
+
+  .dark .bg-white\/70 {
+    background-color: rgb(2 6 23 / 0.7);
+  }
+
+  .dark .bg-gray-50 {
+    background-color: rgb(15 23 42);
+  }
+
+  .dark .bg-gray-100 {
+    background-color: rgb(30 41 59);
+  }
+
+  .dark .bg-gray-200 {
+    background-color: rgb(51 65 85);
+  }
+}
 /* === Custom Utilities === */
 .scrollbar-hide::-webkit-scrollbar {
 display: none;

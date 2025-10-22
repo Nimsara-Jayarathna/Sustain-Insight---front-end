@@ -210,43 +210,43 @@ export default function ChangeEmailForm({
     return (
         <div key={step} className={`space-y-4 ${animationClass}`}>
             {step === 1 && (
-                <div className="text-center space-y-2">
-                    <h4 className="font-semibold text-gray-800">Verify Your Identity</h4>
-                    <p className="text-sm text-gray-600">For security, we'll send a one-time code to your <b>current email address</b>.</p>
+                <div className="space-y-2 text-center">
+                    <h4 className="font-semibold text-gray-800 dark:text-slate-100">Verify Your Identity</h4>
+                    <p className="text-sm text-gray-600 dark:text-slate-300">For security, we'll send a one-time code to your <b>current email address</b>.</p>
                 </div>
             )}
             {step === 2 && (
-                <div className="text-center space-y-4">
+                <div className="space-y-4 text-center">
                     <div>
-                        <h4 className="font-semibold text-gray-800">Enter Verification Code</h4>
-                        <p className="text-sm text-gray-500">A 6-digit code was sent to your current email.</p>
+                        <h4 className="font-semibold text-gray-800 dark:text-slate-100">Enter Verification Code</h4>
+                        <p className="text-sm text-gray-500 dark:text-slate-300">A 6-digit code was sent to your current email.</p>
                     </div>
                     <OtpInput value={currentOtp} onChange={setCurrentOtp} disabled={loading} />
-                    <button type="button" onClick={handleResendCurrentOtp} disabled={loading || cooldownCurrent > 0} className="text-sm text-emerald-600 font-medium hover:underline disabled:opacity-50 disabled:cursor-not-allowed transition">
+                    <button type="button" onClick={handleResendCurrentOtp} disabled={loading || cooldownCurrent > 0} className="text-sm font-medium text-emerald-600 transition hover:text-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 dark:text-emerald-300 dark:hover:text-emerald-200">
                         {cooldownCurrent > 0 ? `Resend available in ${cooldownCurrent}s` : "Didn't get a code? Resend"}
                     </button>
                 </div>
             )}
             {/* ✅ --- REVISED STEP 3 DESIGN --- */}
             {step === 3 && (
-                <div className="text-center space-y-4 w-full">
+                <div className="w-full space-y-4 text-center">
                     <div>
-                        <h4 className="font-semibold text-gray-800">What's Your New Email?</h4>
-                        <p className="text-sm text-gray-500">We'll send a code here to confirm it's yours.</p>
+                        <h4 className="font-semibold text-gray-800 dark:text-slate-100">What's Your New Email?</h4>
+                        <p className="text-sm text-gray-500 dark:text-slate-300">We'll send a code here to confirm it's yours.</p>
                     </div>
-                    <input id="new-email" type="email" required autoFocus value={newEmail} onChange={(e) => setNewEmail(e.target.value)} disabled={loading} placeholder="example@company.com" className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 disabled:opacity-50 transition-colors"/>
+                    <input id="new-email" type="email" required autoFocus value={newEmail} onChange={(e) => setNewEmail(e.target.value)} disabled={loading} placeholder="example@company.com" className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm transition-colors focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"/>
                 </div>
             )}
             {step === 4 && (
-                <div className="text-center space-y-4">
+                <div className="space-y-4 text-center">
                     <div>
-                        <h4 className="font-semibold text-gray-800">Verify Your New Email</h4>
-                        <p className="text-sm text-gray-500">
-                            Enter the code we sent to <b className="text-emerald-700">{newEmail}</b>
+                        <h4 className="font-semibold text-gray-800 dark:text-slate-100">Verify Your New Email</h4>
+                        <p className="text-sm text-gray-500 dark:text-slate-300">
+                            Enter the code we sent to <b className="text-emerald-700 dark:text-emerald-300">{newEmail}</b>
                         </p>
                     </div>
                     <OtpInput value={newEmailOtp} onChange={setNewEmailOtp} disabled={loading} />
-                    <button type="button" onClick={handleResendNewEmailOtp} disabled={loading || cooldownNew > 0} className="text-sm text-emerald-600 font-medium hover:underline disabled:opacity-50 disabled:cursor-not-allowed transition">
+                    <button type="button" onClick={handleResendNewEmailOtp} disabled={loading || cooldownNew > 0} className="text-sm font-medium text-emerald-600 transition hover:text-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 dark:text-emerald-300 dark:hover:text-emerald-200">
                         {cooldownNew > 0 ? `Resend available in ${cooldownNew}s` : "Didn't get a code? Resend"}
                     </button>
                 </div>
@@ -256,7 +256,7 @@ export default function ChangeEmailForm({
   };
   
   return (
-    <div className="mx-auto flex w-full max-w-lg animate-fadeIn flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
+    <div className="mx-auto flex w-full max-w-lg animate-fadeIn flex-col overflow-hidden rounded-3xl bg-white shadow-2xl transition-colors dark:bg-slate-950">
       <header className="bg-gradient-to-r from-emerald-600/95 to-cyan-500/95 px-6 py-5 text-white">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -284,13 +284,13 @@ export default function ChangeEmailForm({
             {renderStepContent()}
           </div>
 
-          <div className="flex flex-col items-center justify-end gap-3 border-t border-gray-200 pt-4 sm:flex-row">
+          <div className="flex flex-col items-center justify-end gap-3 border-t border-gray-200 pt-4 transition-colors dark:border-slate-800 sm:flex-row">
             {step === 1 ? (
               <button
                 type="button"
                 onClick={onCancel}
                 disabled={loading}
-                className="rounded-full border border-gray-200 px-5 py-2 text-sm font-medium text-gray-700 transition hover:border-emerald-300 hover:text-emerald-700 disabled:opacity-50"
+                className="rounded-full border border-gray-200 px-5 py-2 text-sm font-medium text-gray-700 transition hover:border-emerald-300 hover:text-emerald-700 disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
               >
                 Cancel
               </button>
@@ -299,7 +299,7 @@ export default function ChangeEmailForm({
                 type="button"
                 onClick={handleBack}
                 disabled={loading}
-                className="rounded-full border border-gray-200 px-5 py-2 text-sm font-medium text-gray-700 transition hover:border-emerald-300 hover:text-emerald-700 disabled:opacity-50"
+                className="rounded-full border border-gray-200 px-5 py-2 text-sm font-medium text-gray-700 transition hover:border-emerald-300 hover:text-emerald-700 disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
               >
                 Back
               </button>
