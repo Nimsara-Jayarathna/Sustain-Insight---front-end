@@ -6,6 +6,7 @@ type Props = {
 
 export default function SearchBar({ onSearch }: Props) {
   const [value, setValue] = useState("");
+  const SEARCH_LIMIT = 30;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +33,8 @@ export default function SearchBar({ onSearch }: Props) {
           type="search"
           placeholder="Search all articles..."
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => setValue(e.target.value.slice(0, SEARCH_LIMIT))}
+          maxLength={SEARCH_LIMIT}
           className="min-w-0 flex-1 border-none bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none dark:text-slate-100 dark:placeholder:text-slate-500"
         />
       </div>

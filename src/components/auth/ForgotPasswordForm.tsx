@@ -17,6 +17,7 @@ export default function ForgotPasswordForm({
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
   const [cooldown, setCooldown] = useState(0);
+  const EMAIL_LIMIT = 25;
 
   // Restore cooldown from localStorage when component mounts
   useEffect(() => {
@@ -91,9 +92,10 @@ export default function ForgotPasswordForm({
               type="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value.slice(0, EMAIL_LIMIT))}
               disabled={loading}
               placeholder="Enter your email address"
+              maxLength={EMAIL_LIMIT}
               className="w-full rounded-lg border border-gray-300 bg-white/80 pl-10 pr-3 py-2 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
             />
           </div>

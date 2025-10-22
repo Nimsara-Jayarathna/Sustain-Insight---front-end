@@ -12,6 +12,7 @@ export default function ResetPasswordForm({
 }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const PASSWORD_LIMIT = 20;
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
@@ -70,9 +71,10 @@ export default function ResetPasswordForm({
               type="password"
               required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value.slice(0, PASSWORD_LIMIT))}
               disabled={loading}
               placeholder="New Password"
+              maxLength={PASSWORD_LIMIT}
               className="w-full rounded-lg border border-gray-300 bg-white/80 pl-10 pr-3 py-2 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
             />
           </div>
@@ -88,9 +90,10 @@ export default function ResetPasswordForm({
               type="password"
               required
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={(e) => setConfirmPassword(e.target.value.slice(0, PASSWORD_LIMIT))}
               disabled={loading}
               placeholder="Confirm New Password"
+              maxLength={PASSWORD_LIMIT}
               className="w-full rounded-lg border border-gray-300 bg-white/80 pl-10 pr-3 py-2 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
             />
           </div>
