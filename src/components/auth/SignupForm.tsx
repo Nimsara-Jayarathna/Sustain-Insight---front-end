@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import AuthLoadingOverlay from "../ui/AuthLoadingOverlay";
+import GradientSpinner from "../ui/GradientSpinner";
 
 export default function SignupForm({
   onSubmit,
@@ -21,6 +22,10 @@ export default function SignupForm({
     email: "",
     password: "",
   });
+  const NAME_LIMIT = 20;
+  const TITLE_LIMIT = 20;
+  const EMAIL_LIMIT = 40;
+  const PASSWORD_LIMIT = 30;
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -47,13 +52,17 @@ export default function SignupForm({
   };
 
   return (
-    <div className="relative">
-      <div className="w-full max-w-sm mx-auto">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-          Create Your Account
+    <div className="relative space-y-6">
+      <div className="text-center">
+        <h2 className="text-2xl font-semibold text-gray-900 dark:text-slate-100">
+          Create your account
         </h2>
+        <p className="mt-2 text-sm text-gray-600 dark:text-slate-300">
+          Set up access for curated sustainability briefings.
+        </p>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-5">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative w-full">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -77,10 +86,14 @@ export default function SignupForm({
                 name="firstName"
                 required
                 value={form.firstName}
-                onChange={handleChange}
+                onChange={(e) => handleChange({
+                  ...e,
+                  target: { ...e.target, value: e.target.value.slice(0, NAME_LIMIT) },
+                } as React.ChangeEvent<HTMLInputElement>)}
                 disabled={loading}
                 placeholder="First Name"
-                className="w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 transition disabled:opacity-50"
+                maxLength={NAME_LIMIT}
+                className="w-full rounded-lg border border-gray-300 bg-white/80 pl-10 pr-3 py-2 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
               />
             </div>
             <div className="relative w-full">
@@ -105,10 +118,14 @@ export default function SignupForm({
                 name="lastName"
                 required
                 value={form.lastName}
-                onChange={handleChange}
+                onChange={(e) => handleChange({
+                  ...e,
+                  target: { ...e.target, value: e.target.value.slice(0, NAME_LIMIT) },
+                } as React.ChangeEvent<HTMLInputElement>)}
                 disabled={loading}
                 placeholder="Last Name"
-                className="w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 transition disabled:opacity-50"
+                maxLength={NAME_LIMIT}
+                className="w-full rounded-lg border border-gray-300 bg-white/80 pl-10 pr-3 py-2 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
               />
             </div>
           </div>
@@ -135,10 +152,14 @@ export default function SignupForm({
               name="title"
               required
               value={form.title}
-              onChange={handleChange}
+              onChange={(e) => handleChange({
+                ...e,
+                target: { ...e.target, value: e.target.value.slice(0, TITLE_LIMIT) },
+              } as React.ChangeEvent<HTMLInputElement>)}
               disabled={loading}
               placeholder="Job Title"
-              className="w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 transition disabled:opacity-50"
+              maxLength={TITLE_LIMIT}
+              className="w-full rounded-lg border border-gray-300 bg-white/80 pl-10 pr-3 py-2 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
             />
           </div>
 
@@ -164,10 +185,14 @@ export default function SignupForm({
               name="email"
               required
               value={form.email}
-              onChange={handleChange}
+              onChange={(e) => handleChange({
+                ...e,
+                target: { ...e.target, value: e.target.value.slice(0, EMAIL_LIMIT) },
+              } as React.ChangeEvent<HTMLInputElement>)}
               disabled={loading}
               placeholder="Email address"
-              className="w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 transition disabled:opacity-50"
+              maxLength={EMAIL_LIMIT}
+              className="w-full rounded-lg border border-gray-300 bg-white/80 pl-10 pr-3 py-2 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
             />
           </div>
 
@@ -193,40 +218,31 @@ export default function SignupForm({
               name="password"
               required
               value={form.password}
-              onChange={handleChange}
+              onChange={(e) => handleChange({
+                ...e,
+                target: { ...e.target, value: e.target.value.slice(0, PASSWORD_LIMIT) },
+              } as React.ChangeEvent<HTMLInputElement>)}
               disabled={loading}
               placeholder="Password"
-              className="w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 transition disabled:opacity-50"
+              maxLength={PASSWORD_LIMIT}
+              className="w-full rounded-lg border border-gray-300 bg-white/80 pl-10 pr-3 py-2 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
             />
           </div>
+
+          {error && (
+            <p className="text-center text-sm text-red-600 dark:text-red-400">
+              {error}
+            </p>
+          )}
 
           <button
             type="submit"
             disabled={loading || success}
-            className={`w-full flex items-center justify-center h-11 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-md transition-all duration-200 ease-in-out hover:bg-emerald-700 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-emerald-700 disabled:shadow-inner disabled:translate-y-0.5`}
+            className="flex h-12 w-full items-center justify-center rounded-xl bg-gradient-to-r from-emerald-600 to-cyan-500 px-4 text-sm font-semibold text-white shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-70"
           >
             {loading ? (
               <>
-                <svg
-                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
+                <GradientSpinner className="-ml-1 mr-3 h-5 w-5" strokeWidth={2.5} />
                 <span>Creating Account...</span>
               </>
             ) : (
@@ -234,19 +250,18 @@ export default function SignupForm({
             )}
           </button>
 
-          <div className="text-center text-sm text-gray-600 pt-2">
+          <div className="pt-2 text-center text-sm text-gray-600 dark:text-slate-300">
             <span>Already have an account? </span>
             <button
               type="button"
               onClick={() => onSwitch("login")}
-              className="font-medium text-emerald-600 hover:underline"
+              className="font-medium text-emerald-600 hover:underline dark:text-emerald-300 dark:hover:text-emerald-200"
               disabled={loading}
             >
               Login
             </button>
           </div>
-        </form>
-      </div>
+      </form>
 
       {(success || error) && (
         <AuthLoadingOverlay

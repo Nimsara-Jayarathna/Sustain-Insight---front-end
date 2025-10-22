@@ -78,7 +78,7 @@ export default function OtpInput({
                      text-gray-800 bg-white border border-gray-300 rounded-lg shadow-sm
                      focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 focus:outline-none
                      transition-all duration-200 ease-in-out
-                     disabled:opacity-50 disabled:cursor-not-allowed"
+                     disabled:opacity-50 disabled:cursor-not-allowed dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
           value={value.charAt(index)}
           onChange={(e) => handleChange(e, index)}
           onKeyDown={handleKeyDown} // Removed the unused 'index' from here

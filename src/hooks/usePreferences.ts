@@ -26,8 +26,9 @@ export function usePreferences() {
         ]);
         setCategories(cats);
         setSources(srcs);
-      } catch (err) {
-        console.error("DEBUG → Failed to load preferences:", err);
+      } catch {
+        setCategories([]);
+        setSources([]);
       } finally {
         setLoading(false);
       }

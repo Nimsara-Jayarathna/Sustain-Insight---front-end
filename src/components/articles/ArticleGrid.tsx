@@ -12,25 +12,25 @@ type ArticleGridProps = {
 
 // --- 1. A private, internal skeleton component. No new file needed. ---
 const InternalSkeletonCard: React.FC = () => (
-  <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent" />
-    <div className="aspect-[16/9] w-full bg-gray-200" />
+  <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent dark:via-slate-700/40" />
+    <div className="aspect-[16/9] w-full bg-gray-200 dark:bg-slate-800" />
     <div className="flex flex-1 flex-col gap-3 px-4 py-5 sm:px-5">
-      <div className="h-4 w-24 rounded-full bg-gray-200" />
+      <div className="h-4 w-24 rounded-full bg-gray-200 dark:bg-slate-700" />
       <div className="space-y-2">
-        <div className="h-5 w-3/4 rounded-full bg-gray-300" />
-        <div className="h-5 w-2/3 rounded-full bg-gray-300" />
+        <div className="h-5 w-3/4 rounded-full bg-gray-300 dark:bg-slate-700" />
+        <div className="h-5 w-2/3 rounded-full bg-gray-300 dark:bg-slate-700" />
       </div>
       <div className="space-y-2">
-        <div className="h-3 w-full rounded-full bg-gray-200" />
-        <div className="h-3 w-5/6 rounded-full bg-gray-200" />
-        <div className="h-3 w-2/3 rounded-full bg-gray-200" />
+        <div className="h-3 w-full rounded-full bg-gray-200 dark:bg-slate-700" />
+        <div className="h-3 w-5/6 rounded-full bg-gray-200 dark:bg-slate-700" />
+        <div className="h-3 w-2/3 rounded-full bg-gray-200 dark:bg-slate-700" />
       </div>
       <div className="mt-auto flex items-center justify-between">
-        <div className="h-3 w-24 rounded-full bg-gray-200" />
+        <div className="h-3 w-24 rounded-full bg-gray-200 dark:bg-slate-700" />
         <div className="flex gap-2">
-          <div className="h-6 w-16 rounded-full bg-gray-200" />
-          <div className="h-6 w-16 rounded-full bg-gray-200" />
+          <div className="h-6 w-16 rounded-full bg-gray-200 dark:bg-slate-700" />
+          <div className="h-6 w-16 rounded-full bg-gray-200 dark:bg-slate-700" />
         </div>
       </div>
     </div>
@@ -39,8 +39,8 @@ const InternalSkeletonCard: React.FC = () => (
 
 // --- 2. An empty state for when there are truly no articles ---
 const EmptyState = () => (
-  <div className="text-center text-gray-600 col-span-full mt-12 p-8 bg-gray-50 rounded-lg border border-gray-200">
-    <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+  <div className="col-span-full mt-12 rounded-lg border border-gray-200 bg-gray-50 p-8 text-center text-gray-600 transition-colors dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
+    <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-4 h-12 w-12 text-gray-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3h9M7 16h6M7 8h6v4H7V8z" />
     </svg>
     <h3 className="text-lg font-semibold text-gray-800 mb-2">No Articles Found</h3>

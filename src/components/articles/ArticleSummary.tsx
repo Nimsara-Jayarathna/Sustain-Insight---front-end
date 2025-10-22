@@ -14,7 +14,7 @@ const ArticleSummary: React.FC<Props> = ({ summary, variant }) => {
 
   return (
     <div
-      className={`mt-2 text-sm text-gray-600 transition-colors duration-300 group-hover:text-gray-700 ${minHeight}`}
+      className={`mt-2 text-sm text-gray-600 transition-colors duration-300 group-hover:text-gray-700 dark:text-slate-300 dark:group-hover:text-slate-200 ${minHeight}`}
     >
       {summary ? (
         <p className={`line-clamp-${maxLines}`}>{summary}</p>

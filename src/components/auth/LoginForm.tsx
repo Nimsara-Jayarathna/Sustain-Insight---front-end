@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthLoadingOverlay from "../ui/AuthLoadingOverlay";
+import GradientSpinner from "../ui/GradientSpinner";
 import { useAuthHandlers } from "../../hooks/useAuthHandlers";
 
 export default function LoginForm({
@@ -10,6 +11,9 @@ export default function LoginForm({
   onSubmit: (email: string, password: string) => Promise<void>;
   onSwitch: (v: "login" | "signup" | "forgot") => void;
 }) {
+  const EMAIL_LIMIT = 40;
+  const PASSWORD_LIMIT = 30;
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -88,16 +92,22 @@ export default function LoginForm({
   };
 
   return (
-    <div className="relative">
-      <div className="w-full max-w-sm mx-auto">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Welcome Back</h2>
+    <div className="relative space-y-6">
+      <div className="text-center">
+        <h2 className="text-2xl font-semibold text-gray-900 dark:text-slate-100">
+          Welcome back
+        </h2>
+        <p className="mt-2 text-sm text-gray-600 dark:text-slate-300">
+          Sign in to continue curating your sustainability intelligence feed.
+        </p>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Email Input with Icon */}
-          <div className="relative">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-              <svg xmlns="http://www.w.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Email Input with Icon */}
+        <div className="relative">
+          <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+            <svg xmlns="http://www.w.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
               </svg>
             </span>
             <input
@@ -105,10 +115,11 @@ export default function LoginForm({
               type="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value.slice(0, EMAIL_LIMIT))}
               disabled={loading || resendLoading}
               placeholder="Email address"
-              className="w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 transition disabled:opacity-50"
+              maxLength={EMAIL_LIMIT}
+              className="w-full rounded-lg border border-gray-300 bg-white/80 pl-10 pr-3 py-2 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
             />
           </div>
 
@@ -124,29 +135,27 @@ export default function LoginForm({
               type="password"
               required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value.slice(0, PASSWORD_LIMIT))}
               disabled={loading || resendLoading}
               placeholder="Password"
-              className="w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 transition disabled:opacity-50"
+              maxLength={PASSWORD_LIMIT}
+              className="w-full rounded-lg border border-gray-300 bg-white/80 pl-10 pr-3 py-2 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
             />
           </div>
 
           {/* Resend Verification Section */}
           {showResend && !resendSuccess && (
-            <div className="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-lg text-sm text-center shadow-sm">
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-center text-sm text-amber-800 shadow-sm dark:border-amber-400/50 dark:bg-amber-500/10 dark:text-amber-200">
               <p className="mb-2 font-medium">{error}</p>
               <button
                 type="button"
                 onClick={handleResend}
                 disabled={resendLoading || cooldown > 0}
-                className="inline-flex items-center justify-center gap-2 font-semibold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-4 py-1.5 rounded-full transition-all duration-200 disabled:opacity-60"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-50 px-4 py-1.5 font-semibold text-emerald-700 transition-all duration-200 hover:bg-emerald-100 hover:text-emerald-800 disabled:opacity-60 dark:bg-emerald-500/10 dark:text-emerald-200 dark:hover:bg-emerald-500/20"
               >
                 {resendLoading ? (
                   <>
-                    <svg className="animate-spin h-4 w-4 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
+                    <GradientSpinner className="h-4 w-4" strokeWidth={2} />
                     <span>Sending...</span>
                   </>
                 ) : cooldown > 0 ? (
@@ -160,7 +169,7 @@ export default function LoginForm({
 
           {/* Resend Success Message */}
           {resendSuccess && (
-            <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-3 rounded-lg text-sm text-center shadow-sm">
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-center text-sm text-emerald-800 shadow-sm dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-200">
               ✅ Verification email sent successfully!
             </div>
           )}
@@ -169,14 +178,11 @@ export default function LoginForm({
           <button
             type="submit"
             disabled={loading || success || resendLoading}
-            className={`w-full flex items-center justify-center h-11 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-md transition-all duration-200 ease-in-out hover:bg-emerald-700 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-emerald-700 disabled:shadow-inner disabled:translate-y-0.5`}
+            className="flex h-12 w-full items-center justify-center rounded-xl bg-gradient-to-r from-emerald-600 to-cyan-500 px-4 text-sm font-semibold text-white shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-70"
           >
             {loading ? (
               <>
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
+                <GradientSpinner className="-ml-1 mr-3 h-5 w-5" strokeWidth={2.5} />
                 <span>Signing In...</span>
               </>
             ) : (
@@ -185,27 +191,26 @@ export default function LoginForm({
           </button>
 
           {/* POLISHED "Create account" and "Forgot password" Links */}
-          <div className="mt-4 flex items-center justify-center space-x-4 text-sm text-gray-600">
+          <div className="mt-4 flex items-center justify-center space-x-4 text-sm text-gray-600 dark:text-slate-300">
             <button
               type="button"
               onClick={() => onSwitch("signup")}
-              className="font-medium text-emerald-600 hover:text-emerald-500 transition-colors duration-200"
+              className="font-medium text-emerald-600 transition-colors duration-200 hover:text-emerald-500 dark:text-emerald-300 dark:hover:text-emerald-200"
               disabled={loading || resendLoading}
             >
               Create one
             </button>
-            <span className="border-l border-gray-300 h-5"></span> {/* Vertical divider */}
+            <span className="h-5 border-l border-gray-300 dark:border-slate-700"></span>
             <button
               type="button"
               onClick={() => onSwitch("forgot")}
-              className="font-medium text-emerald-600 hover:text-emerald-500 transition-colors duration-200"
+              className="font-medium text-emerald-600 transition-colors duration-200 hover:text-emerald-500 dark:text-emerald-300 dark:hover:text-emerald-200"
               disabled={loading || resendLoading}
             >
               Forgot password?
             </button>
           </div>
-        </form>
-      </div>
+      </form>
 
       {/* Unified overlay for SUCCESS or general ERRORS */}
       {(success || (error && !showResend)) && (

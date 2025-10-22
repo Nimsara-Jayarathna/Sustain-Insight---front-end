@@ -31,20 +31,41 @@ const ArticleFooter: React.FC<Props> = ({
   insightCount,
   onToggleBookmark,
   onToggleInsight,
-}) => (
-  <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4 text-sm text-gray-500">
-    <span className="text-xs font-medium uppercase tracking-wide text-gray-400">
-      {publishedAt ? new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(publishedAt)) : "Unknown date"}
-    </span>
+}) => {
+  const displayPublishedDate = (() => {
+    if (!publishedAt) return "Unknown date";
+    const [datePart] = publishedAt.split("T");
+    const safeDate = datePart?.trim();
+    if (!safeDate) return "Unknown date";
 
-    {allowActions && (
-      <div className="flex items-center gap-3">
-        <button
+    const [year, month, day] = safeDate.split("-");
+    if (!year || !month || !day) return safeDate;
+
+    const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+    if (Number.isNaN(date.getTime())) return safeDate;
+
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      timeZone: "UTC",
+    }).format(date);
+  })();
+
+  return (
+    <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4 text-sm text-gray-500 dark:border-slate-800 dark:text-slate-400">
+      <span className="text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-slate-500">
+        {displayPublishedDate}
+      </span>
+
+      {allowActions && (
+        <div className="flex items-center gap-3">
+          <button
           onClick={onToggleBookmark}
           className={`group/action relative inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
             bookmark
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-              : "border-gray-200 text-gray-500 hover:border-emerald-200 hover:text-emerald-600"
+              ? "bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow"
+              : "border border-gray-200 text-gray-500 hover:border-emerald-200 hover:text-emerald-600 dark:border-slate-700 dark:text-slate-300 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
           }`}
           title={bookmark ? "Remove Bookmark" : "Add Bookmark"}
         >
@@ -55,12 +76,12 @@ const ArticleFooter: React.FC<Props> = ({
           </span>
         </button>
 
-        <button
+          <button
           onClick={onToggleInsight}
           className={`group/action relative inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
             insight
-              ? "border-indigo-200 bg-indigo-50 text-indigo-700"
-              : "border-gray-200 text-gray-500 hover:border-indigo-200 hover:text-indigo-600"
+              ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow"
+              : "border border-gray-200 text-gray-500 hover:border-indigo-200 hover:text-indigo-600 dark:border-slate-700 dark:text-slate-300 dark:hover:border-indigo-400 dark:hover:text-indigo-300"
           }`}
           title={insight ? "Remove Insight" : "Add Insight"}
         >
@@ -69,10 +90,11 @@ const ArticleFooter: React.FC<Props> = ({
           <span className="pointer-events-none absolute -top-9 left-1/2 hidden -translate-x-1/2 rounded-full bg-black/80 px-3 py-1 text-[10px] font-medium text-white shadow-lg transition-opacity duration-200 group-hover/action:inline-flex">
             Share insight
           </span>
-        </button>
-      </div>
-    )}
-  </div>
-);
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default ArticleFooter;
