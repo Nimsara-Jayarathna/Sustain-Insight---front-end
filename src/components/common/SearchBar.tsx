@@ -15,7 +15,7 @@ export default function SearchBar({ onSearch }: Props) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex w-full flex-wrap items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-sm transition-colors focus-within:ring-2 focus-within:ring-emerald-400 dark:border-slate-700 dark:bg-slate-900 sm:flex-nowrap"
+      className="flex w-full flex-wrap items-center gap-2 rounded-full border border-gray-200 bg-white/90 px-4 py-2 shadow-sm transition-colors focus-within:-translate-y-0.5 focus-within:border-emerald-300 focus-within:ring-2 focus-within:ring-emerald-400 dark:border-slate-700 dark:bg-slate-900/80 sm:flex-nowrap"
     >
       <div className="flex min-w-0 flex-1 items-center gap-2">
         <svg
@@ -38,7 +38,7 @@ export default function SearchBar({ onSearch }: Props) {
       </div>
       <button
         type="submit"
-        className="flex-none rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
+        className="flex-none rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:shadow-lg"
       >
         Search
       </button>

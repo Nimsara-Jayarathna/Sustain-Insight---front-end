@@ -1,6 +1,7 @@
 // src/hooks/useUserProfile.ts
 import { useState, useEffect } from "react";
 import { apiFetch } from "../utils/api";
+import { useAuthContext } from "../context/AuthContext";
 
 type SubmissionStatus = {
   status: "idle" | "saving" | "success" | "error";
@@ -25,6 +26,8 @@ export function useUserProfile(open: boolean) {
 
   const [submissionStatus, setSubmissionStatus] =
     useState<SubmissionStatus>(INITIAL_STATUS);
+
+  const { refreshUser } = useAuthContext();
 
   useEffect(() => {
     if (!open) return;
@@ -86,6 +89,17 @@ export function useUserProfile(open: boolean) {
           sourceIds: selectedSources,
         }),
       });
+      setUser((prev: any) =>
+        prev
+          ? {
+              ...prev,
+              firstName,
+              lastName,
+              jobTitle,
+            }
+          : prev,
+      );
+      await refreshUser();
       setSubmissionStatus({ status: "success", message: "Profile updated!" });
       return true;
     } catch (err: any) {

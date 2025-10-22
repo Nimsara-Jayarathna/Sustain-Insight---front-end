@@ -20,6 +20,7 @@ type AuthContextType = {
   setSessionExpired: (v: boolean) => void;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -33,6 +34,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   //
   // 🔁 Silent refresh on initial load
   //
+  const refreshUser = async () => {
+    try {
+      const profile = await apiFetch("/api/account/me");
+      setUser({
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        email: profile.email,
+      });
+    } catch {
+      // ignore refresh errors
+    }
+  };
+
   useEffect(() => {
     const tryRefresh = async () => {
       try {
@@ -41,7 +55,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setToken(data.accessToken);
           setAccessToken(data.accessToken);
 
-          // ✅ If backend returned user info, set it directly
           if (data.firstName && data.lastName && data.email) {
             setUser({
               firstName: data.firstName,
@@ -49,13 +62,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               email: data.email,
             });
           } else {
-            // ✅ Otherwise fetch user profile using apiFetch
-            const profile = await apiFetch("/api/account/me");
-            setUser({
-              firstName: profile.firstName,
-              lastName: profile.lastName,
-              email: profile.email,
-            });
+            await refreshUser();
           }
         } else {
           throw new Error("No access token returned");
@@ -70,6 +77,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     tryRefresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   //
@@ -122,6 +130,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setSessionExpired,
         login,
         logout,
+        refreshUser,
       }}
     >
       {children}

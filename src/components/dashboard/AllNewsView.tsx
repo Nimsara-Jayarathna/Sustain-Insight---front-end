@@ -18,6 +18,7 @@ const SORT_OPTIONS = [
 const SortIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 4h13M3 8h9M3 12h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" /></svg>;
 const FilterIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>;
 const ChevronDown = ({ className = "" }) => <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 ${className}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>;
+const CheckIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>;
 
 export default function AllNewsView() {
   // --- All State and Logic is Preserved ---
@@ -73,7 +74,7 @@ export default function AllNewsView() {
   // --- End of Preserved Logic ---
 
   const controlButtonClasses =
-    "flex w-full items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 hover:border-emerald-300 hover:text-emerald-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-emerald-400 dark:hover:text-emerald-300 sm:w-auto";
+    "flex w-full min-h-[44px] items-center justify-center gap-2 rounded-full border border-gray-200 bg-white/90 px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 hover:-translate-y-0.5 hover:border-emerald-300 hover:text-emerald-700 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:border-emerald-400 dark:hover:text-emerald-300 sm:w-auto";
 
   // --- Start of Redesigned JSX ---
   return (
@@ -103,26 +104,32 @@ export default function AllNewsView() {
               </span>
             </button>
             {sortOpen && (
-              <div className="absolute right-0 z-30 mt-2 w-52 rounded-lg border border-gray-200 bg-white p-1 shadow-lg dark:border-slate-700 dark:bg-slate-900">
-                {SORT_OPTIONS.map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={() => {
-                      setSort(option.value);
-                      setSortOpen(false);
-                      setCurrentPage(1);
-                      setIsUserAction(true);
-                      setLoadingMessage("Sorting articles...");
-                    }}
-                    className={`block w-full rounded-md px-3 py-2 text-left text-sm transition hover:bg-gray-100 dark:hover:bg-slate-800 ${
-                      option.value === sort
-                        ? "font-semibold text-emerald-600 dark:text-emerald-300"
-                        : "text-gray-700 dark:text-slate-200"
-                    }`}
-                  >
-                    {option.label}
-                  </button>
-                ))}
+              <div className="absolute right-0 z-30 mt-3 w-60 rounded-2xl border border-gray-200 bg-white/95 p-2 shadow-xl backdrop-blur dark:border-slate-700 dark:bg-slate-900/95">
+                <div className="space-y-1">
+                  {SORT_OPTIONS.map((option) => {
+                    const isActive = option.value === sort;
+                    return (
+                      <button
+                        key={option.value}
+                        onClick={() => {
+                          setSort(option.value);
+                          setSortOpen(false);
+                          setCurrentPage(1);
+                          setIsUserAction(true);
+                          setLoadingMessage("Sorting articles...");
+                        }}
+                        className={`flex w-full items-center justify-between rounded-xl px-4 py-2 text-sm transition ${
+                          isActive
+                            ? "bg-gradient-to-r from-emerald-500/90 to-cyan-500/90 text-white shadow"
+                            : "text-gray-700 hover:bg-gray-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                        }`}
+                      >
+                        <span>{option.label}</span>
+                        {isActive && <CheckIcon />}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>

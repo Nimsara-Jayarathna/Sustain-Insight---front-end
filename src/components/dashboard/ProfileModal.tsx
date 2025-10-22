@@ -73,11 +73,7 @@ export default function ProfileModal({ open, onClose }: Props) {
   if (!open && !showChangeEmail) return null;
 
   const tabBaseStyle =
-    "flex-1 py-2 text-sm font-medium rounded-full transition-all duration-200";
-  const activeTabStyle =
-    "bg-white text-emerald-600 shadow-sm dark:bg-slate-900 dark:text-emerald-300";
-  const inactiveTabStyle =
-    "text-gray-600 hover:bg-gray-200/50 dark:text-slate-300 dark:hover:bg-slate-800/70";
+    "flex-1 rounded-full px-3 py-2 text-sm font-semibold transition-all duration-200";
 
   return (
     <>
@@ -115,40 +111,30 @@ export default function ProfileModal({ open, onClose }: Props) {
                 ) : (
                   <div className="space-y-6">
                     {/* Tabs */}
-                    <div className="mx-auto flex w-full items-center rounded-full bg-gray-100/80 p-1 shadow-inner dark:bg-slate-900/80 dark:shadow-inner">
-                      <button
-                        type="button"
-                        onClick={() => setActiveTab("profile")}
-                        className={`${tabBaseStyle} ${
-                          activeTab === "profile"
-                            ? activeTabStyle
-                            : inactiveTabStyle
-                        }`}
-                      >
-                        Profile
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setActiveTab("preferences")}
-                        className={`${tabBaseStyle} ${
-                          activeTab === "preferences"
-                            ? activeTabStyle
-                            : inactiveTabStyle
-                        }`}
-                      >
-                        Preferences
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setActiveTab("security")}
-                        className={`${tabBaseStyle} ${
-                          activeTab === "security"
-                            ? activeTabStyle
-                            : inactiveTabStyle
-                        }`}
-                      >
-                        Security
-                      </button>
+                    <div className="mx-auto w-full rounded-full border border-gray-200 bg-white/85 p-1 shadow-inner dark:border-slate-700 dark:bg-slate-900/70 dark:shadow-[inset_0_0_0_1px_rgba(148,163,184,0.18)]">
+                      <div className="grid grid-cols-3 gap-1">
+                        {["profile", "preferences", "security"].map((key) => {
+                          const isActive = activeTab === key;
+                          return (
+                            <button
+                              key={key}
+                              type="button"
+                              onClick={() => setActiveTab(key as typeof activeTab)}
+                              className={`${tabBaseStyle} ${
+                                isActive
+                                  ? "bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-md"
+                                  : "text-gray-600 hover:bg-gray-100/80 dark:text-slate-300 dark:hover:bg-slate-800/80"
+                              }`}
+                            >
+                              {key === "profile"
+                                ? "Profile"
+                                : key === "preferences"
+                                  ? "Preferences"
+                                  : "Security"}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
 
                     {/* Active Tab */}
