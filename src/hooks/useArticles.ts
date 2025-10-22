@@ -12,8 +12,8 @@ export function useArticles() {
         // This endpoint might be different, adjust if needed (e.g., a "latest" endpoint)
         const data = await apiFetch("/api/public/articles/latest"); 
         setArticles(data || []);
-      } catch (err) {
-        console.error("Failed to fetch initial articles:", err);
+      } catch {
+        setArticles([]);
       } finally {
         setIsLoading(false); // ✅ 2. Set loading to false when done
       }

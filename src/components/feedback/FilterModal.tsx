@@ -67,8 +67,9 @@ export default function FilterModal({
         ]);
         setCategories(cats);
         setSources(srcs);
-      } catch (err) {
-        console.error("Failed to fetch filters:", err);
+      } catch {
+        setCategories([]);
+        setSources([]);
       } finally {
         setLoadingData(false);
       }

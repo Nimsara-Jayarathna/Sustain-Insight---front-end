@@ -17,21 +17,20 @@ const tryRefreshToken = async (): Promise<boolean> => {
       credentials: "include",
     });
 
-    if (!res.ok) throw new Error("Refresh failed");
+    if (!res.ok) {
+      accessToken = null;
+      return false;
+    }
 
     const data = await res.json();
     if (data?.accessToken) {
       accessToken = data.accessToken;
-      console.info("✅ Access token refreshed");
       return true;
     }
-    return false;
-  } catch (err) {
-    console.warn("❌ Token refresh failed:", err);
     accessToken = null;
-
-    const auth = getAuthContext();
-    if (auth) auth.setSessionExpired(true);
+    return false;
+  } catch {
+    accessToken = null;
     return false;
   }
 };
@@ -62,8 +61,6 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
   // - not an auth route (e.g., login, signup, forgot-password)
   // - not already a refresh request
   if ((res.status === 401 || res.status === 403) && !isAuthEndpoint && !isRefreshEndpoint) {
-    console.warn("Access token expired — attempting refresh...");
-
     const refreshed = await tryRefreshToken();
     if (refreshed && accessToken) {
       headers["Authorization"] = `Bearer ${accessToken}`;
@@ -73,6 +70,8 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
         credentials: "include",
       });
     } else {
+      const auth = getAuthContext();
+      if (auth) auth.setSessionExpired(true);
       throw new Error("Session expired. Please log in again.");
     }
   }

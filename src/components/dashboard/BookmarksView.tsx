@@ -29,8 +29,7 @@ export default function BookmarksView({ onNavigate }: Props) {
         if (data.currentPage) {
           setCurrentPage(data.currentPage);
         }
-      } catch (err) {
-        console.error("Error fetching bookmarks:", err);
+      } catch {
         setError("Failed to load your bookmarks. Please try again later.");
       } finally {
         setLoading(false);

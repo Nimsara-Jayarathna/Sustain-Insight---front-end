@@ -49,8 +49,7 @@ export function useUserProfile(open: boolean) {
           me.preferredCategories?.map((c: any) => c.id) || []
         );
         setSelectedSources(me.preferredSources?.map((s: any) => s.id) || []);
-      } catch (err) {
-        console.error("DEBUG → Failed to fetch profile data:", err);
+      } catch {
         setSubmissionStatus({
           status: "error",
           message: "Could not load profile data.",
@@ -90,7 +89,6 @@ export function useUserProfile(open: boolean) {
       setSubmissionStatus({ status: "success", message: "Profile updated!" });
       return true;
     } catch (err: any) {
-      console.error("DEBUG → Failed to save profile:", err);
       setSubmissionStatus({
         status: "error",
         message: err.message || "Failed to update profile.",

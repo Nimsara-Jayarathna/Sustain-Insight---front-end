@@ -26,7 +26,6 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
 
   // 🚪 If not authenticated → redirect to landing page
   if (!isAuthenticated) {
-    console.warn("⚠️ Tried to access private route without auth");
     return <Navigate to="/" replace />;
   }
 
