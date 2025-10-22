@@ -11,8 +11,8 @@ export default function LoginForm({
   onSubmit: (email: string, password: string) => Promise<void>;
   onSwitch: (v: "login" | "signup" | "forgot") => void;
 }) {
-  const EMAIL_LIMIT = 25;
-  const PASSWORD_LIMIT = 20;
+  const EMAIL_LIMIT = 40;
+  const PASSWORD_LIMIT = 30;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

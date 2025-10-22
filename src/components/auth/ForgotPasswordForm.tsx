@@ -17,7 +17,7 @@ export default function ForgotPasswordForm({
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
   const [cooldown, setCooldown] = useState(0);
-  const EMAIL_LIMIT = 25;
+  const EMAIL_LIMIT = 40;
 
   // Restore cooldown from localStorage when component mounts
   useEffect(() => {

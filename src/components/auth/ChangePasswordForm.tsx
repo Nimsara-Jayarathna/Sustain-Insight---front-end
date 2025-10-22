@@ -12,7 +12,7 @@ export default function ChangePasswordForm({
 }) {
   const [step, setStep] = useState<'verify' | 'update'>('verify');
 
-  const PASSWORD_LIMIT = 20;
+  const PASSWORD_LIMIT = 30;
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');

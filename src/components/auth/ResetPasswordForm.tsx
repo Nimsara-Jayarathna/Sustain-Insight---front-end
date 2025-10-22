@@ -12,7 +12,7 @@ export default function ResetPasswordForm({
 }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const PASSWORD_LIMIT = 20;
+  const PASSWORD_LIMIT = 30;
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");

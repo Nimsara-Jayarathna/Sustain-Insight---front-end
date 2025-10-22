@@ -24,8 +24,8 @@ export default function SignupForm({
   });
   const NAME_LIMIT = 20;
   const TITLE_LIMIT = 20;
-  const EMAIL_LIMIT = 25;
-  const PASSWORD_LIMIT = 20;
+  const EMAIL_LIMIT = 40;
+  const PASSWORD_LIMIT = 30;
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);

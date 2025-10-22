@@ -49,15 +49,15 @@ export default function Footer() {
             </ul>
           </div>
 
-          <div className="space-y-3 md:justify-self-end">
+          <div className="space-y-4 md:justify-self-end">
             <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-slate-400">
               Contact
             </p>
-            <div className="space-y-1 text-sm">
+            <div className="space-y-2 text-sm">
               <p>We&apos;d love to hear from you.</p>
               <a
-                href="mailto:contact.sustain-insight@blipzo.xyz"
-                className="inline-flex items-center gap-2 text-emerald-600 transition hover:underline dark:text-emerald-300"
+                href="mailto:contact.sustain-insight@blipzo.xyz?subject=Sustain%20Insight%20Inquiry&body=Hello%20team%2C%0A%0A"
+                className="inline-flex items-center gap-2 rounded-full border border-emerald-500 bg-gradient-to-r from-emerald-500 to-cyan-500 px-4 py-2 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5 hover:shadow-lg dark:border-emerald-400 dark:from-emerald-500 dark:to-cyan-500"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -73,8 +73,14 @@ export default function Footer() {
                     d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8m-18-3h18a2 2 0 012 2v10a2 2 0 01-2 2H3a2 2 0 01-2-2V7a2 2 0 012-2z"
                   />
                 </svg>
-                contact.sustain-insight@blipzo.xyz
+                Contact Us
               </a>
+              <p className="text-xs text-gray-500 dark:text-slate-400">
+                Or reach out directly:{" "}
+                <a href="mailto:contact.sustain-insight@blipzo.xyz" className="text-emerald-600 hover:underline dark:text-emerald-300">
+                  contact.sustain-insight@blipzo.xyz
+                </a>
+              </p>
             </div>
           </div>
         </div>
