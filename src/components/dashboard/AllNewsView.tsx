@@ -73,7 +73,7 @@ export default function AllNewsView() {
   // --- End of Preserved Logic ---
 
   const controlButtonClasses =
-    "flex w-full items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 hover:border-emerald-300 hover:text-emerald-700 sm:w-auto";
+    "flex w-full items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 hover:border-emerald-300 hover:text-emerald-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-emerald-400 dark:hover:text-emerald-300 sm:w-auto";
 
   // --- Start of Redesigned JSX ---
   return (
@@ -103,7 +103,7 @@ export default function AllNewsView() {
               </span>
             </button>
             {sortOpen && (
-              <div className="absolute right-0 z-30 mt-2 w-52 rounded-lg border border-gray-200 bg-white p-1 shadow-lg">
+              <div className="absolute right-0 z-30 mt-2 w-52 rounded-lg border border-gray-200 bg-white p-1 shadow-lg dark:border-slate-700 dark:bg-slate-900">
                 {SORT_OPTIONS.map((option) => (
                   <button
                     key={option.value}
@@ -114,8 +114,10 @@ export default function AllNewsView() {
                       setIsUserAction(true);
                       setLoadingMessage("Sorting articles...");
                     }}
-                    className={`block w-full rounded-md px-3 py-2 text-left text-sm transition hover:bg-gray-100 ${
-                      option.value === sort ? "font-semibold text-emerald-600" : "text-gray-700"
+                    className={`block w-full rounded-md px-3 py-2 text-left text-sm transition hover:bg-gray-100 dark:hover:bg-slate-800 ${
+                      option.value === sort
+                        ? "font-semibold text-emerald-600 dark:text-emerald-300"
+                        : "text-gray-700 dark:text-slate-200"
                     }`}
                   >
                     {option.label}
@@ -178,12 +180,14 @@ export default function AllNewsView() {
           </div>
         </>
       ) : (
-        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center text-gray-600">
-          <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-4 h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center text-gray-600 transition-colors dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
+          <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-4 h-12 w-12 text-gray-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3h9M7 16h6M7 8h6v4H7V8z" />
           </svg>
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">No Articles Found</h3>
-          <p className="mx-auto mb-5 max-w-md">Your current search and filter combination didn't return any results. Try a different search or adjust your filters.</p>
+          <h3 className="mb-2 text-lg font-semibold text-gray-800 dark:text-slate-100">No Articles Found</h3>
+          <p className="mx-auto mb-5 max-w-md">
+            Your current search and filter combination didn't return any results. Try a different search or adjust your filters.
+          </p>
           <button
             onClick={() => setFilterModalOpen(true)}
             className="rounded-lg bg-emerald-600 px-5 py-2.5 font-medium text-white shadow-sm transition hover:bg-emerald-700"

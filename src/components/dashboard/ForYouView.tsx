@@ -45,12 +45,12 @@ export default function ForYouView({ onNavigate, onManagePreferences }: Props) {
 
     if (error) {
       return (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-7 text-center text-gray-600">
-          <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-red-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-7 text-center text-gray-600 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">
+          <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-4 h-12 w-12 text-red-400 dark:text-red-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <h3 className="text-lg font-semibold text-red-800 mb-2">Something Went Wrong</h3>
-          <p className="max-w-md mx-auto text-red-700">{error}</p>
+          <h3 className="mb-2 text-lg font-semibold text-red-800 dark:text-red-200">Something Went Wrong</h3>
+          <p className="mx-auto max-w-md text-red-700 dark:text-red-200/80">{error}</p>
         </div>
       );
     }
@@ -72,24 +72,24 @@ export default function ForYouView({ onNavigate, onManagePreferences }: Props) {
 
     // --- Redesigned "All Caught Up" Empty State ---
     return (
-      <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center text-gray-600">
-        <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-emerald-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center text-gray-600 transition-colors dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
+        <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-4 h-12 w-12 text-emerald-500 dark:text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">You're All Caught Up!</h3>
-        <p className="max-w-md mx-auto mb-6">
+        <h3 className="mb-2 text-lg font-semibold text-gray-800 dark:text-slate-100">You're All Caught Up!</h3>
+        <p className="mx-auto mb-6 max-w-md">
           There are no new articles based on your preferences right now. You can manage your preferences or explore all news.
         </p>
         <div className="flex items-center justify-center gap-4">
           <button
             onClick={onManagePreferences}
-            className="px-5 py-2.5 rounded-lg bg-white border border-gray-300 text-gray-700 font-medium shadow-sm hover:bg-gray-100 transition"
+            className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 font-medium text-gray-700 shadow-sm transition hover:bg-gray-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
           >
             Manage Preferences
           </button>
           <button
             onClick={() => onNavigate('all-news')}
-            className="px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow-sm transition"
+            className="rounded-lg bg-emerald-600 px-5 py-2.5 font-medium text-white shadow-sm transition hover:bg-emerald-700"
           >
             Explore All News
           </button>

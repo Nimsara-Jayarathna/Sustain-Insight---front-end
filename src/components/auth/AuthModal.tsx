@@ -45,12 +45,12 @@ export default function AuthModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 backdrop-blur-sm p-4 animate-fadeIn">
-      <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-xl transition-all duration-300 ease-in-out animate-slideUp">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/70 p-4 backdrop-blur-sm animate-fadeIn">
+      <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-xl transition-all duration-300 ease-in-out animate-slideUp dark:bg-slate-950">
         <button
           aria-label="Close"
           onClick={onClose}
-          className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100"
+          className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-slate-800"
         >
           ×
         </button>

@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
 import { AuthProvider, useAuthContext } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import { setAuthContextRef } from "./context/contextBridge";
 
 // ✅ Wrapper component to connect AuthContext globally
@@ -13,7 +14,9 @@ function AppWithContextBridge() {
 
 // ✅ Root render
 createRoot(document.getElementById("root")!).render(
-  <AuthProvider>
-    <AppWithContextBridge />
-  </AuthProvider>
+  <ThemeProvider>
+    <AuthProvider>
+      <AppWithContextBridge />
+    </AuthProvider>
+  </ThemeProvider>
 );

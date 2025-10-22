@@ -32,8 +32,8 @@ const ArticleFooter: React.FC<Props> = ({
   onToggleBookmark,
   onToggleInsight,
 }) => (
-  <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4 text-sm text-gray-500">
-    <span className="text-xs font-medium uppercase tracking-wide text-gray-400">
+  <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4 text-sm text-gray-500 dark:border-slate-800 dark:text-slate-400">
+    <span className="text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-slate-500">
       {publishedAt ? new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(publishedAt)) : "Unknown date"}
     </span>
 
@@ -43,8 +43,8 @@ const ArticleFooter: React.FC<Props> = ({
           onClick={onToggleBookmark}
           className={`group/action relative inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
             bookmark
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-              : "border-gray-200 text-gray-500 hover:border-emerald-200 hover:text-emerald-600"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-300"
+              : "border-gray-200 text-gray-500 hover:border-emerald-200 hover:text-emerald-600 dark:border-slate-700 dark:text-slate-300 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
           }`}
           title={bookmark ? "Remove Bookmark" : "Add Bookmark"}
         >
@@ -59,8 +59,8 @@ const ArticleFooter: React.FC<Props> = ({
           onClick={onToggleInsight}
           className={`group/action relative inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
             insight
-              ? "border-indigo-200 bg-indigo-50 text-indigo-700"
-              : "border-gray-200 text-gray-500 hover:border-indigo-200 hover:text-indigo-600"
+              ? "border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-500/40 dark:bg-indigo-500/10 dark:text-indigo-300"
+              : "border-gray-200 text-gray-500 hover:border-indigo-200 hover:text-indigo-600 dark:border-slate-700 dark:text-slate-300 dark:hover:border-indigo-400 dark:hover:text-indigo-300"
           }`}
           title={insight ? "Remove Insight" : "Add Insight"}
         >

@@ -117,8 +117,8 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
   const baseClasses =
     "group flex h-full flex-col overflow-hidden rounded-2xl transition-all duration-500 ease-out hover:-translate-y-1";
   const variantClasses = isLanding
-    ? "border border-white/40 bg-white/90 shadow-[0_35px_60px_-30px_rgba(16,185,129,0.35)] backdrop-blur hover:border-emerald-200 hover:shadow-[0_45px_75px_-35px_rgba(16,185,129,0.45)]"
-    : "border border-gray-200 bg-white shadow-sm hover:shadow-xl";
+    ? "border border-white/40 bg-white/90 shadow-[0_35px_60px_-30px_rgba(16,185,129,0.35)] backdrop-blur hover:border-emerald-200 hover:shadow-[0_45px_75px_-35px_rgba(16,185,129,0.45)] dark:border-slate-800/60 dark:bg-slate-900/80 dark:shadow-[0_35px_60px_-30px_rgba(16,185,129,0.25)]"
+    : "border border-gray-200 bg-white shadow-sm transition-colors hover:shadow-xl dark:border-slate-800 dark:bg-slate-900 dark:shadow-md";
   const cursorClass = disablePopup ? "cursor-default" : "cursor-pointer";
 
   return (

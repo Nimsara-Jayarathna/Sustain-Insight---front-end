@@ -413,14 +413,14 @@ export const ActiveSessionsPanel: React.FC = () => {
           {Array.from({ length: 3 }).map((_, index) => (
             <div
               key={`skeleton-${index}`}
-              className="animate-pulse rounded-xl border border-gray-100 bg-gray-50 p-4"
+              className="animate-pulse rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-slate-800 dark:bg-slate-900"
             >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="space-y-2">
-                  <div className="h-4 w-48 rounded bg-gray-200" />
-                  <div className="h-3 w-32 rounded bg-gray-200" />
+                  <div className="h-4 w-48 rounded bg-gray-200 dark:bg-slate-800" />
+                  <div className="h-3 w-32 rounded bg-gray-200 dark:bg-slate-800" />
                 </div>
-                <div className="h-8 w-32 rounded bg-gray-200" />
+                <div className="h-8 w-32 rounded bg-gray-200 dark:bg-slate-800" />
               </div>
             </div>
           ))}
@@ -430,7 +430,7 @@ export const ActiveSessionsPanel: React.FC = () => {
 
     if (error) {
       return (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-400/50 dark:bg-red-500/10 dark:text-red-200">
           <p className="mb-3">{error}</p>
           <button
             type="button"
@@ -445,7 +445,7 @@ export const ActiveSessionsPanel: React.FC = () => {
 
     if (!hasSessions) {
       return (
-        <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-8 text-center text-sm text-gray-500">
+        <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-8 text-center text-sm text-gray-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
           No other active sessions found.
         </div>
       );
@@ -460,27 +460,27 @@ export const ActiveSessionsPanel: React.FC = () => {
           return (
             <li
               key={session.id}
-              className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:border-emerald-200 hover:shadow-md"
+              className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:border-emerald-200 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-400"
             >
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="space-y-2">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h4 className="text-sm font-semibold text-gray-900">
+                    <h4 className="text-sm font-semibold text-gray-900 dark:text-slate-100">
                       {session.deviceLabel}
                     </h4>
                     {session.isCurrentDevice && (
-                      <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
+                      <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-200">
                         This device
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-slate-300">
                     IP address:{" "}
-                    <span className="font-medium text-gray-700">
+                    <span className="font-medium text-gray-700 dark:text-slate-200">
                       {session.ipAddress}
                     </span>
                   </p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-gray-400 dark:text-slate-400">
                     Last active{" "}
                     {relative ?? "time unavailable"}
                     {absolute ? ` • ${absolute}` : ""}
@@ -490,8 +490,8 @@ export const ActiveSessionsPanel: React.FC = () => {
                   <span
                     className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
                       session.isActive
-                        ? "bg-emerald-50 text-emerald-700"
-                        : "bg-gray-100 text-gray-500"
+                        ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-200"
+                        : "bg-gray-100 text-gray-500 dark:bg-slate-800 dark:text-slate-400"
                     }`}
                   >
                     {session.statusLabel}
@@ -500,7 +500,7 @@ export const ActiveSessionsPanel: React.FC = () => {
                     type="button"
                     onClick={() => handleLogoutSession(session.id)}
                     disabled={processingId === session.id || processingAll}
-                    className="inline-flex w-full items-center justify-center rounded-md border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 hover:border-red-300 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                    className="inline-flex w-full items-center justify-center rounded-md border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 transition hover:border-red-300 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-400/50 dark:text-red-300 dark:hover:bg-red-500/10 sm:w-auto"
                   >
                     {processingId === session.id ? "Logging out…" : "Log out"}
                   </button>
@@ -529,12 +529,12 @@ export const ActiveSessionsPanel: React.FC = () => {
           {Array.from({ length: 2 }).map((_, index) => (
             <div
               key={`summary-skeleton-${index}`}
-              className="h-24 rounded-lg border border-gray-100 bg-gray-50 p-4"
+              className="h-24 rounded-lg border border-gray-100 bg-gray-50 p-4 dark:border-slate-800 dark:bg-slate-900"
             >
               <div className="flex h-full flex-col justify-between animate-pulse space-y-2">
-                <div className="h-3 w-32 rounded bg-gray-200" />
-                <div className="h-6 w-20 rounded bg-gray-200" />
-                <div className="h-2 w-24 rounded bg-gray-200" />
+                <div className="h-3 w-32 rounded bg-gray-200 dark:bg-slate-800" />
+                <div className="h-6 w-20 rounded bg-gray-200 dark:bg-slate-800" />
+                <div className="h-2 w-24 rounded bg-gray-200 dark:bg-slate-800" />
               </div>
             </div>
           ))}
@@ -549,21 +549,21 @@ export const ActiveSessionsPanel: React.FC = () => {
 
     return (
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
-          <p className="text-sm font-medium text-gray-700">Active sessions</p>
-          <p className="mt-2 text-2xl font-semibold text-gray-900">
+        <div className="rounded-lg border border-gray-100 bg-gray-50 p-4 transition-colors dark:border-slate-800 dark:bg-slate-900">
+          <p className="text-sm font-medium text-gray-700 dark:text-slate-200">Active sessions</p>
+          <p className="mt-2 text-2xl font-semibold text-gray-900 dark:text-slate-100">
             {activeCount}
           </p>
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
             Includes all devices currently signed in to your account.
           </p>
         </div>
-        <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
-          <p className="text-sm font-medium text-gray-700">Current device</p>
-          <p className="mt-2 text-base font-semibold text-gray-900">
+        <div className="rounded-lg border border-gray-100 bg-gray-50 p-4 transition-colors dark:border-slate-800 dark:bg-slate-900">
+          <p className="text-sm font-medium text-gray-700 dark:text-slate-200">Current device</p>
+          <p className="mt-2 text-base font-semibold text-gray-900 dark:text-slate-100">
             {currentDevice ? currentDevice.deviceLabel : "Not detected"}
           </p>
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
             {currentDevice
               ? `Signed in from ${currentDevice.ipAddress}.`
               : "We will highlight your current device when available."}
@@ -575,21 +575,21 @@ export const ActiveSessionsPanel: React.FC = () => {
 
   return (
     <>
-      <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+      <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
               Active Sessions
             </h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-slate-300">
               Review devices currently signed in and log out any you don’t
               recognize.
             </p>
           </div>
           <div className="flex flex-col items-start gap-2 sm:items-end">
             {refreshing && !loading && (
-              <span className="flex items-center gap-2 text-xs text-gray-400">
-                <span className="h-2 w-2 animate-ping rounded-full bg-emerald-500" />
+              <span className="flex items-center gap-2 text-xs text-gray-400 dark:text-slate-400">
+                <span className="h-2 w-2 animate-ping rounded-full bg-emerald-500 dark:bg-emerald-300" />
                 Refreshing…
               </span>
             )}
