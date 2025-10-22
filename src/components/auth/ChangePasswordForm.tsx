@@ -12,6 +12,7 @@ export default function ChangePasswordForm({
 }) {
   const [step, setStep] = useState<'verify' | 'update'>('verify');
 
+  const PASSWORD_LIMIT = 30;
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -86,7 +87,7 @@ export default function ChangePasswordForm({
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-slate-300">Current Password</label>
               <p className="mb-2 text-xs text-gray-500 dark:text-slate-400">To continue, please confirm your current password.</p>
-              <input type="password" required autoFocus value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} disabled={loading} placeholder="Enter your current password" className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" />
+              <input type="password" required autoFocus value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value.slice(0, PASSWORD_LIMIT))} disabled={loading} placeholder="Enter your current password" maxLength={PASSWORD_LIMIT} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" />
             </div>
             <div className="flex items-center justify-end gap-3 pt-4">
               <button type="button" onClick={onCancel} disabled={loading} className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800">Cancel</button>
@@ -103,11 +104,11 @@ export default function ChangePasswordForm({
             {/* ... New password fields (no changes here) ... */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-slate-300">New Password</label>
-              <input type="password" required autoFocus value={newPassword} onChange={(e) => setNewPassword(e.target.value)} disabled={loading} placeholder="Enter your new password" className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" />
+              <input type="password" required autoFocus value={newPassword} onChange={(e) => setNewPassword(e.target.value.slice(0, PASSWORD_LIMIT))} disabled={loading} placeholder="Enter your new password" maxLength={PASSWORD_LIMIT} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-slate-300">Confirm New Password</label>
-              <input type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} disabled={loading} placeholder="Confirm your new password" className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" />
+              <input type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value.slice(0, PASSWORD_LIMIT))} disabled={loading} placeholder="Confirm your new password" maxLength={PASSWORD_LIMIT} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" />
             </div>
             <div className="flex items-center justify-end gap-3 pt-4">
               <button type="button" onClick={() => { setStep('verify'); setError(''); }} disabled={loading} className="text-sm font-medium text-gray-700 transition hover:text-gray-900 dark:text-slate-300 dark:hover:text-slate-100">

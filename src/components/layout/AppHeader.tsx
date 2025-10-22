@@ -20,7 +20,7 @@ const landingLinks = [
   { label: "Overview", href: "#top" },
   { label: "Features", href: "#features" },
   { label: "Latest News", href: "#latest" },
-  { label: "Contact", href: "mailto:contact.sustain-insight@blipzo.xyz" },
+  { label: "Contact", href: "#footer" },
 ];
 
 export default function AppHeader(props: Props) {

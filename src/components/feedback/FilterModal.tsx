@@ -53,6 +53,7 @@ export default function FilterModal({
   const [selectedSources, setSelectedSources] = useState<number[]>([]);
   const [date, setDate] = useState("");
   const [searchSource, setSearchSource] = useState("");
+  const SOURCE_SEARCH_LIMIT = 10;
   const [loadingData, setLoadingData] = useState(true);
   const [activeTab, setActiveTab] = useState<TabConfig["key"]>("categories");
 
@@ -173,7 +174,7 @@ export default function FilterModal({
           </button>
         </div>
       </div>
-      <div className="grid gap-2 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {categories.map((c) => {
           const active = selectedCategories.includes(c.id);
           return (
@@ -232,8 +233,8 @@ export default function FilterModal({
         </div>
       </div>
 
-      <div className="-mx-6">
-        <div className="sticky top-0 z-10 bg-white/95 px-6 pb-3 pt-2 backdrop-blur dark:bg-slate-900/95">
+      <div className="-mx-4 sm:-mx-6">
+        <div className="sticky top-0 z-10 bg-white/95 px-4 pb-3 pt-2 backdrop-blur dark:bg-slate-900/95 sm:px-6">
           <div className="relative">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 dark:text-slate-400">
               <svg
@@ -251,13 +252,14 @@ export default function FilterModal({
               type="text"
               placeholder="Search sources..."
               value={searchSource}
-              onChange={(e) => setSearchSource(e.target.value)}
+              onChange={(e) => setSearchSource(e.target.value.slice(0, SOURCE_SEARCH_LIMIT))}
               disabled={loadingData}
+              maxLength={SOURCE_SEARCH_LIMIT}
               className="w-full rounded-xl border border-gray-200 bg-white py-2 pl-10 pr-3 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
             />
           </div>
         </div>
-        <div className="max-h-64 space-y-2 overflow-y-auto px-6 pb-1">
+        <div className="grid max-h-64 grid-cols-1 gap-2 overflow-y-auto px-4 pb-1 sm:px-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredSources.map((s) => {
             const active = selectedSources.includes(s.id);
             return (
@@ -301,7 +303,7 @@ export default function FilterModal({
       <p className="text-sm text-gray-600 dark:text-slate-300">
         Set a custom date or pick a quick preset to narrow your feed.
       </p>
-      <div className="flex flex-wrap gap-2">
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {DATE_PRESETS.map((preset) => {
           const presetValue = formatOffsetDate(preset.offsetDays);
           const active = date === presetValue;
@@ -330,7 +332,7 @@ export default function FilterModal({
           Clear
         </button>
       </div>
-      <div className="relative max-w-sm">
+      <div className="relative w-full sm:max-w-sm">
         <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 dark:text-slate-400">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -394,48 +396,57 @@ export default function FilterModal({
               ×
             </button>
           </div>
-          <div className="flex items-center gap-2">
-            {TABS.map((tab) => {
-              const isActive = activeTab === tab.key;
-              return (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key)}
-                  className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                    isActive ? "bg-white text-emerald-600 shadow-sm" : "text-white/80 hover:text-white"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              );
-            })}
+          <div className="rounded-full border border-white/40 bg-white/10 p-1 shadow-inner backdrop-blur">
+            <div className="grid grid-cols-3 gap-1">
+              {TABS.map((tab) => {
+                const isActive = activeTab === tab.key;
+                return (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key)}
+                    className={`rounded-full px-4 py-2 text-sm font-semibold transition-all ${
+                      isActive
+                        ? "bg-white text-emerald-600 shadow"
+                        : "text-white/80 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </header>
 
         <div className="flex-1 overflow-y-auto px-6 py-6 sm:px-8">{renderTabContent()}</div>
 
-        <footer className="flex flex-col gap-3 border-t border-gray-200 bg-white px-6 py-4 transition-colors dark:border-slate-800 dark:bg-slate-900 sm:flex-row sm:justify-end sm:gap-4 sm:px-8">
-          <button
-            onClick={handleClear}
-            disabled={loadingData}
-            className="rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:border-emerald-300 hover:text-emerald-700 disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
-          >
-            Reset
-          </button>
-          <button
-            onClick={onClose}
-            disabled={loadingData}
-            className="rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:border-emerald-300 hover:text-emerald-700 disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleApply}
-            disabled={loadingData}
-            className="rounded-full bg-gradient-to-r from-emerald-600 to-cyan-500 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:shadow-xl disabled:opacity-50"
-          >
-            Apply Filters
-          </button>
+        <footer className="flex flex-col items-stretch gap-3 border-t border-gray-200 bg-white px-6 py-4 transition-colors dark:border-slate-800 dark:bg-slate-900 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-8">
+          <div className="text-left text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-slate-500">
+            Actions
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+            <button
+              onClick={handleClear}
+              disabled={loadingData}
+              className="rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:border-emerald-300 hover:text-emerald-700 disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
+            >
+              Reset
+            </button>
+            <button
+              onClick={onClose}
+              disabled={loadingData}
+              className="rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:border-emerald-300 hover:text-emerald-700 disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleApply}
+              disabled={loadingData}
+              className="rounded-full bg-gradient-to-r from-emerald-600 to-cyan-500 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:shadow-xl disabled:opacity-50"
+            >
+              Apply Filters
+            </button>
+          </div>
         </footer>
       </div>
     </div>

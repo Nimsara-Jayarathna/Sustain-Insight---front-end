@@ -22,6 +22,10 @@ export default function SignupForm({
     email: "",
     password: "",
   });
+  const NAME_LIMIT = 20;
+  const TITLE_LIMIT = 20;
+  const EMAIL_LIMIT = 40;
+  const PASSWORD_LIMIT = 30;
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -82,9 +86,13 @@ export default function SignupForm({
                 name="firstName"
                 required
                 value={form.firstName}
-                onChange={handleChange}
+                onChange={(e) => handleChange({
+                  ...e,
+                  target: { ...e.target, value: e.target.value.slice(0, NAME_LIMIT) },
+                } as React.ChangeEvent<HTMLInputElement>)}
                 disabled={loading}
                 placeholder="First Name"
+                maxLength={NAME_LIMIT}
                 className="w-full rounded-lg border border-gray-300 bg-white/80 pl-10 pr-3 py-2 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
               />
             </div>
@@ -110,9 +118,13 @@ export default function SignupForm({
                 name="lastName"
                 required
                 value={form.lastName}
-                onChange={handleChange}
+                onChange={(e) => handleChange({
+                  ...e,
+                  target: { ...e.target, value: e.target.value.slice(0, NAME_LIMIT) },
+                } as React.ChangeEvent<HTMLInputElement>)}
                 disabled={loading}
                 placeholder="Last Name"
+                maxLength={NAME_LIMIT}
                 className="w-full rounded-lg border border-gray-300 bg-white/80 pl-10 pr-3 py-2 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
               />
             </div>
@@ -140,9 +152,13 @@ export default function SignupForm({
               name="title"
               required
               value={form.title}
-              onChange={handleChange}
+              onChange={(e) => handleChange({
+                ...e,
+                target: { ...e.target, value: e.target.value.slice(0, TITLE_LIMIT) },
+              } as React.ChangeEvent<HTMLInputElement>)}
               disabled={loading}
               placeholder="Job Title"
+              maxLength={TITLE_LIMIT}
               className="w-full rounded-lg border border-gray-300 bg-white/80 pl-10 pr-3 py-2 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
             />
           </div>
@@ -169,9 +185,13 @@ export default function SignupForm({
               name="email"
               required
               value={form.email}
-              onChange={handleChange}
+              onChange={(e) => handleChange({
+                ...e,
+                target: { ...e.target, value: e.target.value.slice(0, EMAIL_LIMIT) },
+              } as React.ChangeEvent<HTMLInputElement>)}
               disabled={loading}
               placeholder="Email address"
+              maxLength={EMAIL_LIMIT}
               className="w-full rounded-lg border border-gray-300 bg-white/80 pl-10 pr-3 py-2 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
             />
           </div>
@@ -198,9 +218,13 @@ export default function SignupForm({
               name="password"
               required
               value={form.password}
-              onChange={handleChange}
+              onChange={(e) => handleChange({
+                ...e,
+                target: { ...e.target, value: e.target.value.slice(0, PASSWORD_LIMIT) },
+              } as React.ChangeEvent<HTMLInputElement>)}
               disabled={loading}
               placeholder="Password"
+              maxLength={PASSWORD_LIMIT}
               className="w-full rounded-lg border border-gray-300 bg-white/80 pl-10 pr-3 py-2 text-sm transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
             />
           </div>
