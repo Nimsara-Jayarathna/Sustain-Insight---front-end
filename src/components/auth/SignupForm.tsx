@@ -22,16 +22,54 @@ export default function SignupForm({
     email: "",
     password: "",
   });
-  const NAME_LIMIT = 20;
-  const TITLE_LIMIT = 20;
-  const EMAIL_LIMIT = 40;
-  const PASSWORD_LIMIT = 30;
+  const NAME_LIMIT = 15;
+  const TITLE_LIMIT = 15;
+  const EMAIL_LIMIT = 30;
+  const PASSWORD_LIMIT = 20;
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const FIELD_LIMITS = {
+    firstName: NAME_LIMIT,
+    lastName: NAME_LIMIT,
+    title: TITLE_LIMIT,
+    email: EMAIL_LIMIT,
+    password: PASSWORD_LIMIT,
+  } as const;
+
+  const sanitizeInput = (
+    name: keyof typeof FIELD_LIMITS,
+    value: string
+  ): string => {
+    switch (name) {
+      case "firstName":
+      case "lastName":
+        return value.replace(/[^a-zA-Z\s'-]/g, "");
+      case "title":
+        return value.replace(/[^a-zA-Z0-9\s&.,'-]/g, "");
+      case "email":
+        return value.replace(/[^a-zA-Z0-9@._+-]/g, "");
+      case "password":
+      default:
+        return value;
+    }
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name } = event.target;
+    let { value } = event.target;
+
+    if (name in FIELD_LIMITS) {
+      value = sanitizeInput(name as keyof typeof FIELD_LIMITS, value);
+      value = value.slice(0, FIELD_LIMITS[name as keyof typeof FIELD_LIMITS]);
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -86,10 +124,7 @@ export default function SignupForm({
                 name="firstName"
                 required
                 value={form.firstName}
-                onChange={(e) => handleChange({
-                  ...e,
-                  target: { ...e.target, value: e.target.value.slice(0, NAME_LIMIT) },
-                } as React.ChangeEvent<HTMLInputElement>)}
+                onChange={handleChange}
                 disabled={loading}
                 placeholder="First Name"
                 maxLength={NAME_LIMIT}
@@ -118,10 +153,7 @@ export default function SignupForm({
                 name="lastName"
                 required
                 value={form.lastName}
-                onChange={(e) => handleChange({
-                  ...e,
-                  target: { ...e.target, value: e.target.value.slice(0, NAME_LIMIT) },
-                } as React.ChangeEvent<HTMLInputElement>)}
+                onChange={handleChange}
                 disabled={loading}
                 placeholder="Last Name"
                 maxLength={NAME_LIMIT}
@@ -152,10 +184,7 @@ export default function SignupForm({
               name="title"
               required
               value={form.title}
-              onChange={(e) => handleChange({
-                ...e,
-                target: { ...e.target, value: e.target.value.slice(0, TITLE_LIMIT) },
-              } as React.ChangeEvent<HTMLInputElement>)}
+              onChange={handleChange}
               disabled={loading}
               placeholder="Job Title"
               maxLength={TITLE_LIMIT}
@@ -185,10 +214,7 @@ export default function SignupForm({
               name="email"
               required
               value={form.email}
-              onChange={(e) => handleChange({
-                ...e,
-                target: { ...e.target, value: e.target.value.slice(0, EMAIL_LIMIT) },
-              } as React.ChangeEvent<HTMLInputElement>)}
+              onChange={handleChange}
               disabled={loading}
               placeholder="Email address"
               maxLength={EMAIL_LIMIT}
@@ -218,10 +244,7 @@ export default function SignupForm({
               name="password"
               required
               value={form.password}
-              onChange={(e) => handleChange({
-                ...e,
-                target: { ...e.target, value: e.target.value.slice(0, PASSWORD_LIMIT) },
-              } as React.ChangeEvent<HTMLInputElement>)}
+              onChange={handleChange}
               disabled={loading}
               placeholder="Password"
               maxLength={PASSWORD_LIMIT}
