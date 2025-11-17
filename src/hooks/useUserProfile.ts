@@ -1,7 +1,7 @@
-// src/hooks/useUserProfile.ts
-import { useState, useEffect } from "react";
-import { apiFetch } from "../utils/api";
-import { useAuthContext } from "../context/AuthContext";
+import { useEffect, useState } from "react";
+import type { Category, Source } from "../types/content";
+import { fetchPreferenceOptions, fetchUserProfile, saveUserProfile } from "../services/supabaseUser";
+import { useAuth } from "./useAuth";
 
 type SubmissionStatus = {
   status: "idle" | "saving" | "success" | "error";
@@ -11,101 +11,77 @@ type SubmissionStatus = {
 const INITIAL_STATUS: SubmissionStatus = { status: "idle", message: "" };
 
 export function useUserProfile(open: boolean) {
+  const { user, refreshProfile } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
-  const [staticData, setStaticData] = useState<{ categories: any[]; sources: any[] }>({
-    categories: [],
-    sources: [],
-  });
-
-  const [firstName, setFirstName] = useState<string>("");
-  const [lastName, setLastName] = useState<string>("");
-  const [jobTitle, setJobTitle] = useState<string>(""); // ✅ 1. Add state for job title
-  const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
-  const [selectedSources, setSelectedSources] = useState<number[]>([]);
-
-  const [submissionStatus, setSubmissionStatus] =
-    useState<SubmissionStatus>(INITIAL_STATUS);
-
-  const { refreshUser } = useAuthContext();
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [sources, setSources] = useState<Source[]>([]);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [jobTitle, setJobTitle] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedSources, setSelectedSources] = useState<string[]>([]);
+  const [submissionStatus, setSubmissionStatus] = useState<SubmissionStatus>(INITIAL_STATUS);
 
   useEffect(() => {
-    if (!open) return;
-
-    async function fetchData() {
+    if (!open || !user?.id) return;
+    let active = true;
+    const load = async () => {
       try {
         setLoading(true);
         setSubmissionStatus(INITIAL_STATUS);
-
-        const [me, cats, srcs] = await Promise.all([
-          apiFetch("/api/account/me"),
-          apiFetch("/api/public/categories"),
-          apiFetch("/api/public/sources"),
+        const [profile, options] = await Promise.all([
+          fetchUserProfile(user.id),
+          fetchPreferenceOptions(),
         ]);
-
-        setUser(me);
-        setStaticData({ categories: cats, sources: srcs });
-        setFirstName(me.firstName || "");
-        setLastName(me.lastName || "");
-        setJobTitle(me.jobTitle || ""); // ✅ 2. Initialize job title from fetched data
-        setSelectedCategories(
-          me.preferredCategories?.map((c: any) => c.id) || []
-        );
-        setSelectedSources(me.preferredSources?.map((s: any) => s.id) || []);
-      } catch {
-        setSubmissionStatus({
-          status: "error",
-          message: "Could not load profile data.",
-        });
+        if (!active) return;
+        setCategories(options.categories);
+        setSources(options.sources);
+        setFirstName(profile.firstName ?? "");
+        setLastName(profile.lastName ?? "");
+        setJobTitle(profile.jobTitle ?? "");
+        setSelectedCategories(profile.preferredCategories.map(String));
+        setSelectedSources(profile.preferredSources.map(String));
+      } catch (err: any) {
+        if (!active) return;
+        setSubmissionStatus({ status: "error", message: err.message ?? "Unable to load profile" });
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
-    }
+    };
+    load();
+    return () => {
+      active = false;
+    };
+  }, [open, user?.id]);
 
-    fetchData();
-  }, [open]);
-
-  const toggleCategory = (id: number) =>
+  const toggleCategory = (id: string) =>
     setSelectedCategories((prev) =>
-      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id],
     );
 
-  const toggleSource = (id: number) =>
+  const toggleSource = (id: string) =>
     setSelectedSources((prev) =>
-      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id],
     );
 
-  const saveProfile = async () => {
+  const saveProfileHandler = async () => {
+    if (!user?.id) return false;
     setSubmissionStatus({ status: "saving", message: "Saving changes..." });
     try {
-      await apiFetch("/api/account/preferences", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          firstName,
-          lastName,
-          jobTitle, // ✅ 3. Include job title in the save payload
-          categoryIds: selectedCategories,
-          sourceIds: selectedSources,
-        }),
+      await saveUserProfile(user.id, {
+        firstName,
+        lastName,
+        jobTitle,
+        categoryIds: selectedCategories,
+        sourceIds: selectedSources,
       });
-      setUser((prev: any) =>
-        prev
-          ? {
-              ...prev,
-              firstName,
-              lastName,
-              jobTitle,
-            }
-          : prev,
-      );
-      await refreshUser();
-      setSubmissionStatus({ status: "success", message: "Profile updated!" });
+      await refreshProfile?.();
+      setSubmissionStatus({ status: "success", message: "Profile updated" });
       return true;
     } catch (err: any) {
       setSubmissionStatus({
         status: "error",
-        message: err.message || "Failed to update profile.",
+        message: err.message ?? "Unable to save profile",
       });
       return false;
     }
@@ -113,14 +89,11 @@ export function useUserProfile(open: boolean) {
 
   const resetSubmissionStatus = () => setSubmissionStatus(INITIAL_STATUS);
 
-  // ✅ 4. Return jobTitle and its setter from the hook
   return {
     loading,
     saving: submissionStatus.status === "saving",
-    user,
-    setUser,
-    categories: staticData.categories,
-    sources: staticData.sources,
+    categories,
+    sources,
     submissionStatus,
     resetSubmissionStatus,
     firstName,
@@ -133,6 +106,6 @@ export function useUserProfile(open: boolean) {
     toggleCategory,
     selectedSources,
     toggleSource,
-    saveProfile,
+    saveProfile: saveProfileHandler,
   };
 }

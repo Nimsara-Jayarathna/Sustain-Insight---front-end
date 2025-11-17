@@ -1,21 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
-import { apiFetch } from "../../utils/api";
 import GradientSpinner from "../ui/GradientSpinner";
+import type { Category, Source } from "../../types/content";
+import { fetchPreferenceOptions } from "../../services/supabaseUser";
 
 type Props = {
   open: boolean;
   onClose: () => void;
   onApply: (filters: {
-    categoryIds: number[];
+    categoryIds: string[];
     categoryNames: string[];
-    sourceIds: number[];
+    sourceIds: string[];
     sourceNames: string[];
     date?: string;
   }) => void;
   onClear: () => void;
   activeFilters?: {
-    categoryIds?: number[];
-    sourceIds?: number[];
+    categoryIds?: (string | number)[];
+    sourceIds?: (string | number)[];
     date?: string;
   };
 };
@@ -47,10 +48,10 @@ export default function FilterModal({
   onClear,
   activeFilters = {},
 }: Props) {
-  const [categories, setCategories] = useState<any[]>([]);
-  const [sources, setSources] = useState<any[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
-  const [selectedSources, setSelectedSources] = useState<number[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [sources, setSources] = useState<Source[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedSources, setSelectedSources] = useState<string[]>([]);
   const [date, setDate] = useState("");
   const [searchSource, setSearchSource] = useState("");
   const SOURCE_SEARCH_LIMIT = 10;
@@ -59,29 +60,34 @@ export default function FilterModal({
 
   useEffect(() => {
     if (!open) return;
-    async function fetchData() {
+    let active = true;
+    const load = async () => {
       try {
         setLoadingData(true);
-        const [cats, srcs] = await Promise.all([
-          apiFetch("/api/public/categories"),
-          apiFetch("/api/public/sources"),
-        ]);
-        setCategories(cats);
-        setSources(srcs);
+        const { categories: cats, sources: srcs } = await fetchPreferenceOptions();
+        if (active) {
+          setCategories(cats);
+          setSources(srcs);
+        }
       } catch {
-        setCategories([]);
-        setSources([]);
+        if (active) {
+          setCategories([]);
+          setSources([]);
+        }
       } finally {
-        setLoadingData(false);
+        if (active) setLoadingData(false);
       }
-    }
-    fetchData();
+    };
+    load();
+    return () => {
+      active = false;
+    };
   }, [open]);
 
   useEffect(() => {
     if (open) {
-      setSelectedCategories(activeFilters.categoryIds || []);
-      setSelectedSources(activeFilters.sourceIds || []);
+      setSelectedCategories((activeFilters.categoryIds || []).map((id) => String(id)));
+      setSelectedSources((activeFilters.sourceIds || []).map((id) => String(id)));
       setDate(activeFilters.date || "");
       setSearchSource("");
       setActiveTab("categories");
@@ -105,13 +111,13 @@ export default function FilterModal({
     [sources, searchSource],
   );
 
-  const toggleCategory = (id: number) => {
+  const toggleCategory = (id: string) => {
     setSelectedCategories((prev) =>
       prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id],
     );
   };
 
-  const toggleSource = (id: number) => {
+  const toggleSource = (id: string) => {
     setSelectedSources((prev) =>
       prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id],
     );
@@ -119,10 +125,10 @@ export default function FilterModal({
 
   const handleApply = () => {
     const selectedCategoryNames = categories
-      .filter((c) => selectedCategories.includes(c.id))
+      .filter((c) => selectedCategories.includes(String(c.id)))
       .map((c) => c.name);
     const selectedSourceNames = sources
-      .filter((s) => selectedSources.includes(s.id))
+      .filter((s) => selectedSources.includes(String(s.id)))
       .map((s) => s.name);
     onApply({
       categoryIds: selectedCategories,
@@ -144,9 +150,9 @@ export default function FilterModal({
 
   if (!open) return null;
 
-  const selectAllSources = () => setSelectedSources(sources.map((s) => s.id));
+  const selectAllSources = () => setSelectedSources(sources.map((s) => String(s.id)));
   const deselectAllSources = () => setSelectedSources([]);
-  const selectAllCategories = () => setSelectedCategories(categories.map((c) => c.id));
+  const selectAllCategories = () => setSelectedCategories(categories.map((c) => String(c.id)));
   const deselectAllCategories = () => setSelectedCategories([]);
 
   const renderCategories = () => (

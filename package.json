@@ -16,9 +16,11 @@
     "@fortawesome/react-fontawesome": "^3.0.2",
     "@heroicons/react": "^2.2.0",
     "@tailwindcss/vite": "^4.1.13",
+    "@supabase/supabase-js": "^2.48.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-router-dom": "^7.9.1"
+    "react-router-dom": "^7.9.1",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.35.0",

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AuthLoadingOverlay from '../ui/AuthLoadingOverlay';
-// Import BOTH API functions
-import { verifyPassword, changePassword } from '../../api/user';
+import { supabase } from '../../lib/supabaseClient';
+import { useAuth } from '../../hooks/useAuth';
 
 export default function ChangePasswordForm({
   onSuccess,
@@ -11,6 +11,7 @@ export default function ChangePasswordForm({
   onCancel: () => void;
 }) {
   const [step, setStep] = useState<'verify' | 'update'>('verify');
+  const { user } = useAuth();
 
   const PASSWORD_LIMIT = 30;
   const [currentPassword, setCurrentPassword] = useState('');
@@ -33,9 +34,12 @@ export default function ChangePasswordForm({
 
     setLoading(true);
     try {
-      // API call to verify the password
-      await verifyPassword({ currentPassword });
-      // If the call succeeds, we move to the next step
+      if (!user?.email) throw new Error('You must be signed in to change your password.');
+      const { error } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: currentPassword,
+      });
+      if (error) throw error;
       setStep('update');
     } catch (err: any) {
       // If the call fails, we show the error and stay on the current step
@@ -63,7 +67,8 @@ export default function ChangePasswordForm({
     setSuccess(false);
 
     try {
-      await changePassword({ currentPassword, newPassword });
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
       setSuccess(true);
       setTimeout(() => {
         onSuccess();

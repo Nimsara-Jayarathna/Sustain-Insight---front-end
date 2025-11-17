@@ -3,8 +3,8 @@
 type Props = {
   filters: {
     keyword?: string;
-    categoryIds?: number[];
-    sourceIds?: number[];
+    categoryIds?: (string | number)[];
+    sourceIds?: (string | number)[];
     categoryNames?: string[];
     sourceNames?: string[];
     date?: string;

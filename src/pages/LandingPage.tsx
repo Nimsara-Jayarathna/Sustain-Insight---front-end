@@ -1,41 +1,31 @@
-import { useState, useEffect } from "react";
-import { useSearchParams, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import LayoutWrapper from "../components/layout/LayoutWrapper";
 import HeroSection from "../components/landing/HeroSection";
 import FeaturesSection from "../components/landing/FeaturesSection";
 import LatestNewsSection from "../components/landing/LatestNewsSection";
 import AuthModal from "../components/auth/AuthModal";
-import AuthLoadingOverlay from "../components/ui/AuthLoadingOverlay";
 import { useArticles } from "../hooks/useArticles";
 import { useAuthHandlers } from "../hooks/useAuthHandlers";
-import { useAuthContext } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 
 type LandingPageProps = {
   openForgotInitially?: boolean;
 };
 
 export default function LandingPage({ openForgotInitially = false }: LandingPageProps) {
-  const { articles, isLoading } = useArticles();
-  const {
-    handleLogin,
-    handleSignup,
-    handleForgotPassword,
-    handleVerifyEmail,
-  } = useAuthHandlers();
-
-  const { logout, isAuthenticated } = useAuthContext();
+  const { articles, loading: isLoading } = useArticles({ latest: true, pageSize: 8 });
+  const { handleLogin, handleSignup, handleForgotPassword } = useAuthHandlers();
+  const { logout, isAuthenticated, initialize } = useAuth();
 
   const [authOpen, setAuthOpen] = useState(false);
   const [view, setView] = useState<"login" | "signup" | "forgot" | "reset">("login");
-  const [resetToken, setResetToken] = useState<string | null>(null);
-
-  const [verifying, setVerifying] = useState(false);
-  const [verifySuccess, setVerifySuccess] = useState(false);
-  const [verifyError, setVerifyError] = useState<string | null>(null);
-
-  const [searchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    initialize?.();
+  }, [initialize]);
 
   // 🔐 Redirect to dashboard if already logged in
   useEffect(() => {
@@ -43,47 +33,6 @@ export default function LandingPage({ openForgotInitially = false }: LandingPage
       navigate("/dashboard");
     }
   }, [isAuthenticated, navigate]);
-
-  // 📧 Handle verify-email?token=...
-  useEffect(() => {
-    const token = new URLSearchParams(window.location.search).get("token");
-    if (window.location.pathname === "/verify-email" && token) {
-      // prevent multiple calls
-      if (verifying || verifySuccess || verifyError) return;
-
-      const verifyOnce = async () => {
-        try {
-          setVerifying(true);
-          await handleVerifyEmail(token);
-          setVerifySuccess(true);
-          setVerifyError(null);
-
-          setTimeout(() => {
-            setVerifying(false);
-            setVerifySuccess(false);
-            setVerifyError(null);
-            setAuthOpen(true);
-            setView("login");
-          }, 1800);
-        } catch (err: any) {
-          setVerifyError(err?.message || "Verification failed. Please try again.");
-          setVerifySuccess(false);
-          setVerifying(false);
-
-          setTimeout(() => {
-            setVerifying(false);
-            setVerifySuccess(false);
-            setVerifyError(null);
-            setAuthOpen(true);
-            setView("login");
-          }, 1800);
-        }
-      };
-
-      verifyOnce();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // 🔑 Forgot password direct link
   useEffect(() => {
@@ -94,15 +43,16 @@ export default function LandingPage({ openForgotInitially = false }: LandingPage
     }
   }, [openForgotInitially, location, logout]);
 
-  // 🔄 Reset password modal
+  // 🔄 Supabase recovery link support (?type=recovery)
   useEffect(() => {
-    const token = searchParams.get("token");
-    if (location.pathname === "/reset-password" && token) {
-      setResetToken(token);
+    const params = new URLSearchParams(location.search);
+    const hashParams = new URLSearchParams(location.hash.replace(/^#/, ""));
+    const type = params.get("type") || hashParams.get("type");
+    if (type === "recovery") {
       setView("reset");
       setAuthOpen(true);
     }
-  }, [searchParams, location]);
+  }, [location]);
 
   // 🔘 Open modal utility
   const openModal = (v: "login" | "signup" | "forgot") => {
@@ -129,7 +79,6 @@ export default function LandingPage({ openForgotInitially = false }: LandingPage
       <AuthModal
         open={authOpen}
         view={view}
-        resetToken={resetToken}
         onClose={() => setAuthOpen(false)}
         onSwitch={(v) => {
           setView(v);
@@ -141,24 +90,6 @@ export default function LandingPage({ openForgotInitially = false }: LandingPage
       />
 
       {/* 🔹 Verification Overlays */}
-      {verifying && (
-        <AuthLoadingOverlay loading message="Verifying your email..." />
-      )}
-      {verifySuccess && (
-        <AuthLoadingOverlay
-          loading={false}
-          success
-          message="Email verified! You can now log in."
-        />
-      )}
-      {verifyError && (
-        <AuthLoadingOverlay
-          loading={false}
-          error={verifyError}
-          message={verifyError}
-          onClose={() => setVerifyError(null)}
-        />
-      )}
     </LayoutWrapper>
   );
 }

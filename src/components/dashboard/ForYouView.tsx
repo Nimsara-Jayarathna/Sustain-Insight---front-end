@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import ArticleGrid from "../articles/ArticleGrid";
 import Pagination from "./Pagination";
 import LoadingPlaceholder from "../ui/LoadingPlaceholder";
-import { apiFetch } from "../../utils/api";
+import { useArticles } from "../../hooks/useArticles";
+import { useAuth } from "../../hooks/useAuth";
+import { fetchUserProfile } from "../../services/supabaseUser";
 
 // --- New Props for Parent Communication ---
 type Props = {
@@ -11,34 +13,54 @@ type Props = {
 };
 
 export default function ForYouView({ onNavigate, onManagePreferences }: Props) {
-  // --- All State and Logic is Preserved ---
-  const [recentArticles, setRecentArticles] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [preferredCategories, setPreferredCategories] = useState<string[]>([]);
+  const [prefLoading, setPrefLoading] = useState(true);
+  const { user, initialize } = useAuth();
 
   useEffect(() => {
-    async function fetchForYouArticles() {
-      try {
-        setLoading(true);
-        setError(null);
-        const url = `/api/articles/feed?page=${currentPage}`;
-        const data = await apiFetch(url);
-        setRecentArticles(data.content || []);
-        setTotalPages(data.totalPages || 1);
-      } catch {
-        setError("Failed to load your personalized articles. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
+    initialize?.();
+  }, [initialize]);
+
+  useEffect(() => {
+    if (!user?.id) {
+      setPrefLoading(false);
     }
-    fetchForYouArticles();
-  }, [currentPage]);
-  // --- End of Preserved Logic ---
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    let active = true;
+    const load = async () => {
+      try {
+        setPrefLoading(true);
+        const profile = await fetchUserProfile(user.id);
+        if (active) setPreferredCategories(profile.preferredCategories.map(String));
+      } finally {
+        if (active) setPrefLoading(false);
+      }
+    };
+    load();
+    return () => {
+      active = false;
+    };
+  }, [user?.id]);
+
+  const {
+    articles: recentArticles,
+    total,
+    loading,
+    error,
+  } = useArticles({
+    categories: preferredCategories,
+    page: currentPage,
+    pageSize: 9,
+  });
+
+  const totalPages = Math.max(1, Math.ceil((total || recentArticles.length) / 9));
 
   const renderContent = () => {
-    if (loading) {
+    if (loading || prefLoading) {
       return <LoadingPlaceholder type="foryou" mode="skeleton" />;
     }
 

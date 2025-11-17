@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { apiFetch } from "../../utils/api";
+import { fetchArticleContent } from "../../services/supabaseArticles";
 import ArticleThumbnail from "./ArticleThumbnail";
 import ArticleSource from "./ArticleSource";
 import ArticleCategories from "./ArticleCategories";
@@ -87,9 +87,9 @@ const ArticleModal: React.FC<ArticleModalProps> = ({
       return;
     }
     setLoading(true);
-    apiFetch(`/api/articles/${article.id}/content`)
-      .then((data) => {
-        setRawContent(data.content || "This article seems to be empty.");
+    fetchArticleContent(String(article.id))
+      .then((content) => {
+        setRawContent(content || "This article seems to be empty.");
       })
       .catch(() => {
         setRawContent("Unable to load content at this time. Please try again later.");

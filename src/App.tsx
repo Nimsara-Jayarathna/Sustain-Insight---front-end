@@ -1,9 +1,10 @@
+import { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import DashboardPage from "./pages/DashboardPage";
-import { useAuthContext } from "./context/AuthContext";
 import AuthLoadingOverlay from "./components/ui/AuthLoadingOverlay";
 import ActionStatusOverlay from "./components/ui/ActionStatusOverlay";
+import { useAuth } from "./hooks/useAuth";
 
 //
 // ──────────────────────────────────────────────────────────────
@@ -11,7 +12,11 @@ import ActionStatusOverlay from "./components/ui/ActionStatusOverlay";
 // ──────────────────────────────────────────────────────────────
 //
 function PrivateRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, loading } = useAuthContext();
+  const { isAuthenticated, loading, initialize } = useAuth();
+
+  useEffect(() => {
+    initialize?.();
+  }, [initialize]);
 
   // 🕒 Wait until auth state is fully resolved
   if (loading) {
@@ -39,7 +44,11 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
 // ──────────────────────────────────────────────────────────────
 //
 export default function App() {
-  const { sessionExpired, setSessionExpired, logout } = useAuthContext();
+  const { sessionExpired, setSessionExpired, logout, initialize } = useAuth();
+
+  useEffect(() => {
+    initialize?.();
+  }, [initialize]);
 
   // 🚪 Handles session-expiry popup close → logs out and redirects
   const handleSessionClose = async () => {

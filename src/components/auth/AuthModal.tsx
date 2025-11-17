@@ -7,7 +7,6 @@ import ResetPasswordForm from "./ResetPasswordForm";
 export default function AuthModal({
   open,
   view,
-  resetToken,
   onClose,
   onSwitch,
   onSubmitLogin,
@@ -16,7 +15,6 @@ export default function AuthModal({
 }: {
   open: boolean;
   view: "login" | "signup" | "forgot" | "reset";
-  resetToken?: string | null;
   onClose: () => void;
   onSwitch: (v: "login" | "signup" | "forgot" | "reset") => void;
   onSubmitLogin: (email: string, password: string) => Promise<void>;
@@ -61,9 +59,7 @@ export default function AuthModal({
           {view === "forgot" && onSubmitForgotPassword && (
             <ForgotPasswordForm onSubmit={onSubmitForgotPassword} onSwitch={onSwitch} />
           )}
-          {view === "reset" && resetToken && (
-            <ResetPasswordForm token={resetToken} onSwitch={onSwitch} />
-          )}
+          {view === "reset" && <ResetPasswordForm onSwitch={onSwitch} />}
         </div>
       </div>
     </div>

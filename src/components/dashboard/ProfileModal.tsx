@@ -1,6 +1,7 @@
 // src/components/dashboard/ProfileModal.tsx
 import React, { useEffect, useState } from "react";
 import { useUserProfile } from "../../hooks/useUserProfile";
+import { useAuth } from "../../hooks/useAuth";
 import ActionStatusOverlay from "../ui/ActionStatusOverlay";
 import { ProfileTab } from "./profile/ProfileTab";
 import { PreferencesTab } from "./profile/PreferencesTab";
@@ -21,13 +22,12 @@ export default function ProfileModal({ open, onClose }: Props) {
     "profile" | "preferences" | "security"
   >("profile");
   const [showChangeEmail, setShowChangeEmail] = useState(false);
+  const { user } = useAuth();
 
   // --- CUSTOM HOOK FOR USER DATA ---
   const {
     loading,
     saving,
-    user,
-    setUser,
     categories,
     sources,
     submissionStatus,
@@ -36,8 +36,8 @@ export default function ProfileModal({ open, onClose }: Props) {
     setFirstName,
     lastName,
     setLastName,
-    jobTitle, // ✅ Get jobTitle state from hook
-    setJobTitle, // ✅ Get jobTitle setter from hook
+    jobTitle,
+    setJobTitle,
     selectedCategories,
     toggleCategory,
     selectedSources,
@@ -150,7 +150,7 @@ export default function ProfileModal({ open, onClose }: Props) {
                         setJobTitle={setJobTitle} // ✅ Pass setter prop
                         isEditingJobTitle={isEditingJobTitle} // ✅ Pass editing state prop
                         setIsEditingJobTitle={setIsEditingJobTitle} // ✅ Pass editing setter prop
-                        user={user}
+                        email={user?.email ?? ""}
                         saving={saving}
                         onChangeEmailRequest={() => {
                           setShowChangeEmail(true);

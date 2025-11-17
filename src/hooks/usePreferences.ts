@@ -1,40 +1,37 @@
-// src/hooks/usePreferences.ts
 import { useEffect, useState } from "react";
-import { apiFetch } from "../utils/api";
-
-export interface Category {
-  id: number;
-  name: string;
-}
-
-export interface Source {
-  id: number;
-  name: string;
-}
+import type { Category, Source } from "../types/content";
+import { fetchPreferenceOptions } from "../services/supabaseUser";
 
 export function usePreferences() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [sources, setSources] = useState<Source[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchData() {
+    let isMounted = true;
+    const load = async () => {
       try {
-        const [cats, srcs] = await Promise.all([
-          apiFetch("/api/public/categories"),
-          apiFetch("/api/public/sources"),
-        ]);
+        setLoading(true);
+        setError(null);
+        const { categories: cats, sources: srcs } = await fetchPreferenceOptions();
+        if (!isMounted) return;
         setCategories(cats);
         setSources(srcs);
-      } catch {
+      } catch (err: any) {
+        if (!isMounted) return;
+        setError(err.message ?? "Unable to load preferences");
         setCategories([]);
         setSources([]);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
-    }
-    fetchData();
+    };
+    load();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  return { categories, sources, loading };
+  return { categories, sources, loading, error };
 }

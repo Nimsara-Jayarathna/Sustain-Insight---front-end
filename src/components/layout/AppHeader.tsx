@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { useAuthContext } from "../../context/AuthContext";
 import ThemeToggleButton from "../common/ThemeToggleButton";
+import { useAuth } from "../../hooks/useAuth";
 
 type Props =
   | {
@@ -25,10 +25,10 @@ const landingLinks = [
 
 export default function AppHeader(props: Props) {
   const { variant } = props;
-  const { user } = useAuthContext();
+  const { profile } = useAuth();
 
-  const initials = `${user?.firstName?.[0] ?? ""}${user?.lastName?.[0] ?? ""}`.trim();
-  const profileTitle = user ? `${user.firstName} ${user.lastName}` : "Manage Profile";
+  const initials = `${profile?.firstName?.[0] ?? ""}${profile?.lastName?.[0] ?? ""}`.trim();
+  const profileTitle = profile ? `${profile.firstName} ${profile.lastName}` : "Manage Profile";
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-gray-200 bg-white/80 backdrop-blur-md transition-colors dark:border-slate-800 dark:bg-slate-900/80">

@@ -1,13 +1,11 @@
 import React, { useState } from "react";
 import AuthLoadingOverlay from "../ui/AuthLoadingOverlay";
 import GradientSpinner from "../ui/GradientSpinner";
-import { apiFetch } from "../../utils/api";
+import { supabase } from "../../lib/supabaseClient";
 
 export default function ResetPasswordForm({
-  token,
   onSwitch,
 }: {
-  token: string;
   onSwitch: (v: "login" | "signup" | "forgot" | "reset") => void;
 }) {
   const [password, setPassword] = useState("");
@@ -30,10 +28,8 @@ export default function ResetPasswordForm({
     setSuccess(false);
 
     try {
-      await apiFetch("/api/auth/reset-password", {
-        method: "POST",
-        body: JSON.stringify({ token, password }),
-      });
+      const { error } = await supabase.auth.updateUser({ password });
+      if (error) throw error;
 
       setSuccess(true);
       setLoading(false);

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import AuthLoadingOverlay from "../ui/AuthLoadingOverlay";
 import GradientSpinner from "../ui/GradientSpinner";
 import { useAuthHandlers } from "../../hooks/useAuthHandlers";
+import LoginButton from "./LoginButton";
 
 export default function LoginForm({
   onSubmit,
@@ -100,6 +101,18 @@ export default function LoginForm({
         <p className="mt-2 text-sm text-gray-600 dark:text-slate-300">
           Sign in to continue curating your sustainability intelligence feed.
         </p>
+      </div>
+
+      <div className="space-y-3">
+        <LoginButton provider="google" />
+        <LoginButton provider="facebook" />
+        <LoginButton provider="linkedin" />
+      </div>
+
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-1 bg-gray-200 dark:bg-slate-800" />
+        <span className="text-xs uppercase tracking-wide text-gray-400 dark:text-slate-500">or</span>
+        <div className="h-px flex-1 bg-gray-200 dark:bg-slate-800" />
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">

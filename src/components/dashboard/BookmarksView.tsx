@@ -1,9 +1,7 @@
-import { useEffect, useState } from "react";
-// Remove Link, as we are now using a button with a callback
 import ArticleGrid from "../articles/ArticleGrid";
 import Pagination from "./Pagination";
 import LoadingPlaceholder from "../ui/LoadingPlaceholder";
-import { apiFetch } from "../../utils/api";
+import { useSavedArticles } from "../../hooks/useSavedArticles";
 
 // --- New Prop Type ---
 type Props = {
@@ -11,32 +9,8 @@ type Props = {
 };
 
 export default function BookmarksView({ onNavigate }: Props) {
-  const [articles, setArticles] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-
-  useEffect(() => {
-    async function fetchBookmarks() {
-      try {
-        setLoading(true);
-        setError(null);
-        const url = `/api/bookmarks?page=${currentPage}`;
-        const data = await apiFetch(url);
-        setArticles(data.content || []);
-        setTotalPages(data.totalPages || 1);
-        if (data.currentPage) {
-          setCurrentPage(data.currentPage);
-        }
-      } catch {
-        setError("Failed to load your bookmarks. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchBookmarks();
-  }, [currentPage]);
+  const { articles, loading, error, page, pageSize, total, setPage } = useSavedArticles();
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   const renderContent = () => {
     if (loading) {
@@ -61,9 +35,9 @@ export default function BookmarksView({ onNavigate }: Props) {
           <ArticleGrid articles={articles} variant="dashboard" />
           <div className="mt-8">
             <Pagination
-              currentPage={currentPage}
+              currentPage={page}
               totalPages={totalPages}
-              onPageChange={setCurrentPage}
+              onPageChange={setPage}
             />
           </div>
         </>

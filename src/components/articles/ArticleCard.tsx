@@ -1,10 +1,15 @@
 // src/components/articles/ArticleCard.tsx
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import ArticleModal from "./ArticleModal";
 import ActionModal from "../feedback/ActionModal";
-import { apiFetch } from '../../utils/api'; // ✅ Import apiFetch
-import { addBookmark, removeBookmark } from "../../api/bookmarks";
-import { addInsight, removeInsight } from "../../api/insights";
+import {
+  addInsight,
+  removeInsight,
+  fetchArticleContent,
+  saveArticle,
+  removeSavedArticle,
+} from "../../services/supabaseArticles";
+import { useAuth } from "../../hooks/useAuth";
 
 import ArticleThumbnail from "./ArticleThumbnail";
 import ArticleSource from "./ArticleSource";
@@ -40,7 +45,12 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
 }) => {
   // ✅ Store the full article object in state to allow for updates (like adding content)
   const [articleData, setArticleData] = useState<Article>(article);
-  
+  const { user, initialize } = useAuth();
+
+  useEffect(() => {
+    initialize?.();
+  }, [initialize]);
+
   const [bookmark, setBookmark] = useState(article.bookmarked ?? false);
   const [insight, setInsight] = useState(article.insighted ?? false);
   const [insightCount, setInsightCount] = useState(article.insightCount ?? 0);
@@ -58,9 +68,8 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
     // Only run if: it's the dashboard, we don't already have content, and there's an ID.
     if (variant === 'dashboard' && !articleData.content && articleData.id) {
       try {
-        const data = await apiFetch(`/api/articles/${articleData.id}/content`);
-        // Update the state with the new content so the modal can use it instantly
-        setArticleData(prev => ({ ...prev, content: data.content || "" }));
+        const content = await fetchArticleContent(String(articleData.id));
+        setArticleData(prev => ({ ...prev, content: content || "" }));
       } catch {
         // Fail silently. The modal's own fetcher will act as a fallback.
       }
@@ -72,14 +81,18 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
   const toggleBookmark = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (modal.open) return;
+    if (!user?.id) {
+      setModal({ open: true, action: "bookmark", type: "error", message: "Please sign in to save articles." });
+      return;
+    }
     setModal({ open: true, action: "bookmark", type: "loading", message: "Updating bookmark..." });
     try {
       if (bookmark) {
-        await removeBookmark(articleData.id);
+        await removeSavedArticle(String(articleData.id), user.id);
         setBookmark(false);
         setModal({ open: true, action: "bookmark", type: "success", message: "Bookmark removed!" });
       } else {
-        await addBookmark(articleData.id);
+        await saveArticle(String(articleData.id), user.id);
         setBookmark(true);
         setModal({ open: true, action: "bookmark", type: "success", message: "Article bookmarked!" });
       }
@@ -91,15 +104,19 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
   const toggleInsight = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (modal.open) return;
+    if (!user?.id) {
+      setModal({ open: true, action: "insight", type: "error", message: "Please sign in to leave an insight." });
+      return;
+    }
     setModal({ open: true, action: "insight", type: "loading", message: "Updating insight..." });
     try {
       if (insight) {
-        await removeInsight(articleData.id);
+        await removeInsight(String(articleData.id), user.id);
         setInsight(false);
         setInsightCount((c) => Math.max(0, c - 1));
         setModal({ open: true, action: "insight", type: "success", message: "Insight removed!" });
       } else {
-        await addInsight(articleData.id);
+        await addInsight(String(articleData.id), user.id);
         setInsight(true);
         setInsightCount((c) => c + 1);
         setModal({ open: true, action: "insight", type: "success", message: "Insight added!" });

@@ -7,13 +7,4 @@ export default defineConfig({
     tailwindcss(),
     react(),
   ],
-  server: {
-    proxy: {
-      "/api": {
-        target: "http://localhost:8080", // your backend
-        changeOrigin: true,
-        secure: false,
-      },
-    },
-  },
 })

@@ -52,8 +52,8 @@ This repository contains the React + TypeScript single-page application that pow
 | Build            | Vite 7 (ESBuild + Rollup pipeline)               |
 | Styling          | Tailwind CSS v4 with class-based dark mode       |
 | Routing          | React Router DOM v7                              |
-| State            | Hooks + custom `AuthContext` and `ThemeContext`  |
-| HTTP             | Native `fetch` wrapped by `apiFetch`             |
+| State            | Zustand stores + domain hooks (`useArticles`, etc.) |
+| Backend-as-a-Service | Supabase (Auth, Postgres, Storage)            |
 | Deployment       | Azure Static Web Apps (SPA build in `dist/`)     |
 
 Deployment to **Azure Static Web Apps** is handled by the CI pipeline:
@@ -67,16 +67,17 @@ Deployment to **Azure Static Web Apps** is handled by the CI pipeline:
 
 - Node.js 18+ (recommended 20+)
 - npm 9+
-- Access to the Sustain Insight backend (Spring Boot) with refresh-token cookies enabled
+- A Supabase project configured with the `articles`, `categories`, `clusters`, `saved_articles`, `article_insights`, `user_profiles`, and `user_preferences` tables plus OAuth providers (Google, Facebook, LinkedIn).
 
-Set the backend URL before running the client:
+Create a `.env` file by copying `.env.example` and fill in your Supabase credentials:
 
 ```bash
-# macOS / Linux
-export VITE_BACKEND_URL=https://your-backend.tld
+cp .env.example .env
+```
 
-# Windows PowerShell
-setx VITE_BACKEND_URL "https://your-backend.tld"
+```ini
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=public-anon-key
 ```
 
 ---
@@ -109,12 +110,14 @@ Vite serves the application at `http://localhost:5173` during development.
 
 ```
 src/
-├── api/             # REST endpoint wrappers (auth, sessions, user)
 ├── components/      # UI building blocks (auth, dashboard, layout, etc.)
-├── context/         # AuthProvider, ThemeProvider, bridge helpers
-├── hooks/           # Reusable data-fetching and state hooks
+├── context/         # ThemeProvider and shared UI contexts
+├── hooks/           # Reusable Supabase + state hooks (auth, articles, saved items)
+├── lib/             # Supabase client factory
 ├── pages/           # Route-level components (Landing, Dashboard)
-├── utils/           # apiFetch, error extraction, date helpers
+├── services/        # Supabase query helpers (articles, user profile)
+├── stores/          # Zustand stores (auth, filters)
+├── types/           # Shared TypeScript models
 ├── App.tsx          # Router + route guards
 └── main.tsx         # Client bootstrap with providers
 ```
@@ -126,9 +129,9 @@ Tailwind configuration lives in `tailwind.config.ts`, and class scanning is driv
 ## Feature Deep Dive
 
 ### Authentication & Session Flow
-- Access tokens are stored in-memory and added to requests via `apiFetch`.
-- Silent refresh runs on app load; if the refresh cookie is missing the session-expired overlay is triggered without console noise.
-- Logout clears tokens client-side even if the backend request fails.
+- Supabase handles OAuth (Google, Facebook, LinkedIn), email signup, and password recovery through the hosted auth service.
+- Zustand's `authStore` bootstraps the session via `supabase.auth.getSession()` and listens for `onAuthStateChange` events to keep React in sync.
+- `useAuth` exposes helpers (`loginWithGoogle`, `loginWithPassword`, `logout`, etc.) so components never talk to Supabase directly.
 
 ### News & Insights
 - Feeds use incremental loading with server-side pagination meta (`totalPages`).
@@ -137,8 +140,8 @@ Tailwind configuration lives in `tailwind.config.ts`, and class scanning is driv
 
 ### Profile Management
 - Single modal with tabbed navigation (Profile, Preferences, Security).
-- Change-email flow uses staged OTP verification for current and new emails.
-- Active Sessions panel lists all devices, supports per-device and global logout, and adapts styling for both themes.
+- Change-email flow re-authenticates the user and leverages Supabase's email confirmation link.
+- Security tab exposes password updates and a Supabase-backed "Active Session" card with one-click global sign-out.
 
 ### Dark Mode
 - Root `<html>` toggles `.dark`; Tailwind `dark:` variants drive component styles.
@@ -150,7 +153,7 @@ Tailwind configuration lives in `tailwind.config.ts`, and class scanning is driv
 ## Developer Tips
 
 - Prefer Tailwind utilities; reserve custom CSS for shared animations or base layers in `src/index.css`.
-- When wiring new REST calls, create a helper in `src/api/` and consume it via hooks—`apiFetch` already handles credentials and automatic refresh.
+- When storing new data, add a helper in `src/services/` that composes Supabase queries, then expose it through a hook or Zustand store.
 - Keep theme variants in sync by using existing design tokens: emerald→cyan gradients, slate neutrals, and `dark:` pairings.
 - To validate auth/session flows quickly, open the profile modal’s Security tab and trigger logouts from additional devices.
 

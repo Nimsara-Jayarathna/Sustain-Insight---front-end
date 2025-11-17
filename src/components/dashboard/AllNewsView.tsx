@@ -1,12 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ArticleGrid from "../articles/ArticleGrid";
 import SearchBar from "../common/SearchBar";
 import FilterModal from "../feedback/FilterModal";
 import ActiveFilters from "../feedback/ActiveFilters";
 import Pagination from "./Pagination";
 import LoadingPlaceholder from "../ui/LoadingPlaceholder";
-import { apiFetch } from "../../utils/api";
-import { useAuthContext } from "../../context/AuthContext";
+import { useArticles, useArticleFilters } from "../../hooks/useArticles";
 
 // --- UI Helper Components (can be moved to a separate file if desired) ---
 const SORT_OPTIONS = [
@@ -21,44 +20,47 @@ const ChevronDown = ({ className = "" }) => <svg xmlns="http://www.w3.org/2000/s
 const CheckIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>;
 
 export default function AllNewsView() {
-  // --- All State and Logic is Preserved ---
-  const { isAuthenticated } = useAuthContext();
-  const [articles, setArticles] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [filters, setFilters] = useState<any>({});
   const [filterModalOpen, setFilterModalOpen] = useState(false);
-  const [sort, setSort] = useState("newest");
   const [sortOpen, setSortOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [isUserAction, setIsUserAction] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState<string | undefined>(undefined);
+  const [categoryNames, setCategoryNames] = useState<string[]>([]);
+  const [sourceNames, setSourceNames] = useState<string[]>([]);
+  const {
+    search,
+    categories,
+    sources,
+    dateFrom,
+    sort,
+    page,
+    pageSize,
+    setSearch,
+    setCategories,
+    setSources,
+    setDateRange,
+    setSort: updateSort,
+    setPage,
+    reset,
+  } = useArticleFilters();
 
-  useEffect(() => {
-    async function fetchArticles() {
-      try {
-        setLoading(true);
-        const params = new URLSearchParams();
-        if (filters.keyword) params.append("search", filters.keyword);
-        if (filters.categoryIds?.length) params.append("category", filters.categoryIds.join(","));
-        if (filters.sourceIds?.length) params.append("source", filters.sourceIds.join(","));
-        if (filters.date) params.append("date", filters.date);
-        params.append("sort", sort);
-        params.append("page", currentPage.toString());
-        const baseUrl = isAuthenticated ? "/api/articles/all" : "/api/public/articles/all";
-        const data = await apiFetch(`${baseUrl}?${params.toString()}`);
-        setArticles(data.content || []);
-        setTotalPages(data.totalPages || 1);
-      } catch {
-        setArticles([]);
-      } finally {
-        setLoading(false);
-        setIsUserAction(false);
-        setLoadingMessage(undefined);
-      }
-    }
-    fetchArticles();
-  }, [filters, sort, currentPage, isAuthenticated]);
+  const { articles, loading, error, total } = useArticles({
+    search,
+    categories,
+    sources,
+    dateFrom,
+    sort,
+    page,
+    pageSize,
+  });
+
+  const totalPages = Math.max(1, Math.ceil((total || articles.length) / pageSize));
+
+  const hasActiveFilters = useMemo(() => {
+    return (
+      (categories?.length ?? 0) > 0 ||
+      (sources?.length ?? 0) > 0 ||
+      (search?.length ?? 0) > 0 ||
+      !!dateFrom
+    );
+  }, [categories, sources, search, dateFrom]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -67,10 +69,6 @@ export default function AllNewsView() {
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
-
-  const hasActiveFilters = Object.values(filters).some(
-    (value) => (Array.isArray(value) && value.length > 0) || (typeof value === "string" && value.trim() !== "")
-  );
   // --- End of Preserved Logic ---
 
   const controlButtonClasses =
@@ -83,10 +81,8 @@ export default function AllNewsView() {
         <div className="w-full lg:max-w-lg">
           <SearchBar
             onSearch={(kw) => {
-              setFilters({ ...filters, keyword: kw });
-              setCurrentPage(1);
-              setIsUserAction(true);
-              setLoadingMessage("Searching articles...");
+              setSearch(kw);
+              setPage(1);
             }}
           />
         </div>
@@ -112,11 +108,9 @@ export default function AllNewsView() {
                       <button
                         key={option.value}
                         onClick={() => {
-                          setSort(option.value);
+                          updateSort(option.value as typeof sort);
                           setSortOpen(false);
-                          setCurrentPage(1);
-                          setIsUserAction(true);
-                          setLoadingMessage("Sorting articles...");
+                          setPage(1);
                         }}
                         className={`flex w-full items-center justify-between rounded-xl px-4 py-2 text-sm transition ${
                           isActive
@@ -150,39 +144,52 @@ export default function AllNewsView() {
       </div>
 
       <ActiveFilters
-        filters={filters}
+        filters={{
+          keyword: search,
+          categoryIds: categories,
+          sourceIds: sources,
+          categoryNames,
+          sourceNames,
+          date: dateFrom,
+        }}
         onRemove={(key) => {
-          const updated = { ...filters };
-          delete updated[key];
-          if (key === "categoryIds") delete updated.categoryNames;
-          if (key === "sourceIds") delete updated.sourceNames;
-          setFilters(updated);
-          setCurrentPage(1);
-          setIsUserAction(true);
-          setLoadingMessage(key === "keyword" ? "Clearing search..." : "Removing filter...");
+          if (key === "keyword") {
+            setSearch("");
+          }
+          if (key === "categoryIds") {
+            setCategories([]);
+            setCategoryNames([]);
+          }
+          if (key === "sourceIds") {
+            setSources([]);
+            setSourceNames([]);
+          }
+          if (key === "date") {
+            setDateRange(undefined, undefined);
+          }
+          setPage(1);
         }}
         onClearAll={() => {
-          setFilters({});
-          setCurrentPage(1);
-          setIsUserAction(true);
-          setLoadingMessage("Clearing all filters...");
+          reset();
+          setCategoryNames([]);
+          setSourceNames([]);
         }}
       />
 
       {loading ? (
-        <LoadingPlaceholder
-          type="articles"
-          mode={isUserAction ? "blocking" : "skeleton"}
-          message={loadingMessage}
-        />
+        <LoadingPlaceholder type="articles" mode="skeleton" />
+      ) : error ? (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">
+          <p className="font-semibold">{error}</p>
+        </div>
       ) : articles.length > 0 ? (
         <>
           <ArticleGrid articles={articles} variant="dashboard" />
           <div className="mt-8">
             <Pagination
-              currentPage={currentPage}
+              currentPage={page}
               totalPages={totalPages}
-              onPageChange={setCurrentPage}
+              onPageChange={setPage}
             />
           </div>
         </>
@@ -207,25 +214,23 @@ export default function AllNewsView() {
       <FilterModal
         open={filterModalOpen}
         onClose={() => setFilterModalOpen(false)}
-        activeFilters={filters}  
+        activeFilters={{
+          categoryIds: categories,
+          sourceIds: sources,
+          date: dateFrom,
+        }}
         onApply={(f) => {
-          setFilters({
-            ...filters,
-            categoryIds: f.categoryIds,
-            categoryNames: f.categoryNames,
-            sourceIds: f.sourceIds,
-            sourceNames: f.sourceNames,
-            date: f.date,
-          });
-          setCurrentPage(1);
-          setIsUserAction(true);
-          setLoadingMessage("Applying filters...");
+          setCategories(f.categoryIds.map(String));
+          setSources(f.sourceIds.map(String));
+          setCategoryNames(f.categoryNames);
+          setSourceNames(f.sourceNames);
+          setDateRange(f.date, undefined);
+          setPage(1);
         }}
         onClear={() => {
-          setFilters({});
-          setCurrentPage(1);
-          setIsUserAction(true);
-          setLoadingMessage("Clearing filters...");
+          reset();
+          setCategoryNames([]);
+          setSourceNames([]);
         }}
       />
     </section>
