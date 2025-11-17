@@ -5,7 +5,6 @@ import type {
   Category,
   Cluster,
   PaginatedResult,
-  SavedArticle,
 } from "../types/content";
 
 type ArticleQuery = ArticleFilters & {
@@ -226,7 +225,11 @@ export const fetchSavedArticles = async (
   if (error) throw error;
   const articles = (data ?? [])
     .filter((row) => row.article)
-    .map((row) => mapArticle(row.article, new Set([String(row.article?.id)])));
+    .map((row: any) => {
+      const articleRecord = row.article;
+      const savedSet = articleRecord?.id ? new Set([String(articleRecord.id)]) : new Set<string>();
+      return mapArticle(articleRecord, savedSet);
+    });
   return { data: articles, total: count ?? articles.length, page, pageSize };
 };
 

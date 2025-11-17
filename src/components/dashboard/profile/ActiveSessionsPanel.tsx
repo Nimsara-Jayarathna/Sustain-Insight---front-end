@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { supabase } from "../../../lib/supabaseClient";
 import { useAuth } from "../../../hooks/useAuth";
 import ActionStatusOverlay from "../../ui/ActionStatusOverlay";
@@ -25,7 +25,7 @@ export default function ActiveSessionsPanel() {
   const sessionDetails = useMemo(() => {
     if (!session) return null;
     return {
-      createdAt: formatDate(session.created_at ?? session.user?.created_at ?? null),
+      createdAt: formatDate(session.user?.created_at ?? null),
       expiresAt: formatDate(session.expires_at ?? null),
       device: detectDevice(),
       ip: session?.user?.user_metadata?.last_sign_in_ip ?? "Hidden via RLS",
