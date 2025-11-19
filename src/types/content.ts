@@ -16,7 +16,6 @@ export type ArticleRecord = {
   summary?: string | null;
   content?: string | null;
   image_url?: string | null;
-  image_path?: string | null;
   published_at?: string | null;
   source?: string | null;
   source_id?: string | null;

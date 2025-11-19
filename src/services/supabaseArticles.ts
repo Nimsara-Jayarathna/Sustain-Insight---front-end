@@ -41,14 +41,12 @@ const mapArticle = (record: any, savedIds?: Set<string>, insightIds?: Set<string
   if (!record) {
     throw new Error("Article record is undefined");
   }
-  const imagePath: string | null = record?.image_path ?? null;
-  const storageUrl = imagePath ? getPublicImageUrl(imagePath) : null;
   return {
     id: String(record.id),
     title: record.title,
     summary: record.summary ?? record.excerpt ?? null,
     content: record.content ?? null,
-    imageUrl: record.image_url ?? storageUrl,
+    imageUrl: record.image_url ?? null,
     publishedAt: record.published_at ?? record.created_at ?? null,
     sources: record.source ? [record.source] : record.sources ?? [],
     categories: mapCategories(record),
@@ -74,7 +72,7 @@ const buildArticleQuery = (filters: ArticleQuery) => {
   let query = supabase
     .from("articles")
     .select(
-      `id,title,summary,content,image_url,image_path,published_at,source,insight_count,article_categories:article_categories(categories(id,name))`,
+      `id,title,summary,content,image_url,published_at,source,insight_count,article_categories:article_categories(categories(id,name))`,
       { count: "exact" },
     );
 
@@ -187,7 +185,7 @@ export const fetchSavedArticles = async (
   const to = from + pageSize - 1;
   const { data, error, count } = await supabase
     .from("saved_articles")
-    .select("id,created_at,article:articles(id,title,summary,content,image_url,image_path,published_at,source,insight_count,article_categories:article_categories(categories(id,name)))", { count: "exact" })
+    .select("id,created_at,article:articles(id,title,summary,content,image_url,published_at,source,insight_count,article_categories:article_categories(categories(id,name)))", { count: "exact" })
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .range(from, to);
@@ -230,6 +228,7 @@ export const addInsight = async (articleId: string, userId: string) => {
     user_id: userId,
   }, { onConflict: "article_id,user_id" });
   if (error) throw error;
+  await updateArticleInsightCount(articleId);
 };
 
 export const removeInsight = async (articleId: string, userId: string) => {
@@ -239,6 +238,7 @@ export const removeInsight = async (articleId: string, userId: string) => {
     .eq("article_id", articleId)
     .eq("user_id", userId);
   if (error) throw error;
+  await updateArticleInsightCount(articleId);
 };
 
 export const getInsightCount = async (articleId: string): Promise<number> => {
@@ -250,9 +250,12 @@ export const getInsightCount = async (articleId: string): Promise<number> => {
   return count ?? 0;
 };
 
-export const getPublicImageUrl = (path: string) => {
-  const { data } = supabase.storage.from("articles").getPublicUrl(path, {
-    transform: { width: 1200 },
-  });
-  return data?.publicUrl ?? path;
+const updateArticleInsightCount = async (articleId: string) => {
+  const total = await getInsightCount(articleId);
+  const { error } = await supabase
+    .from("articles")
+    .update({ insight_count: total })
+    .eq("id", articleId);
+  if (error) throw error;
 };
+
