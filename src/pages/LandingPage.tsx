@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import LayoutWrapper from "../components/layout/LayoutWrapper";
 import HeroSection from "../components/landing/HeroSection";
@@ -16,7 +16,11 @@ type LandingPageProps = {
 
 export default function LandingPage({ openForgotInitially = false }: LandingPageProps) {
   const { landingArticleCount, feedRecentHours, initialize: initializeSettings } = useSettings();
-  const recentWindow = feedRecentHours ? new Date(Date.now() - feedRecentHours * 3600 * 1000).toISOString() : undefined;
+  const recentWindow = useMemo(() => {
+    if (!feedRecentHours) return undefined;
+    const cutoff = Date.now() - feedRecentHours * 3600 * 1000;
+    return new Date(cutoff).toISOString();
+  }, [feedRecentHours]);
   const latestPageSize = landingArticleCount || 8;
   const { articles, loading: isLoading } = useArticles({
     latest: true,

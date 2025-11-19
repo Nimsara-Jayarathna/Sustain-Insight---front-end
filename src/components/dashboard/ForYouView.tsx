@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ArticleGrid from "../articles/ArticleGrid";
 import Pagination from "./Pagination";
 import LoadingPlaceholder from "../ui/LoadingPlaceholder";
@@ -20,9 +20,11 @@ export default function ForYouView({ onNavigate, onManagePreferences }: Props) {
   const { user, initialize } = useAuth();
   const { feedPageSize, feedRecentHours, initialize: initializeSettings } = useSettings();
   const personalizedPageSize = feedPageSize || 9;
-  const personalizedDateFrom = feedRecentHours
-    ? new Date(Date.now() - feedRecentHours * 3600 * 1000).toISOString()
-    : undefined;
+  const personalizedDateFrom = useMemo(() => {
+    if (!feedRecentHours) return undefined;
+    const cutoff = Date.now() - feedRecentHours * 3600 * 1000;
+    return new Date(cutoff).toISOString();
+  }, [feedRecentHours]);
 
   useEffect(() => {
     initialize?.();
