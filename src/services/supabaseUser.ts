@@ -1,6 +1,12 @@
 import { supabase } from "../lib/supabaseClient";
 import type { Category, Source } from "../types/content";
 
+const isRlsDenied = (error?: { code?: string; message?: string }) => {
+  if (!error) return false;
+  if (error.code === "42501" || error.code === "PGRST302") return true;
+  return (error.message ?? "").toLowerCase().includes("row-level security");
+};
+
 export type UserProfilePayload = {
   firstName: string;
   lastName: string;
@@ -44,6 +50,7 @@ export const fetchUserProfile = async (userId: string): Promise<UserProfileRespo
 };
 
 export const saveUserProfile = async (userId: string, payload: UserProfilePayload) => {
+  const fullName = `${payload.firstName} ${payload.lastName}`.trim();
   const profileUpsert = supabase.from("user_profiles").upsert(
     {
       user_id: userId,
@@ -54,6 +61,11 @@ export const saveUserProfile = async (userId: string, payload: UserProfilePayloa
     { onConflict: "user_id" },
   );
 
+  const rbacFullNameUpdate = supabase
+    .from("profiles")
+    .update({ full_name: fullName || null })
+    .eq("id", userId);
+
   const preferenceUpsert = supabase.from("user_preferences").upsert(
     {
       user_id: userId,
@@ -63,9 +75,19 @@ export const saveUserProfile = async (userId: string, payload: UserProfilePayloa
     { onConflict: "user_id" },
   );
 
-  const [{ error: profileError }, { error: preferenceError }] = await Promise.all([profileUpsert, preferenceUpsert]);
+  const [{ error: profileError }, { error: preferenceError }, { error: fullNameError }] = await Promise.all([
+    profileUpsert,
+    preferenceUpsert,
+    rbacFullNameUpdate,
+  ]);
   if (profileError) throw profileError;
   if (preferenceError) throw preferenceError;
+  if (fullNameError) {
+    if (isRlsDenied(fullNameError)) {
+      throw new Error("You are not allowed to update your Supabase profile name.");
+    }
+    throw fullNameError;
+  }
 };
 
 export const fetchSources = async (): Promise<Source[]> => {

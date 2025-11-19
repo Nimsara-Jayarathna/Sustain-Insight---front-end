@@ -67,7 +67,7 @@ Deployment to **Azure Static Web Apps** is handled by the CI pipeline:
 
 - Node.js 18+ (recommended 20+)
 - npm 9+
-- A Supabase project configured with the `articles`, `categories`, `clusters`, `saved_articles`, `article_insights`, `user_profiles`, and `user_preferences` tables plus OAuth providers (Google, Facebook, LinkedIn).
+- A Supabase project configured with the `articles`, `categories`, `saved_articles`, `article_insights`, `user_profiles`, and `user_preferences` tables plus OAuth providers (Google, Facebook, LinkedIn).
 
 Create a `.env` file by copying `.env.example` and fill in your Supabase credentials:
 

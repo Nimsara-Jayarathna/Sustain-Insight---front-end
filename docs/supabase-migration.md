@@ -32,7 +32,7 @@ const { search, setSearch } = useArticleFilters();
 
 ## 4. Services
 
-- `src/services/supabaseArticles.ts` encapsulates all `articles`, `categories`, `clusters`, `saved_articles`, and `article_insights` queries.
+- `src/services/supabaseArticles.ts` encapsulates all `articles`, `categories`, `saved_articles`, and `article_insights` queries.
 - `src/services/supabaseUser.ts` handles `user_profiles`, preferences, and source/category metadata.
 
 These helpers return TypeScript-friendly models and keep RLS-compliant filters (`user_id`, `eq`, `range`, etc.) in one place.
@@ -43,7 +43,7 @@ These helpers return TypeScript-friendly models and keep RLS-compliant filters (
 |----------------------|----------------|
 | `useArticles`        | Sorting, search, filtering, pagination via Supabase range queries |
 | `useSavedArticles`   | Paginated bookmarked articles for the dashboard |
-| `useCategories`/`useClusters` | Lightweight metadata fetchers |
+| `useCategories` | Lightweight metadata fetcher |
 | `useUserProfile`     | Profile + preference tabs (reads & writes Supabase tables) |
 | `useAuthHandlers`    | Email/password auth helpers backed by Supabase Auth |
 

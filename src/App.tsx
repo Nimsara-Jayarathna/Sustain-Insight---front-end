@@ -3,46 +3,12 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import LandingPage from "./pages/LandingPage";
 import DashboardPage from "./pages/DashboardPage";
 import AuthLoadingOverlay from "./components/ui/AuthLoadingOverlay";
-import ActionStatusOverlay from "./components/ui/ActionStatusOverlay";
 import { useAuth } from "./hooks/useAuth";
+import PrivateRoute from "./components/routing/PrivateRoute";
+import AdminRoute from "./components/routing/AdminRoute";
+import AdminPage from "./pages/AdminPage";
+import LoginPage from "./pages/LoginPage";
 
-//
-// ──────────────────────────────────────────────────────────────
-// 🔒 Private Route (Protects Authenticated Areas)
-// ──────────────────────────────────────────────────────────────
-//
-function PrivateRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, loading, initialize } = useAuth();
-
-  useEffect(() => {
-    initialize?.();
-  }, [initialize]);
-
-  // 🕒 Wait until auth state is fully resolved
-  if (loading) {
-    return (
-      <ActionStatusOverlay
-        status="saving"
-        message="Checking your session..."
-        onClose={() => {}}
-      />
-    );
-  }
-
-  // 🚪 If not authenticated → redirect to landing page
-  if (!isAuthenticated) {
-    return <Navigate to="/" replace />;
-  }
-
-  // ✅ Authenticated → allow access
-  return <>{children}</>;
-}
-
-//
-// ──────────────────────────────────────────────────────────────
-// 🌍 App Router
-// ──────────────────────────────────────────────────────────────
-//
 export default function App() {
   const { sessionExpired, setSessionExpired, logout, initialize } = useAuth();
 
@@ -50,39 +16,32 @@ export default function App() {
     initialize?.();
   }, [initialize]);
 
-  // 🚪 Handles session-expiry popup close → logs out and redirects
   const handleSessionClose = async () => {
     setSessionExpired(false);
     await logout();
-    window.location.href = "/"; // Hard redirect to clear all state
+    window.location.href = "/";
   };
 
   return (
     <Router>
       <Routes>
-        {/* ─── Public Routes ─── */}
         <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/reset-password" element={<LandingPage />} />
         <Route path="/forgot-password" element={<LandingPage openForgotInitially />} />
         <Route path="/verify-email" element={<LandingPage />} />
 
-        {/* ─── Protected Routes ─── */}
-        <Route
-          path="/dashboard"
-          element={
-            <PrivateRoute>
-              <DashboardPage />
-            </PrivateRoute>
-          }
-        />
+        <Route element={<PrivateRoute />}>
+          <Route path="/dashboard" element={<DashboardPage />} />
+        </Route>
 
-        {/* ─── Fallback Route ─── */}
+        <Route element={<AdminRoute />}>
+          <Route path="/admin" element={<AdminPage />} />
+        </Route>
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
-      {/* ──────────────────────────────────────────────
-          ⚠️ Session Expired Popup Overlay
-         ────────────────────────────────────────────── */}
       {sessionExpired && (
         <AuthLoadingOverlay
           loading={false}

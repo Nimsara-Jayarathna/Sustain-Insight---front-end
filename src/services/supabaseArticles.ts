@@ -3,7 +3,6 @@ import type {
   Article,
   ArticleFilters,
   Category,
-  Cluster,
   PaginatedResult,
 } from "../types/content";
 
@@ -38,25 +37,6 @@ const mapCategories = (row: any): Category[] => {
   return [];
 };
 
-const mapCluster = (row: any): Cluster | null => {
-  if (!row) return null;
-  if (row.cluster) {
-    return {
-      id: String(row.cluster.id ?? ""),
-      name: row.cluster.name ?? "",
-      description: row.cluster.description ?? null,
-    };
-  }
-  if (row.clusters) {
-    return {
-      id: String(row.clusters.id ?? ""),
-      name: row.clusters.name ?? "",
-      description: row.clusters.description ?? null,
-    };
-  }
-  return null;
-};
-
 const mapArticle = (record: any, savedIds?: Set<string>, insightIds?: Set<string>): Article => {
   if (!record) {
     throw new Error("Article record is undefined");
@@ -72,7 +52,6 @@ const mapArticle = (record: any, savedIds?: Set<string>, insightIds?: Set<string
     publishedAt: record.published_at ?? record.created_at ?? null,
     sources: record.source ? [record.source] : record.sources ?? [],
     categories: mapCategories(record),
-    cluster: mapCluster(record),
     bookmarked: savedIds ? savedIds.has(String(record.id)) : undefined,
     insighted: insightIds ? insightIds.has(String(record.id)) : undefined,
     insightCount: record.insight_count ?? record.engagement_count ?? 0,
@@ -95,7 +74,7 @@ const buildArticleQuery = (filters: ArticleQuery) => {
   let query = supabase
     .from("articles")
     .select(
-      `id,title,summary,content,image_url,image_path,published_at,source,insight_count,cluster:clusters(id,name,description),article_categories:article_categories(categories(id,name))`,
+      `id,title,summary,content,image_url,image_path,published_at,source,insight_count,article_categories:article_categories(categories(id,name))`,
       { count: "exact" },
     );
 
@@ -199,16 +178,6 @@ export const fetchCategories = async (): Promise<Category[]> => {
   }));
 };
 
-export const fetchClusters = async (): Promise<Cluster[]> => {
-  const { data, error } = await supabase.from("clusters").select("id,name,description").order("name");
-  if (error) throw error;
-  return (data ?? []).map((cluster) => ({
-    id: String(cluster.id),
-    name: cluster.name,
-    description: cluster.description ?? null,
-  }));
-};
-
 export const fetchSavedArticles = async (
   userId: string,
   page = 1,
@@ -218,7 +187,7 @@ export const fetchSavedArticles = async (
   const to = from + pageSize - 1;
   const { data, error, count } = await supabase
     .from("saved_articles")
-    .select("id,created_at,article:articles(id,title,summary,content,image_url,image_path,published_at,source,insight_count,cluster:clusters(id,name,description),article_categories:article_categories(categories(id,name)))", { count: "exact" })
+    .select("id,created_at,article:articles(id,title,summary,content,image_url,image_path,published_at,source,insight_count,article_categories:article_categories(categories(id,name)))", { count: "exact" })
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .range(from, to);

@@ -16,7 +16,7 @@ type LandingPageProps = {
 export default function LandingPage({ openForgotInitially = false }: LandingPageProps) {
   const { articles, loading: isLoading } = useArticles({ latest: true, pageSize: 8 });
   const { handleLogin, handleSignup, handleForgotPassword } = useAuthHandlers();
-  const { logout, isAuthenticated, initialize } = useAuth();
+  const { logout, isAuthenticated, initialize, role } = useAuth();
 
   const [authOpen, setAuthOpen] = useState(false);
   const [view, setView] = useState<"login" | "signup" | "forgot" | "reset">("login");
@@ -29,10 +29,9 @@ export default function LandingPage({ openForgotInitially = false }: LandingPage
 
   // 🔐 Redirect to dashboard if already logged in
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/dashboard");
-    }
-  }, [isAuthenticated, navigate]);
+    if (!isAuthenticated || !role) return;
+    navigate(role === "admin" ? "/admin" : "/dashboard");
+  }, [isAuthenticated, role, navigate]);
 
   // 🔑 Forgot password direct link
   useEffect(() => {

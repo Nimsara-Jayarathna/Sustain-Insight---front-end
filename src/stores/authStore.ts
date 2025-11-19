@@ -1,13 +1,20 @@
 import { create } from "zustand";
-import type { Session, User } from "@supabase/supabase-js";
+import type { PostgrestError, Session, User } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabaseClient";
 
-type ProfileRow = {
-  id: string;
+export type UserRole = "admin" | "user";
+
+type UserProfileRow = {
   user_id: string;
   first_name: string | null;
   last_name: string | null;
   job_title: string | null;
+};
+
+type RbacProfileRow = {
+  id: string;
+  full_name: string | null;
+  role: UserRole | null;
 };
 
 export type Profile = {
@@ -15,6 +22,8 @@ export type Profile = {
   userId: string;
   firstName: string;
   lastName: string;
+  fullName: string;
+  role: UserRole | null;
   jobTitle?: string | null;
 };
 
@@ -26,13 +35,15 @@ type SignUpPayload = {
   password: string;
 };
 
-type AuthState = {
+export type AuthState = {
   session: Session | null;
   user: User | null;
   profile: Profile | null;
+  role: UserRole | null;
   loading: boolean;
   hasBootstrapped: boolean;
   sessionExpired: boolean;
+  rlsUnauthorized: boolean;
   initialize: () => Promise<void>;
   loginWithPassword: (email: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
@@ -46,25 +57,35 @@ type AuthState = {
   setSessionExpired: (value: boolean) => void;
 };
 
-const getProfileFallback = (user: User | null, row?: ProfileRow | null): Profile | null => {
+const getProfileFallback = (
+  user: User | null,
+  row?: UserProfileRow | null,
+  rbac?: RbacProfileRow | null,
+): Profile | null => {
   if (!user && !row) return null;
-  const fullName = (user?.user_metadata?.full_name as string | undefined) ?? "";
-  const [defaultFirst = "", ...rest] = fullName.split(" ");
+  const metadataFullName = ((user?.user_metadata?.full_name as string | undefined) ?? "").trim();
+  const [defaultFirst = "", ...rest] = metadataFullName.split(" ");
   const defaultLast = rest.join(" ");
+  const fallbackFirst =
+    row?.first_name ??
+    (user?.user_metadata?.first_name as string | undefined) ??
+    defaultFirst ??
+    user?.email?.split("@")[0] ??
+    "";
+  const fallbackLast =
+    row?.last_name ??
+    (user?.user_metadata?.last_name as string | undefined) ??
+    defaultLast ??
+    "";
+  const computedFullName = (rbac?.full_name ?? `${fallbackFirst} ${fallbackLast}`.trim()).trim();
+
   return {
-    id: row?.id ?? user?.id ?? "",
+    id: row?.user_id ?? user?.id ?? "",
     userId: row?.user_id ?? user?.id ?? "",
-    firstName:
-      row?.first_name ??
-      (user?.user_metadata?.first_name as string | undefined) ??
-      defaultFirst ??
-      user?.email?.split("@")[0] ??
-      "",
-    lastName:
-      row?.last_name ??
-      (user?.user_metadata?.last_name as string | undefined) ??
-      defaultLast ??
-      "",
+    firstName: fallbackFirst,
+    lastName: fallbackLast,
+    fullName: computedFullName || fallbackFirst || fallbackLast,
+    role: (rbac?.role as UserRole | null) ?? null,
     jobTitle:
       row?.job_title ??
       (user?.user_metadata?.title as string | undefined) ??
@@ -72,10 +93,10 @@ const getProfileFallback = (user: User | null, row?: ProfileRow | null): Profile
   };
 };
 
-const fetchProfileRow = async (userId: string): Promise<ProfileRow | null> => {
+const fetchProfileRow = async (userId: string): Promise<UserProfileRow | null> => {
   const { data, error } = await supabase
     .from("user_profiles")
-    .select("id,user_id,first_name,last_name,job_title")
+    .select("user_id,first_name,last_name,job_title")
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -86,15 +107,62 @@ const fetchProfileRow = async (userId: string): Promise<ProfileRow | null> => {
   return data;
 };
 
+const isRlsDenied = (error?: PostgrestError | null) => {
+  if (!error) return false;
+  if (error.code === "42501" || error.code === "PGRST302") return true;
+  const combined = `${error.message ?? ""} ${error.details ?? ""} ${error.hint ?? ""}`.toLowerCase();
+  return combined.includes("row-level security") || combined.includes("permission denied");
+};
+
+const fetchRbacProfileRow = async (
+  userId: string,
+): Promise<{ row: RbacProfileRow | null; unauthorized: boolean }> => {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id,full_name,role")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (!error) {
+    return { row: data, unauthorized: false };
+  }
+
+  if (error.code === "PGRST116") {
+    return { row: null, unauthorized: false };
+  }
+
+  if (isRlsDenied(error)) {
+    return { row: null, unauthorized: true };
+  }
+
+  throw error;
+};
+
+const hydrateProfile = async (
+  user: User | null,
+): Promise<{ profile: Profile | null; unauthorized: boolean }> => {
+  if (!user) return { profile: null, unauthorized: false };
+  const [profileRow, rbacResult] = await Promise.all([
+    fetchProfileRow(user.id).catch(() => null),
+    fetchRbacProfileRow(user.id),
+  ]);
+  return {
+    profile: getProfileFallback(user, profileRow, rbacResult.row),
+    unauthorized: rbacResult.unauthorized,
+  };
+};
+
 let authSubscription: { unsubscribe: () => void } | null = null;
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   session: null,
   user: null,
   profile: null,
+  role: null,
   loading: true,
   hasBootstrapped: false,
   sessionExpired: false,
+  rlsUnauthorized: false,
   initialize: async () => {
     if (get().hasBootstrapped) return;
     set({ loading: true });
@@ -107,31 +175,34 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (userError) console.error(userError);
 
     const user = userData.user ?? sessionData.session?.user ?? null;
-    const profileRow = user ? await fetchProfileRow(user.id).catch(() => null) : null;
-    const profile = getProfileFallback(user, profileRow);
+    const { profile, unauthorized } = await hydrateProfile(user);
 
     set({
       session: sessionData.session ?? null,
       user,
       profile,
+      role: profile?.role ?? null,
       loading: false,
       hasBootstrapped: true,
       sessionExpired: false,
+      rlsUnauthorized: unauthorized,
     });
 
     if (!authSubscription) {
       const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
         const currentUser = session?.user ?? null;
-        const profileData = currentUser ? await fetchProfileRow(currentUser.id).catch(() => null) : null;
+        const { profile: profileData, unauthorized: unauthorizedProfile } = await hydrateProfile(currentUser);
         set({
           session: session ?? null,
           user: currentUser,
-          profile: getProfileFallback(currentUser, profileData),
+          profile: profileData,
+          role: profileData?.role ?? null,
           loading: false,
           sessionExpired: event === "TOKEN_REFRESHED" ? false : get().sessionExpired,
+          rlsUnauthorized: unauthorizedProfile,
         });
         if (event === "SIGNED_OUT") {
-          set({ sessionExpired: false });
+          set({ sessionExpired: false, role: null, rlsUnauthorized: false });
         }
       });
       authSubscription = data.subscription;
@@ -141,8 +212,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const { error, data } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
     if (data.user) {
-      const profileRow = await fetchProfileRow(data.user.id).catch(() => null);
-      set({ profile: getProfileFallback(data.user, profileRow), sessionExpired: false });
+      const { profile, unauthorized } = await hydrateProfile(data.user);
+      set({
+        profile,
+        role: profile?.role ?? null,
+        sessionExpired: false,
+        rlsUnauthorized: unauthorized,
+      });
     }
   },
   loginWithGoogle: async () => {
@@ -184,7 +260,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: async () => {
     const { error } = await supabase.auth.signOut({ scope: "global" });
     if (error) throw error;
-    set({ session: null, user: null, profile: null, sessionExpired: false });
+    set({ session: null, user: null, profile: null, role: null, sessionExpired: false, rlsUnauthorized: false });
   },
   resendEmailVerification: async (email: string) => {
     const { error } = await supabase.auth.resend({ type: "signup", email });
@@ -198,8 +274,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   refreshProfile: async () => {
     const user = get().user;
     if (!user) return;
-    const profileRow = await fetchProfileRow(user.id).catch(() => null);
-    set({ profile: getProfileFallback(user, profileRow) });
+    const { profile, unauthorized } = await hydrateProfile(user);
+    set({ profile, role: profile?.role ?? null, rlsUnauthorized: unauthorized });
   },
   setSessionExpired: (value: boolean) => set({ sessionExpired: value }),
 }));

@@ -10,12 +10,6 @@ export type Source = {
   slug?: string | null;
 };
 
-export type Cluster = {
-  id: string;
-  name: string;
-  description?: string | null;
-};
-
 export type ArticleRecord = {
   id: string;
   title: string;
@@ -26,7 +20,6 @@ export type ArticleRecord = {
   published_at?: string | null;
   source?: string | null;
   source_id?: string | null;
-  cluster_id?: string | null;
   metadata?: Record<string, unknown> | null;
 };
 
@@ -39,7 +32,6 @@ export type Article = {
   publishedAt?: string | null;
   sources?: string[];
   categories?: Category[];
-  cluster?: Cluster | null;
   bookmarked?: boolean;
   insighted?: boolean;
   insightCount?: number;

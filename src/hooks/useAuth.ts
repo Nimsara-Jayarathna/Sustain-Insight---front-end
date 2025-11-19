@@ -1,4 +1,4 @@
-import { useAuthStore } from "../stores/authStore";
+import { useAuthContext } from "../context/AuthContext";
 
 export const useAuth = () => {
   const {
@@ -6,6 +6,8 @@ export const useAuth = () => {
     profile,
     session,
     loading,
+    role,
+    rlsUnauthorized,
     sessionExpired,
     loginWithPassword,
     loginWithGoogle,
@@ -18,14 +20,19 @@ export const useAuth = () => {
     refreshProfile,
     initialize,
     setSessionExpired,
-  } = useAuthStore();
+  } = useAuthContext();
+
+  const resolvedRole = role ?? profile?.role ?? null;
 
   return {
     user,
     profile,
+    role: resolvedRole,
+    isAdmin: resolvedRole === "admin",
     session,
     loading,
     isAuthenticated: !!session && !!user,
+    rbacUnauthorized: rlsUnauthorized,
     sessionExpired,
     loginWithPassword,
     loginWithGoogle,
