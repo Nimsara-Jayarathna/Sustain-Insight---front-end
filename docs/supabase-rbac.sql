@@ -137,3 +137,49 @@ with check (
 );
 
 -- Deploy this script after the base schema to complete RBAC wiring.
+-- 6) Application settings
+create table if not exists public.app_settings (
+  id uuid primary key default gen_random_uuid(),
+  landing_article_count integer not null default 8,
+  feed_page_size integer not null default 12,
+  feed_recent_hours integer not null default 24,
+  updated_by uuid references auth.users(id),
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
+create or replace function public.handle_app_settings_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  NEW.updated_at = timezone('utc', now());
+  return NEW;
+end;
+$$;
+
+drop trigger if exists trg_app_settings_updated_at on public.app_settings;
+create trigger trg_app_settings_updated_at
+before update on public.app_settings
+for each row
+execute procedure public.handle_app_settings_updated_at();
+
+alter table public.app_settings enable row level security;
+
+drop policy if exists "app-settings-select" on public.app_settings;
+create policy "app-settings-select"
+on public.app_settings
+for select
+using (true);
+
+drop policy if exists "app-settings-manage" on public.app_settings;
+create policy "app-settings-manage"
+on public.app_settings
+for insert
+with check (public.current_user_is_admin());
+
+drop policy if exists "app-settings-manage-update" on public.app_settings;
+create policy "app-settings-manage-update"
+on public.app_settings
+for update
+using (public.current_user_is_admin())
+with check (public.current_user_is_admin());

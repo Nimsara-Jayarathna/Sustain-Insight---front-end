@@ -2,7 +2,12 @@ import React from "react";
 
 type Props = {
   articleId: string | number;
-  categories?: string[];
+  categories?: Array<string | { id: string | number; name?: string | null }>;
+};
+
+const normalizeCategoryLabel = (category: string | { id: string | number; name?: string | null }) => {
+  if (typeof category === "string") return category;
+  return category?.name ?? String(category?.id ?? "");
 };
 
 const ArticleCategories: React.FC<Props> = ({ articleId, categories }) => (
@@ -14,7 +19,7 @@ const ArticleCategories: React.FC<Props> = ({ articleId, categories }) => (
           className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 transition-colors duration-300 group-hover:bg-emerald-50 group-hover:text-emerald-700 dark:bg-slate-800 dark:text-slate-200 dark:group-hover:bg-emerald-500/10 dark:group-hover:text-emerald-300"
         >
           #
-          {c}
+          {normalizeCategoryLabel(c)}
         </span>
       ))
     ) : (

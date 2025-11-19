@@ -5,6 +5,7 @@ import LoadingPlaceholder from "../ui/LoadingPlaceholder";
 import { useArticles } from "../../hooks/useArticles";
 import { useAuth } from "../../hooks/useAuth";
 import { fetchUserProfile } from "../../services/supabaseUser";
+import { useSettings } from "../../hooks/useSettings";
 
 // --- New Props for Parent Communication ---
 type Props = {
@@ -17,10 +18,16 @@ export default function ForYouView({ onNavigate, onManagePreferences }: Props) {
   const [preferredCategories, setPreferredCategories] = useState<string[]>([]);
   const [prefLoading, setPrefLoading] = useState(true);
   const { user, initialize } = useAuth();
+  const { feedPageSize, feedRecentHours, initialize: initializeSettings } = useSettings();
+  const personalizedPageSize = feedPageSize || 9;
+  const personalizedDateFrom = feedRecentHours
+    ? new Date(Date.now() - feedRecentHours * 3600 * 1000).toISOString()
+    : undefined;
 
   useEffect(() => {
     initialize?.();
-  }, [initialize]);
+    initializeSettings?.();
+  }, [initialize, initializeSettings]);
 
   useEffect(() => {
     if (!user?.id) {
@@ -54,10 +61,11 @@ export default function ForYouView({ onNavigate, onManagePreferences }: Props) {
   } = useArticles({
     categories: preferredCategories,
     page: currentPage,
-    pageSize: 9,
+    pageSize: personalizedPageSize,
+    dateFrom: personalizedDateFrom,
   });
 
-  const totalPages = Math.max(1, Math.ceil((total || recentArticles.length) / 9));
+  const totalPages = Math.max(1, Math.ceil((total || recentArticles.length) / personalizedPageSize));
 
   const renderContent = () => {
     if (loading || prefLoading) {

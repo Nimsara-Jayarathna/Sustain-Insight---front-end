@@ -8,13 +8,21 @@ import AuthModal from "../components/auth/AuthModal";
 import { useArticles } from "../hooks/useArticles";
 import { useAuthHandlers } from "../hooks/useAuthHandlers";
 import { useAuth } from "../hooks/useAuth";
+import { useSettings } from "../hooks/useSettings";
 
 type LandingPageProps = {
   openForgotInitially?: boolean;
 };
 
 export default function LandingPage({ openForgotInitially = false }: LandingPageProps) {
-  const { articles, loading: isLoading } = useArticles({ latest: true, pageSize: 8 });
+  const { landingArticleCount, feedRecentHours, initialize: initializeSettings } = useSettings();
+  const recentWindow = feedRecentHours ? new Date(Date.now() - feedRecentHours * 3600 * 1000).toISOString() : undefined;
+  const latestPageSize = landingArticleCount || 8;
+  const { articles, loading: isLoading } = useArticles({
+    latest: true,
+    pageSize: latestPageSize,
+    dateFrom: recentWindow,
+  });
   const { handleLogin, handleSignup, handleForgotPassword } = useAuthHandlers();
   const { logout, isAuthenticated, initialize, role } = useAuth();
 
@@ -25,7 +33,8 @@ export default function LandingPage({ openForgotInitially = false }: LandingPage
 
   useEffect(() => {
     initialize?.();
-  }, [initialize]);
+    initializeSettings?.();
+  }, [initialize, initializeSettings]);
 
   // 🔐 Redirect to dashboard if already logged in
   useEffect(() => {
