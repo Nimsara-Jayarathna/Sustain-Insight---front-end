@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Category, Source } from "../types/content";
-import { fetchPreferenceOptions } from "../services/supabaseUser";
+import { fetchPreferenceCatalog } from "../services/api/preferences";
 
 export function usePreferences() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -14,7 +14,7 @@ export function usePreferences() {
       try {
         setLoading(true);
         setError(null);
-        const { categories: cats, sources: srcs } = await fetchPreferenceOptions();
+        const { categories: cats, sources: srcs } = await fetchPreferenceCatalog();
         if (!isMounted) return;
         setCategories(cats);
         setSources(srcs);

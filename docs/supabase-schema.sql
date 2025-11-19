@@ -1,4 +1,4 @@
--- Sustain Insight Supabase schema -------------------------------------------------
+-- Sustainable Insight Supabase schema -------------------------------------------------
 -- Run this full script in the Supabase SQL editor to bootstrap every table, trigger,
 -- and RBAC policy required by the React frontend.
 

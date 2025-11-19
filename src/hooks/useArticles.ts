@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Article } from "../types/content";
-import { fetchArticles, fetchLatestArticles } from "../services/supabaseArticles";
+import { fetchLatestArticles } from "../services/supabaseArticles";
+import { fetchForYouFeed } from "../services/api/forYou";
+import { fetchArticlesFeed } from "../services/api/articles";
 import type { ArticleFilters } from "../types/content";
 import { useAuth } from "./useAuth";
 import { useFilterStore } from "../stores/filterStore";
@@ -9,6 +11,7 @@ type UseArticlesOptions = Partial<ArticleFilters> & {
   page?: number;
   pageSize?: number;
   latest?: boolean;
+  personalized?: boolean;
 };
 
 export function useArticles(options?: UseArticlesOptions) {
@@ -36,10 +39,19 @@ export function useArticles(options?: UseArticlesOptions) {
       dateFrom: normalizedOptions.dateFrom,
       dateTo: normalizedOptions.dateTo,
       latest: normalizedOptions.latest ?? false,
+      personalized: normalizedOptions.personalized ?? false,
       userId: user?.id,
     }),
     [normalizedOptions, user?.id],
   );
+
+  const [resolvedPageSize, setResolvedPageSize] = useState(query.pageSize);
+
+  useEffect(() => {
+    if (!query.personalized) {
+      setResolvedPageSize(query.pageSize);
+    }
+  }, [query.pageSize, query.personalized]);
 
   const loadArticles = useCallback(async () => {
     try {
@@ -49,10 +61,27 @@ export function useArticles(options?: UseArticlesOptions) {
         const latest = await fetchLatestArticles(query.pageSize, user?.id ?? undefined);
         setArticles(latest);
         setTotal(latest.length);
-      } else {
-        const result = await fetchArticles(query);
+        setResolvedPageSize(query.pageSize);
+      } else if (query.personalized) {
+        const result = await fetchForYouFeed({
+          page: query.page,
+        });
         setArticles(result.data);
         setTotal(result.total);
+        setResolvedPageSize(result.pageSize);
+      } else {
+        const result = await fetchArticlesFeed({
+          page: query.page,
+          search: query.search || undefined,
+          sort: query.sort,
+          dateFrom: query.dateFrom,
+          dateTo: query.dateTo,
+          categories: query.categories,
+          sources: query.sources,
+        });
+        setArticles(result.data);
+        setTotal(result.total);
+        setResolvedPageSize(result.pageSize);
       }
     } catch (err: any) {
       setArticles([]);
@@ -73,7 +102,7 @@ export function useArticles(options?: UseArticlesOptions) {
     loading,
     error,
     page: query.page,
-    pageSize: query.pageSize,
+    pageSize: resolvedPageSize,
     refetch: loadArticles,
   };
 }

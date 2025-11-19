@@ -77,7 +77,7 @@ export default function ForgotPasswordForm({
           Reset your password
         </h2>
         <p className="mt-2 text-sm text-gray-600 dark:text-slate-300">
-          Enter the email linked to your Sustain Insight account and we&apos;ll send a secure reset link.
+          Enter the email linked to your Sustainable Insight account and we&apos;ll send a secure reset link.
         </p>
       </div>
 

@@ -51,7 +51,7 @@ export default function ResetPasswordForm({
           Choose a new password
         </h2>
         <p className="mt-2 text-sm text-gray-600 dark:text-slate-300">
-          Create a secure password to regain access to your Sustain Insight dashboard.
+          Create a secure password to regain access to your Sustainable Insight dashboard.
         </p>
       </div>
 

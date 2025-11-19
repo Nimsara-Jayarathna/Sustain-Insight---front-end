@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Category, Source } from "../types/content";
-import { fetchPreferenceOptions, fetchUserProfile, saveUserProfile } from "../services/supabaseUser";
+import { fetchPreferenceCatalog, fetchUserPreferences, updateUserPreferences } from "../services/api/preferences";
 import { useAuth } from "./useAuth";
 
 type SubmissionStatus = {
@@ -29,18 +29,15 @@ export function useUserProfile(open: boolean) {
       try {
         setLoading(true);
         setSubmissionStatus(INITIAL_STATUS);
-        const [profile, options] = await Promise.all([
-          fetchUserProfile(user.id),
-          fetchPreferenceOptions(),
-        ]);
+        const [profile, options] = await Promise.all([fetchUserPreferences(), fetchPreferenceCatalog()]);
         if (!active) return;
         setCategories(options.categories);
         setSources(options.sources);
         setFirstName(profile.firstName ?? "");
         setLastName(profile.lastName ?? "");
         setJobTitle(profile.jobTitle ?? "");
-        setSelectedCategories(profile.preferredCategories.map(String));
-        setSelectedSources(profile.preferredSources.map(String));
+        setSelectedCategories(profile.categoryIds.map(String));
+        setSelectedSources(profile.sourceIds.map(String));
       } catch (err: any) {
         if (!active) return;
         setSubmissionStatus({ status: "error", message: err.message ?? "Unable to load profile" });
@@ -68,7 +65,7 @@ export function useUserProfile(open: boolean) {
     if (!user?.id) return false;
     setSubmissionStatus({ status: "saving", message: "Saving changes..." });
     try {
-      await saveUserProfile(user.id, {
+      await updateUserPreferences({
         firstName,
         lastName,
         jobTitle,

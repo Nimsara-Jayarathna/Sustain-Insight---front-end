@@ -40,12 +40,12 @@ export default function AppHeader(props: Props) {
           <div className="h-8 w-8 overflow-hidden rounded-full bg-gradient-to-br from-emerald-50 to-emerald-200 dark:from-emerald-600/20 dark:to-cyan-500/30">
             <img
               src="/icon.png"
-              alt="Sustain Insight"
+              alt="Sustainable Insight"
               className="h-full w-full object-contain p-1"
             />
           </div>
           <span className="text-lg font-semibold tracking-tight text-gray-900 dark:text-slate-100">
-            Sustain Insight
+            Sustainable Insight
           </span>
         </Link>
 

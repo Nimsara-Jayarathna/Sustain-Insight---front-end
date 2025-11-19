@@ -39,7 +39,7 @@ type ArticleModalProps = {
     imageUrl?: string;
     publishedAt?: string;
     sources?: string[];
-    categories?: string[];
+    categories?: Array<string | { id: string | number; name?: string | null }>;
   };
   bookmark: boolean;
   insight: boolean;

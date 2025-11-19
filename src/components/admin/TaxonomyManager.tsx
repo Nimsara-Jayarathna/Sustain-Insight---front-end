@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 import type { Category, Source } from "../../types/content";
-import { fetchCategories } from "../../services/supabaseArticles";
-import { fetchSources } from "../../services/supabaseUser";
-import { createCategory, deleteCategory, createSource, deleteSource } from "../../services/supabaseAdmin";
+import {
+  fetchPreferenceCatalog,
+  createCatalogCategory,
+  createCatalogSource,
+  deleteCatalogCategory,
+  deleteCatalogSource,
+} from "../../services/api/preferences";
 
 export function TaxonomyManager() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -16,9 +20,9 @@ export function TaxonomyManager() {
     const load = async () => {
       try {
         setLoading(true);
-        const [categoryRows, sourceRows] = await Promise.all([fetchCategories(), fetchSources()]);
-        setCategories(categoryRows);
-        setSources(sourceRows);
+        const { categories: catalogCategories, sources: catalogSources } = await fetchPreferenceCatalog();
+        setCategories(catalogCategories);
+        setSources(catalogSources);
         setError(null);
       } catch (err: any) {
         setError(err.message ?? "Unable to load taxonomy data.");
@@ -32,7 +36,7 @@ export function TaxonomyManager() {
   const addCategory = async () => {
     if (!newCategory.trim()) return;
     try {
-      const created = await createCategory(newCategory.trim());
+      const created = await createCatalogCategory(newCategory.trim());
       setCategories((prev) => [...prev, created]);
       setNewCategory("");
     } catch (err: any) {
@@ -43,7 +47,7 @@ export function TaxonomyManager() {
   const addSource = async () => {
     if (!newSource.trim()) return;
     try {
-      const created = await createSource(newSource.trim());
+      const created = await createCatalogSource(newSource.trim());
       setSources((prev) => [...prev, created]);
       setNewSource("");
     } catch (err: any) {
@@ -54,7 +58,7 @@ export function TaxonomyManager() {
   const removeCategory = async (categoryId: string) => {
     if (!window.confirm("Delete this category? Existing articles may lose their reference.")) return;
     try {
-      await deleteCategory(categoryId);
+      await deleteCatalogCategory(categoryId);
       setCategories((prev) => prev.filter((category) => category.id !== categoryId));
     } catch (err: any) {
       setError(err.message ?? "Unable to delete category.");
@@ -64,7 +68,7 @@ export function TaxonomyManager() {
   const removeSource = async (sourceId: string) => {
     if (!window.confirm("Delete this source?")) return;
     try {
-      await deleteSource(sourceId);
+      await deleteCatalogSource(sourceId);
       setSources((prev) => prev.filter((source) => source.id !== sourceId));
     } catch (err: any) {
       setError(err.message ?? "Unable to delete source.");

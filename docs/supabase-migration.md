@@ -1,6 +1,6 @@
-# Sustain Insight Frontend â€“ Supabase Migration Guide
+# Sustainable Insight Frontend – Supabase Migration Guide
 
-This guide documents the steps required to migrate an existing Sustain Insight frontend that depended on the Spring Boot API to the new fully serverless architecture powered by Supabase.
+This guide documents the steps required to migrate an existing Sustainable Insight frontend that depended on the Spring Boot API to the new fully serverless architecture powered by Supabase.
 
 ## 1. Environment Variables
 

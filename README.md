@@ -1,6 +1,6 @@
-# Sustain Insight Frontend
+# Sustainable Insight Frontend
 
-Sustain Insight delivers an executive-ready sustainability briefing every day.  
+Sustainable Insight delivers an executive-ready sustainability briefing every day.  
 This repository contains the React + TypeScript single-page application that powers both the marketing experience and the authenticated dashboard.
 
 ---
@@ -163,8 +163,8 @@ Tailwind configuration lives in `tailwind.config.ts`, and class scanning is driv
 
 The Azure Static Web Apps production deployment tracks the `azure-deploy` branch. Preview environments are built from pull requests before merging.
 
-Need help, found a bug, or want to propose a feature? Email **contact.sustain-insight@blipzo.xyz** and the frontend/deployment crew will respond.
+Need help, found a bug, or want to propose a feature? Email **contact@moderta.com** and the frontend/deployment crew will respond.
 
 ---
 
-© 2025 Sustain Insight. All rights reserved.
+© 2025 Sustainable Insight. All rights reserved.

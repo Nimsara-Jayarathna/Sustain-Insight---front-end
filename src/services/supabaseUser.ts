@@ -1,5 +1,4 @@
 import { supabase } from "../lib/supabaseClient";
-import type { Category, Source } from "../types/content";
 
 const isRlsDenied = (error?: { code?: string; message?: string }) => {
   if (!error) return false;
@@ -90,40 +89,3 @@ export const saveUserProfile = async (userId: string, payload: UserProfilePayloa
   }
 };
 
-export const fetchSources = async (): Promise<Source[]> => {
-  const { data, error } = await supabase.from("sources").select("id,name,slug").order("name");
-  if (error) throw error;
-  return (data ?? []).map((source) => ({
-    id: String(source.id),
-    name: source.name,
-    slug: source.slug ?? null,
-  }));
-};
-
-export type PreferenceOptions = {
-  categories: Category[];
-  sources: Source[];
-};
-
-export const fetchPreferenceOptions = async (): Promise<PreferenceOptions> => {
-  const [categories, sources] = await Promise.all([
-    supabase.from("categories").select("id,name,slug").order("name"),
-    supabase.from("sources").select("id,name,slug").order("name"),
-  ]);
-
-  if (categories.error) throw categories.error;
-  if (sources.error) throw sources.error;
-
-  return {
-    categories: (categories.data ?? []).map((category) => ({
-      id: String(category.id),
-      name: category.name,
-      slug: category.slug ?? null,
-    })),
-    sources: (sources.data ?? []).map((source) => ({
-      id: String(source.id),
-      name: source.name,
-      slug: source.slug ?? null,
-    })),
-  };
-};

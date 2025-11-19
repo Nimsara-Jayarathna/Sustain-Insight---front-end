@@ -31,7 +31,7 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-10 dark:bg-slate-950">
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg dark:bg-slate-900">
-        <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">Sign in to Sustain Insight</h1>
+        <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">Sign in to Sustainable Insight</h1>
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
           Access your personalized sustainability dashboard. Admins can also reach the control panel from here.
         </p>

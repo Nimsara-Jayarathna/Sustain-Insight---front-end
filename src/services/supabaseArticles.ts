@@ -166,16 +166,6 @@ export const fetchLatestArticles = async (limit = 6, userId?: string) => {
   return (data ?? []).map((record) => mapArticle(record, savedIds, insightIds));
 };
 
-export const fetchCategories = async (): Promise<Category[]> => {
-  const { data, error } = await supabase.from("categories").select("id,name,slug").order("name");
-  if (error) throw error;
-  return (data ?? []).map((category) => ({
-    id: String(category.id),
-    name: category.name,
-    slug: category.slug ?? null,
-  }));
-};
-
 export const fetchSavedArticles = async (
   userId: string,
   page = 1,

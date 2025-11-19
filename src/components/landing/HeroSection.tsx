@@ -11,7 +11,7 @@ export default function HeroSection({ onSignup }: { onSignup: () => void }) {
               The Sustainability Intelligence Briefing, Delivered Daily.
             </h1>
             <p className="text-lg leading-8 text-gray-600 transition-colors dark:text-slate-300">
-              Sustain Insight scans global ESG, circularity, policy, and impact investing coverage—curating the sustainability headlines your teams actually need.
+              Sustainable Insight scans global ESG, circularity, policy, and impact investing coverage—curating the sustainability headlines your teams actually need.
             </p>
             <div className="flex flex-wrap items-center gap-2 text-sm text-emerald-700 dark:text-emerald-300">
               {["ESG regulation alerts", "Supply chain resilience updates", "Impact capital & innovation"].map(
@@ -50,7 +50,7 @@ export default function HeroSection({ onSignup }: { onSignup: () => void }) {
             <div className="aspect-square p-6 sm:p-8">
               <img
                 src="/icon.png"
-                alt="Sustain Insight Icon"
+                alt="Sustainable Insight Icon"
                 className="h-full w-full object-contain"
               />
             </div>

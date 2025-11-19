@@ -25,7 +25,7 @@ export default function AllNewsView() {
   const [sortOpen, setSortOpen] = useState(false);
   const [categoryNames, setCategoryNames] = useState<string[]>([]);
   const [sourceNames, setSourceNames] = useState<string[]>([]);
-  const { feedPageSize, feedRecentHours, initialize: initializeSettings } = useSettings();
+  const { feedPageSize, initialize: initializeSettings } = useSettings();
   const {
     search,
     categories,
@@ -44,8 +44,6 @@ export default function AllNewsView() {
     reset,
   } = useArticleFilters();
 
-  const [appliedRecencyPreset, setAppliedRecencyPreset] = useState(false);
-
   useEffect(() => {
     initializeSettings?.();
   }, [initializeSettings]);
@@ -54,13 +52,6 @@ export default function AllNewsView() {
     if (!feedPageSize || pageSize === feedPageSize) return;
     setPageSize(feedPageSize);
   }, [feedPageSize, pageSize, setPageSize]);
-
-  useEffect(() => {
-    if (!feedRecentHours || appliedRecencyPreset || dateFrom) return;
-    const from = new Date(Date.now() - feedRecentHours * 3600 * 1000).toISOString();
-    setDateRange(from, undefined);
-    setAppliedRecencyPreset(true);
-  }, [feedRecentHours, appliedRecencyPreset, dateFrom, setDateRange]);
 
   const { articles, loading, error, total } = useArticles({
     search,

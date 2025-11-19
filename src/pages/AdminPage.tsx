@@ -3,18 +3,29 @@ import { useAuth } from "../hooks/useAuth";
 import { ArticleManager } from "../components/admin/ArticleManager";
 import { TaxonomyManager } from "../components/admin/TaxonomyManager";
 import { SettingsPanel } from "../components/admin/SettingsPanel";
-import { RoleManager } from "../components/admin/RoleManager";
+import ThemeToggleButton from "../components/common/ThemeToggleButton";
 
 const TABS = [
   { id: "articles", label: "Articles" },
   { id: "taxonomy", label: "Categories & Sources" },
   { id: "settings", label: "Feed Settings" },
-  { id: "roles", label: "Roles" },
 ];
 
 export default function AdminPage() {
-  const { role } = useAuth();
+  const { role, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<string>(TABS[0].id);
+  const [signingOut, setSigningOut] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      setSigningOut(true);
+      await logout();
+    } catch (error) {
+      console.error("Failed to log out", error);
+    } finally {
+      setSigningOut(false);
+    }
+  };
 
   if (role !== "admin") {
     return (
@@ -32,6 +43,18 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-10 dark:bg-slate-950">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 rounded-2xl bg-white p-8 shadow-xl dark:bg-slate-900">
+        <div className="flex flex-wrap items-center justify-end gap-3">
+          <ThemeToggleButton />
+          <button
+            type="button"
+            onClick={handleLogout}
+            disabled={signingOut}
+            className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:text-emerald-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 disabled:opacity-60 dark:border-slate-700 dark:text-slate-200 dark:hover:text-emerald-300"
+          >
+            {signingOut ? "Signing out…" : "Log out"}
+          </button>
+        </div>
+
         <header>
           <p className="text-sm font-semibold uppercase tracking-wide text-emerald-500">Admin Console</p>
           <h1 className="mt-2 text-3xl font-semibold text-slate-900 dark:text-white">Content operations</h1>
@@ -61,7 +84,6 @@ export default function AdminPage() {
           {activeTab === "articles" && <ArticleManager />}
           {activeTab === "taxonomy" && <TaxonomyManager />}
           {activeTab === "settings" && <SettingsPanel />}
-          {activeTab === "roles" && <RoleManager />}
         </div>
       </div>
     </div>

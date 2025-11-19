@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Category } from "../types/content";
-import { fetchCategories } from "../services/supabaseArticles";
+import { fetchPreferenceCatalog } from "../services/api/preferences";
 
 export const useCategories = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -13,8 +13,8 @@ export const useCategories = () => {
       try {
         setLoading(true);
         setError(null);
-        const data = await fetchCategories();
-        if (active) setCategories(data);
+        const { categories: catalogCategories } = await fetchPreferenceCatalog();
+        if (active) setCategories(catalogCategories);
       } catch (err: any) {
         if (active) {
           setError(err.message ?? "Unable to load categories");

@@ -1,76 +1,39 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import ArticleGrid from "../articles/ArticleGrid";
 import Pagination from "./Pagination";
 import LoadingPlaceholder from "../ui/LoadingPlaceholder";
 import { useArticles } from "../../hooks/useArticles";
 import { useAuth } from "../../hooks/useAuth";
-import { fetchUserProfile } from "../../services/supabaseUser";
-import { useSettings } from "../../hooks/useSettings";
 
-// --- New Props for Parent Communication ---
 type Props = {
-  onNavigate: (view: 'for-you' | 'all-news' | 'bookmarks') => void;
+  onNavigate: (view: "for-you" | "all-news" | "bookmarks") => void;
   onManagePreferences: () => void;
 };
 
 export default function ForYouView({ onNavigate, onManagePreferences }: Props) {
   const [currentPage, setCurrentPage] = useState(1);
-  const [preferredCategories, setPreferredCategories] = useState<string[]>([]);
-  const [prefLoading, setPrefLoading] = useState(true);
-  const { user, initialize } = useAuth();
-  const { feedPageSize, feedRecentHours, initialize: initializeSettings } = useSettings();
-  const personalizedPageSize = feedPageSize || 9;
-  const personalizedDateFrom = useMemo(() => {
-    if (!feedRecentHours) return undefined;
-    const cutoff = Date.now() - feedRecentHours * 3600 * 1000;
-    return new Date(cutoff).toISOString();
-  }, [feedRecentHours]);
-
-  useEffect(() => {
-    initialize?.();
-    initializeSettings?.();
-  }, [initialize, initializeSettings]);
-
-  useEffect(() => {
-    if (!user?.id) {
-      setPrefLoading(false);
-    }
-  }, [user?.id]);
-
-  useEffect(() => {
-    if (!user?.id) return;
-    let active = true;
-    const load = async () => {
-      try {
-        setPrefLoading(true);
-        const profile = await fetchUserProfile(user.id);
-        if (active) setPreferredCategories(profile.preferredCategories.map(String));
-      } finally {
-        if (active) setPrefLoading(false);
-      }
-    };
-    load();
-    return () => {
-      active = false;
-    };
-  }, [user?.id]);
+  const { initialize } = useAuth();
 
   const {
     articles: recentArticles,
     total,
     loading,
     error,
+    pageSize,
   } = useArticles({
-    categories: preferredCategories,
     page: currentPage,
-    pageSize: personalizedPageSize,
-    dateFrom: personalizedDateFrom,
+    personalized: true,
   });
 
-  const totalPages = Math.max(1, Math.ceil((total || recentArticles.length) / personalizedPageSize));
+  const effectivePageSize = pageSize || 1;
+  const totalPages = Math.max(1, Math.ceil((total || recentArticles.length) / effectivePageSize));
+
+  useEffect(() => {
+    initialize?.();
+  }, [initialize]);
 
   const renderContent = () => {
-    if (loading || prefLoading) {
+    if (loading) {
       return <LoadingPlaceholder type="foryou" mode="skeleton" />;
     }
 
@@ -101,7 +64,6 @@ export default function ForYouView({ onNavigate, onManagePreferences }: Props) {
       );
     }
 
-    // --- Redesigned "All Caught Up" Empty State ---
     return (
       <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center text-gray-600 transition-colors dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
         <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-4 h-12 w-12 text-emerald-500 dark:text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -119,7 +81,7 @@ export default function ForYouView({ onNavigate, onManagePreferences }: Props) {
             Manage Preferences
           </button>
           <button
-            onClick={() => onNavigate('all-news')}
+            onClick={() => onNavigate("all-news")}
             className="rounded-lg bg-emerald-600 px-5 py-2.5 font-medium text-white shadow-sm transition hover:bg-emerald-700"
           >
             Explore All News
@@ -130,4 +92,4 @@ export default function ForYouView({ onNavigate, onManagePreferences }: Props) {
   };
 
   return <section className="space-y-6">{renderContent()}</section>;
-};
+}

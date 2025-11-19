@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import GradientSpinner from "../ui/GradientSpinner";
 import type { Category, Source } from "../../types/content";
-import { fetchPreferenceOptions } from "../../services/supabaseUser";
+import { fetchPreferenceCatalog } from "../../services/api/preferences";
 
 type Props = {
   open: boolean;
@@ -64,7 +64,7 @@ export default function FilterModal({
     const load = async () => {
       try {
         setLoadingData(true);
-        const { categories: cats, sources: srcs } = await fetchPreferenceOptions();
+        const { categories: cats, sources: srcs } = await fetchPreferenceCatalog();
         if (active) {
           setCategories(cats);
           setSources(srcs);

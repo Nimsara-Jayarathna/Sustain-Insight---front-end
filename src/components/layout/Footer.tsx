@@ -18,12 +18,12 @@ export default function Footer() {
               <div className="h-9 w-9 overflow-hidden rounded-full bg-gradient-to-br from-emerald-500 to-cyan-500 p-1">
                 <img
                   src="/icon.png"
-                  alt="Sustain Insight"
+                  alt="Sustainable Insight"
                   className="h-full w-full object-contain"
                 />
               </div>
               <span className="text-lg font-semibold text-gray-900 dark:text-slate-100">
-                Sustain Insight
+                Sustainable Insight
               </span>
             </div>
             <p className="max-w-sm text-sm leading-relaxed">
@@ -56,7 +56,7 @@ export default function Footer() {
             <div className="space-y-2 text-sm">
               <p>We&apos;d love to hear from you.</p>
               <a
-                href="mailto:contact.sustain-insight@blipzo.xyz?subject=Sustain%20Insight%20Inquiry&body=Hello%20team%2C%0A%0A"
+                href="mailto:contact@moderta.com?subject=Sustainable%20Insight%20Inquiry&body=Hello%20team%2C%0A%0A"
                 className="inline-flex items-center gap-2 rounded-full border border-emerald-500 bg-gradient-to-r from-emerald-500 to-cyan-500 px-4 py-2 text-sm font-semibold text-white shadow transition hover:-translate-y-0.5 hover:shadow-lg dark:border-emerald-400 dark:from-emerald-500 dark:to-cyan-500"
               >
                 <svg
@@ -77,8 +77,8 @@ export default function Footer() {
               </a>
               <p className="text-xs text-gray-500 dark:text-slate-400">
                 Or reach out directly:{" "}
-                <a href="mailto:contact.sustain-insight@blipzo.xyz" className="text-emerald-600 hover:underline dark:text-emerald-300">
-                  contact.sustain-insight@blipzo.xyz
+                <a href="mailto:contact@moderta.com" className="text-emerald-600 hover:underline dark:text-emerald-300">
+                  contact@moderta.com
                 </a>
               </p>
             </div>
@@ -86,7 +86,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 border-t border-gray-100 pt-6 text-center text-xs text-gray-500 dark:border-slate-800 dark:text-slate-400">
-          © {new Date().getFullYear()} Sustain Insight · A SE2012 Group Project
+          © {new Date().getFullYear()} Sustainable Insight. All rights reserved.
         </div>
       </div>
     </footer>

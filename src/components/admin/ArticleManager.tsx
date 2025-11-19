@@ -1,21 +1,25 @@
-import { useEffect, useMemo, useState } from "react";
-import type {
-  AdminArticleRecord,
-  ArticleFormValues,
-  ArticleInsightDetail,
-} from "../../services/supabaseAdmin";
+import { useEffect, useMemo, useState, type MouseEvent } from "react";
+import {
+  fetchPreferenceCatalog,
+  createCatalogCategory,
+  createCatalogSource,
+} from "../../services/api/preferences";
 import {
   fetchAdminArticles,
   createAdminArticle,
   updateAdminArticle,
   deleteAdminArticle,
   fetchArticleInsightsDetail,
-  createCategory as createCategoryRecord,
-  createSource as createSourceRecord,
-} from "../../services/supabaseAdmin";
-import { fetchCategories } from "../../services/supabaseArticles";
-import { fetchSources } from "../../services/supabaseUser";
+  fetchArticlePreview,
+} from "../../services/api/admin/articles";
+import type {
+  AdminArticleRecord,
+  ArticleFormValues,
+  ArticleInsightDetail,
+  ArticlePreviewRecord,
+} from "../../services/api/admin/articles";
 import type { Category, Source } from "../../types/content";
+import ArticleModal from "../articles/ArticleModal";
 
 const emptyForm: ArticleFormValues = {
   title: "",
@@ -50,6 +54,8 @@ export function ArticleManager() {
   const [insightArticle, setInsightArticle] = useState<AdminArticleRecord | null>(null);
   const [insights, setInsights] = useState<ArticleInsightDetail[]>([]);
   const [insightsLoading, setInsightsLoading] = useState(false);
+  const [previewArticle, setPreviewArticle] = useState<ArticlePreviewRecord | null>(null);
+  const [previewingId, setPreviewingId] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [sources, setSources] = useState<Source[]>([]);
   const [newCategoryName, setNewCategoryName] = useState("");
@@ -61,14 +67,10 @@ export function ArticleManager() {
     const load = async () => {
       try {
         setLoading(true);
-        const [articleRows, categoryRows, sourceRows] = await Promise.all([
-          fetchAdminArticles(),
-          fetchCategories(),
-          fetchSources(),
-        ]);
+        const [articleRows, catalog] = await Promise.all([fetchAdminArticles(), fetchPreferenceCatalog()]);
         setArticles(articleRows);
-        setCategories(categoryRows);
-        setSources(sourceRows);
+        setCategories(catalog.categories);
+        setSources(catalog.sources);
         setError(null);
       } catch (err: any) {
         setError(err.message ?? "Unable to load admin data.");
@@ -154,7 +156,7 @@ export function ArticleManager() {
     if (!newCategoryName.trim()) return;
     setCreatingCategory(true);
     try {
-      const created = await createCategoryRecord(newCategoryName.trim());
+      const created = await createCatalogCategory(newCategoryName.trim());
       setCategories((prev) => [...prev, created]);
       setFormValues((prev) => ({
         ...prev,
@@ -172,7 +174,7 @@ export function ArticleManager() {
     if (!newSourceName.trim()) return;
     setCreatingSource(true);
     try {
-      const created = await createSourceRecord(newSourceName.trim());
+      const created = await createCatalogSource(newSourceName.trim());
       setSources((prev) => [...prev, created]);
       setFormValues((prev) => ({
         ...prev,
@@ -184,6 +186,19 @@ export function ArticleManager() {
       setError(err.message ?? "Unable to create source.");
     } finally {
       setCreatingSource(false);
+    }
+  };
+
+  const handlePreview = async (articleId: string) => {
+    setPreviewArticle(null);
+    setPreviewingId(articleId);
+    try {
+      const preview = await fetchArticlePreview(articleId);
+      setPreviewArticle(preview);
+    } catch (err: any) {
+      setError(err.message ?? "Unable to preview article.");
+    } finally {
+      setPreviewingId((current) => (current === articleId ? null : current));
     }
   };
 
@@ -233,11 +248,19 @@ export function ArticleManager() {
                   <td className="px-4 py-3 text-center text-slate-600 dark:text-slate-300">
                     {article.insight_count ?? 0}
                   </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex flex-wrap justify-end gap-2">
-                      <button
-                        type="button"
-                        className="text-xs font-semibold text-emerald-600 hover:text-emerald-500"
+                <td className="px-4 py-3 text-right">
+                  <div className="flex flex-wrap justify-end gap-2">
+                    <button
+                      type="button"
+                      className="text-xs font-semibold text-sky-600 hover:text-sky-500 dark:text-sky-400 dark:hover:text-sky-300 disabled:cursor-not-allowed disabled:opacity-60"
+                      onClick={() => handlePreview(article.id)}
+                      disabled={previewingId === article.id}
+                    >
+                      {previewingId === article.id ? "Previewing…" : "Preview"}
+                    </button>
+                    <button
+                      type="button"
+                      className="text-xs font-semibold text-emerald-600 hover:text-emerald-500"
                         onClick={() => openInsights(article)}
                       >
                         Insights
@@ -461,6 +484,34 @@ export function ArticleManager() {
             </form>
           </div>
         </div>
+      )}
+
+      {previewArticle && (
+        <ArticleModal
+          article={{
+            id: previewArticle.id,
+            title: previewArticle.title,
+            summary: previewArticle.summary ?? undefined,
+            content: previewArticle.content ?? undefined,
+            imageUrl: previewArticle.imageUrl ?? undefined,
+            publishedAt: previewArticle.publishedAt ?? undefined,
+            sources: previewArticle.sources,
+            categories: previewArticle.categories,
+          }}
+          bookmark={false}
+          insight={false}
+          insightCount={previewArticle.insightCount}
+          allowActions={false}
+          onToggleBookmark={(event: MouseEvent) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+          onToggleInsight={(event: MouseEvent) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+          onClose={() => setPreviewArticle(null)}
+        />
       )}
 
       {insightArticle && (

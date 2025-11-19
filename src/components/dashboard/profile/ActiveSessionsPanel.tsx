@@ -57,7 +57,7 @@ export default function ActiveSessionsPanel() {
       <header>
         <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Active Session</h3>
         <p className="text-sm text-gray-500 dark:text-slate-300">
-          Monitor the device currently connected to your Sustain Insight account. Use the controls below to revoke sessions instantly.
+          Monitor the device currently connected to your Sustainable Insight account. Use the controls below to revoke sessions instantly.
         </p>
       </header>
 
