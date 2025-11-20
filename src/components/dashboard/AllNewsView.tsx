@@ -6,7 +6,6 @@ import ActiveFilters from "../feedback/ActiveFilters";
 import Pagination from "./Pagination";
 import LoadingPlaceholder from "../ui/LoadingPlaceholder";
 import { useArticles, useArticleFilters } from "../../hooks/useArticles";
-import { useSettings } from "../../hooks/useSettings";
 
 // --- UI Helper Components (can be moved to a separate file if desired) ---
 const SORT_OPTIONS = [
@@ -25,7 +24,6 @@ export default function AllNewsView() {
   const [sortOpen, setSortOpen] = useState(false);
   const [categoryNames, setCategoryNames] = useState<string[]>([]);
   const [sourceNames, setSourceNames] = useState<string[]>([]);
-  const { feedPageSize, initialize: initializeSettings } = useSettings();
   const {
     search,
     categories,
@@ -40,18 +38,8 @@ export default function AllNewsView() {
     setDateRange,
     setSort: updateSort,
     setPage,
-    setPageSize,
     reset,
   } = useArticleFilters();
-
-  useEffect(() => {
-    initializeSettings?.();
-  }, [initializeSettings]);
-
-  useEffect(() => {
-    if (!feedPageSize || pageSize === feedPageSize) return;
-    setPageSize(feedPageSize);
-  }, [feedPageSize, pageSize, setPageSize]);
 
   const { articles, loading, error, total } = useArticles({
     search,
