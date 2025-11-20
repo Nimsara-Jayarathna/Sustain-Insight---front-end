@@ -8,14 +8,14 @@ import AuthModal from "../components/auth/AuthModal";
 import { useArticles } from "../hooks/useArticles";
 import { useAuthHandlers } from "../hooks/useAuthHandlers";
 import { useAuth } from "../hooks/useAuth";
-import { useSettings } from "../hooks/useSettings";
 
 type LandingPageProps = {
   openForgotInitially?: boolean;
 };
 
 export default function LandingPage({ openForgotInitially = false }: LandingPageProps) {
-  const { landingArticleCount, feedRecentHours, initialize: initializeSettings } = useSettings();
+  const landingArticleCount = 8;
+  const feedRecentHours = 24;
   const recentWindow = useMemo(() => {
     if (!feedRecentHours) return undefined;
     const cutoff = Date.now() - feedRecentHours * 3600 * 1000;
@@ -37,8 +37,7 @@ export default function LandingPage({ openForgotInitially = false }: LandingPage
 
   useEffect(() => {
     initialize?.();
-    initializeSettings?.();
-  }, [initialize, initializeSettings]);
+  }, [initialize]);
 
   // 🔐 Redirect to dashboard if already logged in
   useEffect(() => {
