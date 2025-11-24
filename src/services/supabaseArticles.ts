@@ -127,6 +127,16 @@ const fetchInsightIds = async (userId?: string) => {
   return new Set((data ?? []).map((row) => String(row.article_id)));
 };
 
+const getFunctionsUrl = () => {
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  if (!supabaseUrl) {
+    throw new Error("Missing VITE_SUPABASE_URL");
+  }
+  const parsed = new URL(supabaseUrl);
+  const host = parsed.host.replace(".supabase.co", ".functions.supabase.co");
+  return `${parsed.protocol}//${host}`;
+};
+
 export const fetchArticles = async (
   filters: Partial<ArticleQuery> = {},
 ): Promise<PaginatedResult<Article>> => {
@@ -159,11 +169,31 @@ export const fetchArticles = async (
 };
 
 export const fetchLatestArticles = async (limit = 6, userId?: string) => {
-  const { data, error } = await buildArticleQuery({ ...defaultPagination, page: 1, pageSize: limit })
-    .limit(limit);
-  if (error) throw error;
+  const url = new URL("/latest", getFunctionsUrl());
+  const response = await fetch(url.toString());
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}));
+    throw new Error(payload.error ?? "Unable to load latest articles");
+  }
+  const payload = (await response.json()) as { data?: any[]; limit?: number };
+  const effectiveLimit = Math.min(limit, payload.limit ?? limit ?? Number.MAX_SAFE_INTEGER);
+  const records = (payload.data ?? []).slice(0, effectiveLimit);
   const [savedIds, insightIds] = await Promise.all([fetchSavedIds(userId), fetchInsightIds(userId)]);
-  return (data ?? []).map((record) => mapArticle(record, savedIds, insightIds));
+  return records.map((record) =>
+    mapArticle(
+      {
+        ...record,
+        image_url: record.image_url ?? record.imageUrl ?? null,
+        published_at: record.published_at ?? record.publishedAt ?? null,
+        source: record.source ?? (Array.isArray(record.sources) ? record.sources[0] : null),
+        insight_count: record.insight_count ?? record.insightCount ?? 0,
+        categories: record.categories ?? record.article_categories,
+        article_categories: record.article_categories ?? record.categories?.map((category: any) => ({ categories: category })),
+      },
+      savedIds,
+      insightIds,
+    ),
+  );
 };
 
 export const fetchSavedArticles = async (
@@ -248,4 +278,3 @@ const updateArticleInsightCount = async (articleId: string) => {
     .eq("id", articleId);
   if (error) throw error;
 };
-
