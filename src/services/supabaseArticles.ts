@@ -137,6 +137,14 @@ const getFunctionsUrl = () => {
   return `${parsed.protocol}//${host}`;
 };
 
+const getAnonKey = () => {
+  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  if (!anonKey) {
+    throw new Error("Missing VITE_SUPABASE_ANON_KEY");
+  }
+  return anonKey;
+};
+
 export const fetchArticles = async (
   filters: Partial<ArticleQuery> = {},
 ): Promise<PaginatedResult<Article>> => {
@@ -170,7 +178,13 @@ export const fetchArticles = async (
 
 export const fetchLatestArticles = async (limit = 6, userId?: string) => {
   const url = new URL("/latest", getFunctionsUrl());
-  const response = await fetch(url.toString());
+  const anonKey = getAnonKey();
+  const response = await fetch(url.toString(), {
+    headers: {
+      apikey: anonKey,
+      Authorization: `Bearer ${anonKey}`,
+    },
+  });
   if (!response.ok) {
     const payload = await response.json().catch(() => ({}));
     throw new Error(payload.error ?? "Unable to load latest articles");
