@@ -36,4 +36,4 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Deploy
-        run: ./deploy.sh
+        run: bash ./deploy.sh
