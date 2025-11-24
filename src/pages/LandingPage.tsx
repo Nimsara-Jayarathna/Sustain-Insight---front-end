@@ -5,9 +5,9 @@ import HeroSection from "../components/landing/HeroSection";
 import FeaturesSection from "../components/landing/FeaturesSection";
 import LatestNewsSection from "../components/landing/LatestNewsSection";
 import AuthModal from "../components/auth/AuthModal";
-import { useArticles } from "../hooks/useArticles";
 import { useAuthHandlers } from "../hooks/useAuthHandlers";
 import { useAuth } from "../hooks/useAuth";
+import { useArticles } from "../hooks/useArticles";
 
 type LandingPageProps = {
   openForgotInitially?: boolean;
@@ -22,13 +22,15 @@ export default function LandingPage({ openForgotInitially = false }: LandingPage
     return new Date(cutoff).toISOString();
   }, [feedRecentHours]);
   const latestPageSize = landingArticleCount || 8;
+  const { logout, isAuthenticated, initialize, role } = useAuth();
+  const shouldLoadLandingFeed = !isAuthenticated;
   const { articles, loading: isLoading } = useArticles({
     latest: true,
     pageSize: latestPageSize,
     dateFrom: recentWindow,
+    enabled: shouldLoadLandingFeed,
   });
   const { handleLogin, handleSignup, handleForgotPassword } = useAuthHandlers();
-  const { logout, isAuthenticated, initialize, role } = useAuth();
 
   const [authOpen, setAuthOpen] = useState(false);
   const [view, setView] = useState<"login" | "signup" | "forgot" | "reset">("login");

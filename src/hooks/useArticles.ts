@@ -12,21 +12,24 @@ type UseArticlesOptions = Partial<ArticleFilters> & {
   pageSize?: number;
   latest?: boolean;
   personalized?: boolean;
+  enabled?: boolean;
 };
 
 export function useArticles(options?: UseArticlesOptions) {
   const { user, initialize } = useAuth();
   const [articles, setArticles] = useState<Article[]>([]);
   const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const enabled = options?.enabled ?? true;
+  const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     initialize?.();
   }, [initialize]);
 
-  const optionsKey = JSON.stringify(options ?? {});
-  const normalizedOptions = useMemo(() => options ?? {}, [optionsKey]);
+  const { enabled: _ignored, ...normalizedOptionsInput } = options ?? {};
+  const optionsKey = JSON.stringify(normalizedOptionsInput);
+  const normalizedOptions = useMemo(() => normalizedOptionsInput, [optionsKey]);
 
   const query = useMemo(
     () => ({
@@ -54,6 +57,7 @@ export function useArticles(options?: UseArticlesOptions) {
   }, [query.pageSize, query.personalized]);
 
   const loadArticles = useCallback(async () => {
+    if (!enabled) return;
     try {
       setLoading(true);
       setError(null);
@@ -90,11 +94,18 @@ export function useArticles(options?: UseArticlesOptions) {
     } finally {
       setLoading(false);
     }
-  }, [query, user?.id]);
+  }, [enabled, query, user?.id]);
 
   useEffect(() => {
+    if (!enabled) {
+      setArticles([]);
+      setTotal(0);
+      setError(null);
+      setLoading(false);
+      return;
+    }
     loadArticles();
-  }, [loadArticles]);
+  }, [enabled, loadArticles]);
 
   return {
     articles,
