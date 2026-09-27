@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "../../utils/api";
 import GradientSpinner from "../ui/GradientSpinner";
+import type { NamedOption } from "../../types/domain";
 
 type Props = {
   open: boolean;
@@ -47,8 +48,8 @@ export default function FilterModal({
   onClear,
   activeFilters = {},
 }: Props) {
-  const [categories, setCategories] = useState<any[]>([]);
-  const [sources, setSources] = useState<any[]>([]);
+  const [categories, setCategories] = useState<NamedOption[]>([]);
+  const [sources, setSources] = useState<NamedOption[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
   const [selectedSources, setSelectedSources] = useState<number[]>([]);
   const [date, setDate] = useState("");
@@ -63,8 +64,8 @@ export default function FilterModal({
       try {
         setLoadingData(true);
         const [cats, srcs] = await Promise.all([
-          apiFetch("/api/public/categories"),
-          apiFetch("/api/public/sources"),
+          apiFetch<NamedOption[]>("/api/public/categories"),
+          apiFetch<NamedOption[]>("/api/public/sources"),
         ]);
         setCategories(cats);
         setSources(srcs);

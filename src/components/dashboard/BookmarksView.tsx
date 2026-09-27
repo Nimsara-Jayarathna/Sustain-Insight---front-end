@@ -4,6 +4,7 @@ import ArticleGrid from "../articles/ArticleGrid";
 import Pagination from "./Pagination";
 import LoadingPlaceholder from "../ui/LoadingPlaceholder";
 import { apiFetch } from "../../utils/api";
+import type { Article, PaginatedArticles } from "../../types/domain";
 
 // --- New Prop Type ---
 type Props = {
@@ -11,7 +12,7 @@ type Props = {
 };
 
 export default function BookmarksView({ onNavigate }: Props) {
-  const [articles, setArticles] = useState<any[]>([]);
+  const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -23,7 +24,7 @@ export default function BookmarksView({ onNavigate }: Props) {
         setLoading(true);
         setError(null);
         const url = `/api/bookmarks?page=${currentPage}`;
-        const data = await apiFetch(url);
+        const data = await apiFetch<PaginatedArticles>(url);
         setArticles(data.content || []);
         setTotalPages(data.totalPages || 1);
         if (data.currentPage) {

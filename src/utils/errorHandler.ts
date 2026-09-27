@@ -34,11 +34,14 @@ export function extractErrorMessage(err: unknown): string {
   }
 
   if (typeof err === "object" && err !== null) {
-    const anyErr = err as Record<string, any>;
+    const anyErr = err as Record<string, unknown>;
+    const message = anyErr.message;
+    const description = anyErr.error_description;
+    const error = anyErr.error;
     return (
-      anyErr.message ||
-      anyErr.error_description ||
-      anyErr.error ||
+      (typeof message === "string" && message) ||
+      (typeof description === "string" && description) ||
+      (typeof error === "string" && error) ||
       "Unexpected error occurred."
     );
   }

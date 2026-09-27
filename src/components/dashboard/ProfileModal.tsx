@@ -214,10 +214,10 @@ export default function ProfileModal({ open, onClose }: Props) {
           <ChangeEmailForm
             onSuccess={() => {
               setShowChangeEmail(false);
-              setUser((prev: any) => ({
+              setUser((prev) => prev ? ({
                 ...prev,
                 email: JSON.parse(localStorage.getItem("user") || "{}").email,
-              }));
+              }) : prev);
               setTimeout(onClose, 100);
               setTimeout(() => window.dispatchEvent(new Event("reopenProfileModal")), 200);
             }}

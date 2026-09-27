@@ -6,7 +6,8 @@ import ActiveFilters from "../feedback/ActiveFilters";
 import Pagination from "./Pagination";
 import LoadingPlaceholder from "../ui/LoadingPlaceholder";
 import { apiFetch } from "../../utils/api";
-import { useAuthContext } from "../../context/AuthContext";
+import { useAuthContext } from "../../hooks/useAuthContext";
+import type { Article, ArticleFilters, PaginatedArticles } from "../../types/domain";
 
 // --- UI Helper Components (can be moved to a separate file if desired) ---
 const SORT_OPTIONS = [
@@ -23,9 +24,9 @@ const CheckIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w
 export default function AllNewsView() {
   // --- All State and Logic is Preserved ---
   const { isAuthenticated } = useAuthContext();
-  const [articles, setArticles] = useState<any[]>([]);
+  const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(false);
-  const [filters, setFilters] = useState<any>({});
+  const [filters, setFilters] = useState<ArticleFilters>({});
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [sort, setSort] = useState("newest");
   const [sortOpen, setSortOpen] = useState(false);
@@ -46,7 +47,7 @@ export default function AllNewsView() {
         params.append("sort", sort);
         params.append("page", currentPage.toString());
         const baseUrl = isAuthenticated ? "/api/articles/all" : "/api/public/articles/all";
-        const data = await apiFetch(`${baseUrl}?${params.toString()}`);
+        const data = await apiFetch<PaginatedArticles>(`${baseUrl}?${params.toString()}`);
         setArticles(data.content || []);
         setTotalPages(data.totalPages || 1);
       } catch {

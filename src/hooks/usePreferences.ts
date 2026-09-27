@@ -21,8 +21,8 @@ export function usePreferences() {
     async function fetchData() {
       try {
         const [cats, srcs] = await Promise.all([
-          apiFetch("/api/public/categories"),
-          apiFetch("/api/public/sources"),
+          apiFetch<Category[]>("/api/public/categories"),
+          apiFetch<Source[]>("/api/public/sources"),
         ]);
         setCategories(cats);
         setSources(srcs);

@@ -16,7 +16,7 @@ export async function login(
   password: string
 ): Promise<LoginResponse> {
   try {
-    const data = await apiFetch("/api/auth/login", {
+    const data = await apiFetch<LoginResponse>("/api/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
     });
@@ -28,7 +28,7 @@ export async function login(
 
 export async function refreshAccessToken(): Promise<{ accessToken: string }> {
   try {
-    const data = await apiFetch("/api/auth/refresh-token", {
+    const data = await apiFetch<{ accessToken: string }>("/api/auth/refresh-token", {
       method: "POST",
     });
     return data;

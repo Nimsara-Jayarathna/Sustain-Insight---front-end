@@ -3,6 +3,7 @@ import ArticleGrid from "../articles/ArticleGrid";
 import Pagination from "./Pagination";
 import LoadingPlaceholder from "../ui/LoadingPlaceholder";
 import { apiFetch } from "../../utils/api";
+import type { Article, PaginatedArticles } from "../../types/domain";
 
 // --- New Props for Parent Communication ---
 type Props = {
@@ -12,7 +13,7 @@ type Props = {
 
 export default function ForYouView({ onNavigate, onManagePreferences }: Props) {
   // --- All State and Logic is Preserved ---
-  const [recentArticles, setRecentArticles] = useState<any[]>([]);
+  const [recentArticles, setRecentArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -24,7 +25,7 @@ export default function ForYouView({ onNavigate, onManagePreferences }: Props) {
         setLoading(true);
         setError(null);
         const url = `/api/articles/feed?page=${currentPage}`;
-        const data = await apiFetch(url);
+        const data = await apiFetch<PaginatedArticles>(url);
         setRecentArticles(data.content || []);
         setTotalPages(data.totalPages || 1);
       } catch {

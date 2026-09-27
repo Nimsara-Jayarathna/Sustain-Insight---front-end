@@ -1,7 +1,9 @@
 // src/hooks/useUserProfile.ts
 import { useState, useEffect } from "react";
 import { apiFetch } from "../utils/api";
-import { useAuthContext } from "../context/AuthContext";
+import { useAuthContext } from "./useAuthContext";
+import { extractErrorMessage } from "../utils/errorHandler";
+import type { NamedOption, UserProfile } from "../types/domain";
 
 type SubmissionStatus = {
   status: "idle" | "saving" | "success" | "error";
@@ -12,8 +14,8 @@ const INITIAL_STATUS: SubmissionStatus = { status: "idle", message: "" };
 
 export function useUserProfile(open: boolean) {
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
-  const [staticData, setStaticData] = useState<{ categories: any[]; sources: any[] }>({
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [staticData, setStaticData] = useState<{ categories: NamedOption[]; sources: NamedOption[] }>({
     categories: [],
     sources: [],
   });
@@ -38,9 +40,9 @@ export function useUserProfile(open: boolean) {
         setSubmissionStatus(INITIAL_STATUS);
 
         const [me, cats, srcs] = await Promise.all([
-          apiFetch("/api/account/me"),
-          apiFetch("/api/public/categories"),
-          apiFetch("/api/public/sources"),
+          apiFetch<UserProfile>("/api/account/me"),
+          apiFetch<NamedOption[]>("/api/public/categories"),
+          apiFetch<NamedOption[]>("/api/public/sources"),
         ]);
 
         setUser(me);
@@ -49,9 +51,9 @@ export function useUserProfile(open: boolean) {
         setLastName(me.lastName || "");
         setJobTitle(me.jobTitle || ""); // ✅ 2. Initialize job title from fetched data
         setSelectedCategories(
-          me.preferredCategories?.map((c: any) => c.id) || []
+          me.preferredCategories?.map((c) => c.id) || []
         );
-        setSelectedSources(me.preferredSources?.map((s: any) => s.id) || []);
+        setSelectedSources(me.preferredSources?.map((s) => s.id) || []);
       } catch {
         setSubmissionStatus({
           status: "error",
@@ -89,7 +91,7 @@ export function useUserProfile(open: boolean) {
           sourceIds: selectedSources,
         }),
       });
-      setUser((prev: any) =>
+      setUser((prev) =>
         prev
           ? {
               ...prev,
@@ -102,10 +104,10 @@ export function useUserProfile(open: boolean) {
       await refreshUser();
       setSubmissionStatus({ status: "success", message: "Profile updated!" });
       return true;
-    } catch (err: any) {
+    } catch (err: unknown) {
       setSubmissionStatus({
         status: "error",
-        message: err.message || "Failed to update profile.",
+        message: extractErrorMessage(err) || "Failed to update profile.",
       });
       return false;
     }

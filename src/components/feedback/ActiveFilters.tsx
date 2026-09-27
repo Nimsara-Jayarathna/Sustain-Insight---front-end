@@ -1,21 +1,14 @@
-// import React from "react";
+import type { ArticleFilters } from "../../types/domain";
 
 type Props = {
-  filters: {
-    keyword?: string;
-    categoryIds?: number[];
-    sourceIds?: number[];
-    categoryNames?: string[];
-    sourceNames?: string[];
-    date?: string;
-  };
-  onRemove: (key: string, value?: any) => void;
+  filters: ArticleFilters;
+  onRemove: (key: keyof ArticleFilters, value?: string | number) => void;
   onClearAll: () => void; // ✅ New prop for the "Clear All" button
 };
 
 export default function ActiveFilters({ filters, onRemove, onClearAll }: Props) {
   // --- All of the existing logic for building chips is preserved ---
-  const chips: { label: string; key: string; value?: any }[] = [];
+  const chips: { label: string; key: keyof ArticleFilters; value?: string | number }[] = [];
 
   if (filters.keyword) {
     chips.push({ label: `Search: "${filters.keyword}"`, key: "keyword" });

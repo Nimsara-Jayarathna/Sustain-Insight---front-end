@@ -1,17 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
-
-// Define a type for the article for better code quality
-type Article = {
-  id: string | number;
-  imageUrl: string;
-  category: string;
-  title: string;
-  excerpt: string;
-  slug: string;
-  url?: string;
-  link?: string;
-};
+import type { Article } from '../../types/domain';
 
 type ArticleRotatorProps = {
   articles: Article[];

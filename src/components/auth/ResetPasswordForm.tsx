@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import AuthLoadingOverlay from "../ui/AuthLoadingOverlay";
 import GradientSpinner from "../ui/GradientSpinner";
 import { apiFetch } from "../../utils/api";
+import { extractErrorMessage } from "../../utils/errorHandler";
 
 export default function ResetPasswordForm({
   token,
@@ -42,8 +43,8 @@ export default function ResetPasswordForm({
       setTimeout(() => {
         onSwitch("login");
       }, 2000);
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.");
+    } catch (err: unknown) {
+      setError(extractErrorMessage(err));
       setLoading(false);
     }
   };

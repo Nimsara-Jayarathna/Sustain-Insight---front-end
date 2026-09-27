@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { apiFetch } from "../utils/api"; // Or wherever your api utility is
+import type { Article } from "../types/domain";
 
 export function useArticles() {
-  const [articles, setArticles] = useState<any[]>([]);
+  const [articles, setArticles] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(true); // ✅ 1. Add a loading state
 
   useEffect(() => {
@@ -10,7 +11,7 @@ export function useArticles() {
       try {
         setIsLoading(true); // Ensure loading is true at the start
         // This endpoint might be different, adjust if needed (e.g., a "latest" endpoint)
-        const data = await apiFetch("/api/public/articles/latest"); 
+        const data = await apiFetch<Article[]>("/api/public/articles/latest");
         setArticles(data || []);
       } catch {
         setArticles([]);

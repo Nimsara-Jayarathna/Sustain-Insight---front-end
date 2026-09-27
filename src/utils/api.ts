@@ -36,7 +36,10 @@ const tryRefreshToken = async (): Promise<boolean> => {
 };
 
 // 🌐 Main API fetch wrapper
-export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
+export const apiFetch = async <T = Record<string, unknown>>(
+  endpoint: string,
+  options: RequestInit = {},
+): Promise<T> => {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...(options.headers as Record<string, string>) || {},
@@ -78,7 +81,7 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
 
   // Parse response safely
   let rawText = "";
-  let data: any = null;
+  let data: unknown = null;
   try {
     rawText = await res.text();
     data = JSON.parse(rawText);
@@ -91,5 +94,5 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
     throw new Error(extractErrorMessage(data));
   }
 
-  return typeof data === "object" ? data : {};
+  return (typeof data === "object" && data !== null ? data : {}) as T;
 };

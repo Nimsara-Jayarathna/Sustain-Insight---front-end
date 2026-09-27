@@ -8,7 +8,8 @@ import AuthModal from "../components/auth/AuthModal";
 import AuthLoadingOverlay from "../components/ui/AuthLoadingOverlay";
 import { useArticles } from "../hooks/useArticles";
 import { useAuthHandlers } from "../hooks/useAuthHandlers";
-import { useAuthContext } from "../context/AuthContext";
+import { useAuthContext } from "../hooks/useAuthContext";
+import { extractErrorMessage } from "../utils/errorHandler";
 
 type LandingPageProps = {
   openForgotInitially?: boolean;
@@ -65,8 +66,8 @@ export default function LandingPage({ openForgotInitially = false }: LandingPage
             setAuthOpen(true);
             setView("login");
           }, 1800);
-        } catch (err: any) {
-          setVerifyError(err?.message || "Verification failed. Please try again.");
+        } catch (err: unknown) {
+          setVerifyError(extractErrorMessage(err) || "Verification failed. Please try again.");
           setVerifySuccess(false);
           setVerifying(false);
 

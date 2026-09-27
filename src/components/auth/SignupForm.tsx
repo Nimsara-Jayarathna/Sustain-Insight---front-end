@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { extractErrorMessage } from "../../utils/errorHandler";
 import AuthLoadingOverlay from "../ui/AuthLoadingOverlay";
 import GradientSpinner from "../ui/GradientSpinner";
 
@@ -83,8 +84,8 @@ export default function SignupForm({
         setSuccess(false);
         onSwitch("login");
       }, 2000);
-    } catch (err: any) {
-      setError(err?.message || "Failed to create account. Please try again.");
+    } catch (err: unknown) {
+      setError(extractErrorMessage(err) || "Failed to create account. Please try again.");
       setLoading(false);
     }
   };

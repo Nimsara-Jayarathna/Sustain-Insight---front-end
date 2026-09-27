@@ -7,6 +7,7 @@ import {
   sendNewEmailOtp,
   confirmEmailChange,
 } from "../../api/user";
+import { extractErrorMessage } from "../../utils/errorHandler";
 
 // --- HELPER COMPONENTS (Unchanged) ---
 const ProgressBar = ({ currentStep }: { currentStep: number }) => {
@@ -75,8 +76,8 @@ export default function ChangeEmailForm({
       await requestEmailChangeOtp();
       setCooldownCurrent(60);
       setStep(2);
-    } catch (err: any) {
-      setError(err.message || "Failed to send OTP.");
+    } catch (err: unknown) {
+      setError(extractErrorMessage(err) || "Failed to send OTP.");
     } finally {
       setLoading(false);
     }
@@ -89,8 +90,8 @@ export default function ChangeEmailForm({
     try {
       await requestEmailChangeOtp();
       setCooldownCurrent(60);
-    } catch (err: any) {
-      setError(err.message || "Failed to resend OTP.");
+    } catch (err: unknown) {
+      setError(extractErrorMessage(err) || "Failed to resend OTP.");
     } finally {
       setLoading(false);
     }
@@ -106,8 +107,8 @@ export default function ChangeEmailForm({
     try {
       await verifyCurrentEmailOtp({ otp: currentOtp });
       setStep(3);
-    } catch (err: any) {
-      setError(err.message || "Invalid OTP.");
+    } catch (err: unknown) {
+      setError(extractErrorMessage(err) || "Invalid OTP.");
       setCurrentOtp("");
     } finally {
       setLoading(false);
@@ -126,8 +127,8 @@ export default function ChangeEmailForm({
       await sendNewEmailOtp({ newEmail });
       setCooldownNew(60);
       setStep(4);
-    } catch (err: any) {
-      setError(err.message || "Failed to send OTP to new email.");
+    } catch (err: unknown) {
+      setError(extractErrorMessage(err) || "Failed to send OTP to new email.");
     } finally {
       setLoading(false);
     }
@@ -140,8 +141,8 @@ export default function ChangeEmailForm({
     try {
       await sendNewEmailOtp({ newEmail });
       setCooldownNew(60);
-    } catch (err: any)      {
-      setError(err.message || "Failed to resend OTP.");
+    } catch (err: unknown)      {
+      setError(extractErrorMessage(err) || "Failed to resend OTP.");
     } finally {
       setLoading(false);
     }
@@ -164,8 +165,8 @@ export default function ChangeEmailForm({
       }
       setSuccess(true);
       setTimeout(() => onSuccess(), 1500);
-    } catch (err: any) {
-      setError(err.message || "Invalid OTP or expired code.");
+    } catch (err: unknown) {
+      setError(extractErrorMessage(err) || "Invalid OTP or expired code.");
       setNewEmailOtp("");
     } finally {
       setLoading(false);

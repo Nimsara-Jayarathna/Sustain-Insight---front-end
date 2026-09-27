@@ -1,9 +1,9 @@
 // src/context/contextBridge.ts
-import { useAuthContext } from "./AuthContext";
+import type { AuthContextValue } from "./authContextValue";
 
-let authRef: ReturnType<typeof useAuthContext> | null = null;
+let authRef: AuthContextValue | null = null;
 
-export const setAuthContextRef = (ctx: ReturnType<typeof useAuthContext>) => {
+export const setAuthContextRef = (ctx: AuthContextValue) => {
   authRef = ctx;
 };
 

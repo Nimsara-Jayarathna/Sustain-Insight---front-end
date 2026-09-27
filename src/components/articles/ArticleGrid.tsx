@@ -1,8 +1,9 @@
 import React, { useMemo } from "react";
 import ArticleCard from "./ArticleCard";
+import type { Article } from "../../types/domain";
 
 type ArticleGridProps = {
-  articles: any[];
+  articles: Article[];
   isLoading?: boolean; // ✅ New optional prop
   variant?: "landing" | "dashboard";
   mode?: "grid" | "carousel";
@@ -56,6 +57,7 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
   speed = 50,
   disablePopup = false,
 }) => {
+  const loopArticles = useMemo(() => [...articles, ...articles], [articles]);
   // --- 3. The main component logic ---
   
   // If we are in a loading state, render the appropriate skeleton layout.
@@ -88,7 +90,6 @@ const ArticleGrid: React.FC<ArticleGridProps> = ({
 
   // If not loading, and there are articles, render them.
   if (mode === "carousel") {
-    const loopArticles = useMemo(() => [...articles, ...articles], [articles]);
     return (
       <div className="relative w-full overflow-hidden" style={{ maskImage: "linear-gradient(to right, transparent, black 5%, black 95%, transparent)" }}>
         <div className="flex animate-scroll gap-6 lg:gap-8" style={{ animationDuration: `${(loopArticles.length * 300) / speed}s` }}>

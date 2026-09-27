@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useAuthContext } from "../../context/AuthContext";
+import { useAuthContext } from "../../hooks/useAuthContext";
 import ThemeToggleButton from "../common/ThemeToggleButton";
 
 type Props =

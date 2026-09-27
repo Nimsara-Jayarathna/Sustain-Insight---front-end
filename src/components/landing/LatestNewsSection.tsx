@@ -1,9 +1,10 @@
 // import React from "react";
 import ArticleGrid from "../articles/ArticleGrid";
 import ArticleRotator from "../articles/ArticleRotator"; // ✅ 1. Import the new Rotator component
+import type { Article } from "../../types/domain";
 
 type LatestNewsSectionProps = {
-  articles: any[];
+  articles: Article[];
   isLoading: boolean;
   disablePopup?: boolean;
   onRequireAuth?: () => void;

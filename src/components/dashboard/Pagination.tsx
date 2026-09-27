@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect} from 'react';
+import React, { useCallback, useMemo, useEffect} from 'react';
 
 // This custom hook calculates which page numbers to display, including ellipses.
 // It's the perfect logic for the desktop view and remains unchanged.
@@ -20,19 +20,19 @@ const usePagination = ({ totalPages, currentPage, siblingCount = 1 }: { totalPag
     const lastPageIndex = totalPages;
 
     if (!shouldShowLeftDots && shouldShowRightDots) {
-      let leftItemCount = 3 + 2 * siblingCount;
-      let leftRange = Array.from({ length: leftItemCount }, (_, i) => i + 1);
+      const leftItemCount = 3 + 2 * siblingCount;
+      const leftRange = Array.from({ length: leftItemCount }, (_, i) => i + 1);
       return [...leftRange, '...', totalPages];
     }
 
     if (shouldShowLeftDots && !shouldShowRightDots) {
-      let rightItemCount = 3 + 2 * siblingCount;
-      let rightRange = Array.from({ length: rightItemCount }, (_, i) => totalPages - rightItemCount + i + 1);
+      const rightItemCount = 3 + 2 * siblingCount;
+      const rightRange = Array.from({ length: rightItemCount }, (_, i) => totalPages - rightItemCount + i + 1);
       return [firstPageIndex, '...', ...rightRange];
     }
 
     if (shouldShowLeftDots && shouldShowRightDots) {
-      let middleRange = Array.from({ length: rightSiblingIndex - leftSiblingIndex + 1 }, (_, i) => leftSiblingIndex + i);
+      const middleRange = Array.from({ length: rightSiblingIndex - leftSiblingIndex + 1 }, (_, i) => leftSiblingIndex + i);
       return [firstPageIndex, '...', ...middleRange, '...', lastPageIndex];
     }
 
@@ -50,8 +50,6 @@ type PaginationProps = {
 };
 
 const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
-  if (totalPages <= 1) return null;
-
   const paginationRange = usePagination({ currentPage, totalPages });
 
   const jumpToTop = () => {
@@ -60,10 +58,10 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
     }
   };
 
-  const changePage = (page: number) => {
+  const changePage = useCallback((page: number) => {
     onPageChange(page);
     jumpToTop();
-  };
+  }, [onPageChange]);
 
   const onNext = () => changePage(currentPage + 1);
   const onPrevious = () => changePage(currentPage - 1);
@@ -79,7 +77,9 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
     };
     window.addEventListener("keydown", handleKeydown);
     return () => window.removeEventListener("keydown", handleKeydown);
-  }, [currentPage, totalPages]);
+  }, [changePage, currentPage, totalPages]);
+
+  if (totalPages <= 1) return null;
 
   return (
     <nav

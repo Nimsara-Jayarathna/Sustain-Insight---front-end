@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { apiFetch } from "../../utils/api";
 import ArticleThumbnail from "./ArticleThumbnail";
 import ArticleSource from "./ArticleSource";
@@ -63,6 +63,10 @@ const ArticleModal: React.FC<ArticleModalProps> = ({
   const [rawContent, setRawContent] = useState<string | null>(article.content || null);
   const [loading, setLoading] = useState(!article.content);
   const [show, setShow] = useState(false);
+  const handleClose = useCallback(() => {
+    setShow(false);
+    setTimeout(onClose, 300);
+  }, [onClose]);
   
   // ✅ Use useMemo to format the content only when it changes.
   const formattedParagraphs = useMemo(() => formatContentIntoParagraphs(rawContent), [rawContent]);
@@ -79,7 +83,7 @@ const ArticleModal: React.FC<ArticleModalProps> = ({
     };
     document.addEventListener("keydown", handleEsc);
     return () => document.removeEventListener("keydown", handleEsc);
-  }, [onClose]);
+  }, [handleClose]);
 
   useEffect(() => {
     if (!article.id || article.content) {
@@ -87,7 +91,7 @@ const ArticleModal: React.FC<ArticleModalProps> = ({
       return;
     }
     setLoading(true);
-    apiFetch(`/api/articles/${article.id}/content`)
+    apiFetch<{ content?: string }>(`/api/articles/${article.id}/content`)
       .then((data) => {
         setRawContent(data.content || "This article seems to be empty.");
       })
@@ -96,11 +100,6 @@ const ArticleModal: React.FC<ArticleModalProps> = ({
       })
       .finally(() => setLoading(false));
   }, [article.id, article.content]);
-
-  const handleClose = () => {
-    setShow(false);
-    setTimeout(onClose, 300);
-  };
 
   return (
     <div

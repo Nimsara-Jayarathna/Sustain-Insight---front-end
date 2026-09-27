@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import AuthLoadingOverlay from "../ui/AuthLoadingOverlay";
 import GradientSpinner from "../ui/GradientSpinner";
 import { useAuthHandlers } from "../../hooks/useAuthHandlers";
+import { extractErrorMessage } from "../../utils/errorHandler";
 
 export default function LoginForm({
   onSubmit,
@@ -58,11 +59,14 @@ export default function LoginForm({
       navigate("/dashboard", { replace: true });
       setLoading(false);
     }, 800); // Slightly shorter delay for smoother UX
-  } catch (err: any) {
-    const msg = err?.message || "Invalid email or password.";
+  } catch (err: unknown) {
+    const msg = extractErrorMessage(err) || "Invalid email or password.";
+    const code = typeof err === "object" && err !== null && "code" in err
+      ? (err as { code?: unknown }).code
+      : undefined;
 
     // 📩 Handle unverified email case
-    if (err.code === "EMAIL_NOT_VERIFIED" || msg.includes("not been verified")) {
+    if (code === "EMAIL_NOT_VERIFIED" || msg.includes("not been verified")) {
       setShowResend(true);
       setError("Your email is not verified. Please verify to continue.");
     } else {
@@ -84,8 +88,8 @@ export default function LoginForm({
       setCooldown(60); // Set a 60-second cooldown
       // Hide the success message after 2.5 seconds
       setTimeout(() => setResendSuccess(false), 2500);
-    } catch (err: any) {
-      setError(err?.message || "Failed to resend verification email.");
+    } catch (err: unknown) {
+      setError(extractErrorMessage(err) || "Failed to resend verification email.");
     } finally {
       setResendLoading(false);
     }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import AuthLoadingOverlay from "../ui/AuthLoadingOverlay";
 import GradientSpinner from "../ui/GradientSpinner";
+import { extractErrorMessage } from "../../utils/errorHandler";
 
 const RESEND_COOLDOWN = 120; // 2 minutes
 const COOLDOWN_KEY = "forgotPasswordCooldown";
@@ -56,8 +57,8 @@ export default function ForgotPasswordForm({
       setTimeout(() => {
         onSwitch("login");
       }, 2000);
-    } catch (err: any) {
-      const msg = err.message || "Failed to send reset link. Please try again.";
+    } catch (err: unknown) {
+      const msg = extractErrorMessage(err) || "Failed to send reset link. Please try again.";
       setError(msg);
       setLoading(false);
 

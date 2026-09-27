@@ -68,38 +68,21 @@ export interface RawSession {
 }
 
 export const getSessions = async (): Promise<RawSession[]> => {
-  try {
-    const response = await apiFetch("/api/sessions", {
-      method: "GET",
-    });
+  const response = await apiFetch<RawSession[] | { sessions?: RawSession[] }>(
+    "/api/sessions",
+    { method: "GET" },
+  );
 
-    if (Array.isArray(response)) return response;
-    if (Array.isArray((response as { sessions?: RawSession[] }).sessions)) {
-      return (response as { sessions: RawSession[] }).sessions;
-    }
+  if (Array.isArray(response)) return response;
+  if (Array.isArray(response.sessions)) return response.sessions;
 
-    return [];
-  } catch (error) {
-    throw error;
-  }
+  return [];
 };
 
 export const logoutSession = async (sessionId: string) => {
-  try {
-    await apiFetch(`/api/sessions/${sessionId}`, {
-      method: "DELETE",
-    });
-  } catch (error) {
-    throw error;
-  }
+  await apiFetch(`/api/sessions/${sessionId}`, { method: "DELETE" });
 };
 
 export const logoutAllSessions = async () => {
-  try {
-    await apiFetch("/api/sessions/all", {
-      method: "DELETE",
-    });
-  } catch (error) {
-    throw error;
-  }
+  await apiFetch("/api/sessions/all", { method: "DELETE" });
 };

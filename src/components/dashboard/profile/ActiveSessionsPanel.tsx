@@ -2,7 +2,8 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getSessions, logoutAllSessions, logoutSession } from "../../../api/sessions";
 import type { RawSession } from "../../../api/sessions";
-import { useAuthContext } from "../../../context/AuthContext";
+import { useAuthContext } from "../../../hooks/useAuthContext";
+import { extractErrorMessage } from "../../../utils/errorHandler";
 import ActionStatusOverlay from "../../ui/ActionStatusOverlay";
 
 type OverlayStatus = {
@@ -322,8 +323,8 @@ export const ActiveSessionsPanel: React.FC = () => {
         const rawSessions = await getSessions();
         const normalizedSessions = rawSessions.map(normalizeSession);
         setSessions(normalizedSessions);
-      } catch (err: any) {
-        const message = err?.message || "Unable to load sessions.";
+      } catch (err: unknown) {
+        const message = extractErrorMessage(err) || "Unable to load sessions.";
         if (message.toLowerCase().includes("session expired")) {
           await handleSessionExpired();
           return;
@@ -358,8 +359,8 @@ export const ActiveSessionsPanel: React.FC = () => {
           status: "success",
           message: "Session logged out successfully.",
         });
-      } catch (err: any) {
-        const message = err?.message || "Failed to log out the session.";
+      } catch (err: unknown) {
+        const message = extractErrorMessage(err) || "Failed to log out the session.";
         if (message.toLowerCase().includes("session expired")) {
           await handleSessionExpired();
           return;
@@ -388,9 +389,9 @@ export const ActiveSessionsPanel: React.FC = () => {
         status: "success",
         message: "Logged out from all devices.",
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       const message =
-        err?.message || "Failed to log out from all active sessions.";
+        extractErrorMessage(err) || "Failed to log out from all active sessions.";
       if (message.toLowerCase().includes("session expired")) {
         await handleSessionExpired();
         return;

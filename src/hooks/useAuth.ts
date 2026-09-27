@@ -1,5 +1,5 @@
 // src/hooks/useAuth.ts
-import { useAuthContext } from "../context/AuthContext";
+import { useAuthContext } from "./useAuthContext";
 
 export const useAuth = () => {
   const { user, token, loading, isAuthenticated, login, logout } = useAuthContext();

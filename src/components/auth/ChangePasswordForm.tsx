@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import AuthLoadingOverlay from '../ui/AuthLoadingOverlay';
 // Import BOTH API functions
 import { verifyPassword, changePassword } from '../../api/user';
+import { extractErrorMessage } from '../../utils/errorHandler';
 
 export default function ChangePasswordForm({
   onSuccess,
@@ -37,9 +38,9 @@ export default function ChangePasswordForm({
       await verifyPassword({ currentPassword });
       // If the call succeeds, we move to the next step
       setStep('update');
-    } catch (err: any) {
+    } catch (err: unknown) {
       // If the call fails, we show the error and stay on the current step
-      setError(err.message || 'Incorrect password. Please try again.');
+      setError(extractErrorMessage(err) || 'Incorrect password. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -68,9 +69,9 @@ export default function ChangePasswordForm({
       setTimeout(() => {
         onSuccess();
       }, 1500);
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Should be rare, but if it fails here, show the error
-      setError(err.message || 'An unexpected error occurred.');
+      setError(extractErrorMessage(err) || 'An unexpected error occurred.');
     } finally {
       setLoading(false);
     }

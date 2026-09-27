@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import DashboardPage from "./pages/DashboardPage";
-import { useAuthContext } from "./context/AuthContext";
+import { useAuthContext } from "./hooks/useAuthContext";
 import AuthLoadingOverlay from "./components/ui/AuthLoadingOverlay";
 import ActionStatusOverlay from "./components/ui/ActionStatusOverlay";
 

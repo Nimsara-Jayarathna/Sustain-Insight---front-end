@@ -1,5 +1,5 @@
 // src/context/AuthContext.tsx
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { apiFetch, setAccessToken } from "../utils/api";
 import { extractErrorMessage } from "../utils/errorHandler";
 import {
@@ -7,26 +7,12 @@ import {
   logout as apiLogout,
   refreshAccessToken,
 } from "../api/auth";
+import { AuthContext, type AuthUser } from "./authContextValue";
 
-type User = { firstName: string; lastName: string; email: string };
-type RefreshResponse = { accessToken: string } & Partial<User>;
-
-type AuthContextType = {
-  user: User | null;
-  token: string | null;
-  loading: boolean;
-  isAuthenticated: boolean;
-  sessionExpired: boolean;
-  setSessionExpired: (v: boolean) => void;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-  refreshUser: () => Promise<void>;
-};
-
-const AuthContext = createContext<AuthContextType | null>(null);
+type RefreshResponse = { accessToken: string } & Partial<AuthUser>;
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [sessionExpired, setSessionExpired] = useState(false);
@@ -36,7 +22,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   //
   const refreshUser = async () => {
     try {
-      const profile = await apiFetch("/api/account/me");
+      const profile = await apiFetch<AuthUser>("/api/account/me");
       setUser({
         firstName: profile.firstName,
         lastName: profile.lastName,
@@ -77,7 +63,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     tryRefresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   //
@@ -136,14 +121,4 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       {children}
     </AuthContext.Provider>
   );
-};
-
-//
-// 🔹 Hook for Access
-//
-export const useAuthContext = () => {
-  const ctx = useContext(AuthContext);
-  if (!ctx)
-    throw new Error("❌ useAuthContext must be used inside <AuthProvider>");
-  return ctx;
 };

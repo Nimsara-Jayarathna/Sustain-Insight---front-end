@@ -12,20 +12,7 @@ import ArticleSummary from "./ArticleSummary";
 import ArticleTitle from "./ArticleTitle";
 import ArticleCategories from "./ArticleCategories";
 import ArticleFooter from "./ArticleFooter";
-
-type Article = {
-  id: number | string;
-  title: string;
-  summary?: string;
-  content?: string;
-  imageUrl?: string;
-  publishedAt?: string;
-  sources?: string[];
-  categories?: string[];
-  bookmarked?: boolean;
-  insighted?: boolean;
-  insightCount?: number;
-};
+import type { Article } from "../../types/domain";
 
 type ArticleCardProps = {
   article: Article;
@@ -58,7 +45,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({
     // Only run if: it's the dashboard, we don't already have content, and there's an ID.
     if (variant === 'dashboard' && !articleData.content && articleData.id) {
       try {
-        const data = await apiFetch(`/api/articles/${articleData.id}/content`);
+        const data = await apiFetch<{ content?: string }>(`/api/articles/${articleData.id}/content`);
         // Update the state with the new content so the modal can use it instantly
         setArticleData(prev => ({ ...prev, content: data.content || "" }));
       } catch {
